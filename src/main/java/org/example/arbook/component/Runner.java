@@ -37,7 +37,7 @@ public class Runner implements CommandLineRunner {
                                 .lastName("Holden")
                                 .phoneNumber("998901234567")
                                 .email("nick@gmail.com")
-                                .password(passwordEncoder.encode("1234567Sk"))
+                                .password(passwordEncoder.encode("1234567Nh"))
                                 .isActive(true)
                                 .roles(roles)
                                 .build()

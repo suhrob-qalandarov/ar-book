@@ -7,7 +7,6 @@ import org.example.arbook.model.dto.request.RegisterReq;
 import org.example.arbook.model.dto.request.VerifyPhoneReq;
 import org.example.arbook.model.dto.response.LogInResDTO;
 import org.example.arbook.service.interfaces.AuthService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
