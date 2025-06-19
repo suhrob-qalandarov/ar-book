@@ -1,9 +1,6 @@
 package org.example.arbook.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +16,7 @@ import org.example.arbook.model.base.BaseEntity;
 @Entity
 @Table(name = "page_contents")
 public class PageContent extends BaseEntity {
-
+    @Column(columnDefinition = "TEXT")
     private String text;
 
     @OneToOne

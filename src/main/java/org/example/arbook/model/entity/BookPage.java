@@ -20,7 +20,7 @@ import java.util.List;
 public class BookPage extends BaseEntity {
 
     @OneToOne
-    private Attachment marker;
+    private Attachment markerPhoto;
 
     @OneToOne
     private Attachment file3D;
