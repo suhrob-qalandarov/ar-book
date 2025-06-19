@@ -34,8 +34,7 @@ public class AuthController {
     @PostMapping(REGISTER)
     public ResponseEntity<?> register(@Valid @RequestBody RegisterReq registerReq) {
         authService.register(registerReq);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "Successfully sent code"));
+        return ResponseEntity.ok(Map.of("message", "Successfully sent code"));
     }
 
     @PostMapping(VERIFY)

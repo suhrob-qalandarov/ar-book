@@ -6,7 +6,9 @@ import org.example.arbook.config.security.JwtService;
 import org.example.arbook.model.dto.request.LogInDTO;
 import org.example.arbook.model.dto.request.RegisterReq;
 import org.example.arbook.model.dto.response.LogInResDTO;
+import org.example.arbook.model.entity.Role;
 import org.example.arbook.model.entity.User;
+import org.example.arbook.repository.RoleRepository;
 import org.example.arbook.repository.UserRepository;
 import org.example.arbook.service.interfaces.AuthService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.Random;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
 
     @Override
@@ -73,6 +76,8 @@ public class AuthServiceImpl implements AuthService {
         String verificationCode = generateVerificationCode();
         System.err.println("Generated SMS code: " + verificationCode);
 
+        List<Role> roles = roleRepository.findAll();
+
         // Map DTO to entity
         User user = User.builder()
                 .firstName(registerReq.firstName())
@@ -80,6 +85,7 @@ public class AuthServiceImpl implements AuthService {
                 .phoneNumber(registerReq.phoneNumber())
                 .password(passwordEncoder.encode(registerReq.password()))
                 .verificationCode(verificationCode)
+                .roles(roles.stream().findFirst().stream().toList())
                 .isActive(false)
                 .build();
 

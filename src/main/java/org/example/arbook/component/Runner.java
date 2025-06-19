@@ -24,25 +24,25 @@ public class Runner implements CommandLineRunner {
 
     @Override
     public void run(String... args)  {
-        if (roleRepository.findAll().isEmpty()) {
+        if (roleRepository.count() == 0) {
             List<Role> roles = roleRepository.saveAll(
                     List.of(
-                            new Role(Roles.ROLE_ADMIN),
-                            new Role(Roles.ROLE_USER)
+                            new Role(Roles.ROLE_USER),
+                            new Role(Roles.ROLE_ADMIN)
                     ));
-            if (userRepository.findAll().isEmpty()) {
+            if (userRepository.count() == 0) {
                 userRepository.save(
                         User.builder()
                                 .firstName("Nick")
                                 .lastName("Holden")
-                                .phoneNumber("1")
-                                .password(passwordEncoder.encode("1"))
+                                .phoneNumber("998901234567")
+                                .email("nick@gmail.com")
+                                .password(passwordEncoder.encode("1234567Sk"))
+                                .isActive(true)
                                 .roles(roles)
                                 .build()
                 );
-
             }
         }
-
     }
 }
