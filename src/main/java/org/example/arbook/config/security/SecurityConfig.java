@@ -1,4 +1,4 @@
-package org.example.arbook.config;
+package org.example.arbook.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
