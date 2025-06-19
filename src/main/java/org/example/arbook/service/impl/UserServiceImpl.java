@@ -1,7 +1,7 @@
 package org.example.arbook.service.impl;
 
-import lombok.Setter;
+import org.springframework.stereotype.Service;
 
-@Setter
+@Service
 public class UserServiceImpl {
 }

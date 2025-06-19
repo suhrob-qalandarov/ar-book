@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.arbook.model.base.BaseEntity;
 import org.example.arbook.model.enums.Roles;
+import org.springframework.security.core.GrantedAuthority;
 
 @Getter
 @Setter
@@ -19,8 +20,12 @@ import org.example.arbook.model.enums.Roles;
 @SuperBuilder
 @Entity
 @Table(name = "roles")
-public class Role extends BaseEntity {
+public class Role extends BaseEntity  implements GrantedAuthority {
     @Enumerated(EnumType.STRING)
     private Roles roleName;
 
+    @Override
+    public String getAuthority() {
+        return this.roleName.name();
+    }
 }
