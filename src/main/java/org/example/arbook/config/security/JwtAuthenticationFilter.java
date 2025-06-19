@@ -1,4 +1,4 @@
-package org.example.arbook.config;
+package org.example.arbook.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

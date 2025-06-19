@@ -1,4 +1,4 @@
-package org.example.arbook.config;
+package org.example.arbook.config.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
