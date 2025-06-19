@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.arbook.model.base.BaseEntity;
-import org.example.arbook.model.enums.AttachmentType;
+import org.example.arbook.model.enums.ContentType;
 
 @Getter
 @Setter
@@ -24,5 +24,5 @@ public class Attachment extends BaseEntity {
     private String fileUrl;
 
     @Enumerated(EnumType.STRING)
-    private AttachmentType attachmentType;
+    private ContentType contentType;
 }
