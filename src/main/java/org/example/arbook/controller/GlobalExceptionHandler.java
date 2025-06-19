@@ -57,11 +57,24 @@ public class GlobalExceptionHandler {
         switch (message) {
             case "Passwords do not match" -> fieldErrors.put("confirmPassword", "Passwords do not match");
             case "Phone number already registered" -> fieldErrors.put("phoneNumber", "Phone number already registered");
+            case "User not found" -> fieldErrors.put("phoneNumber", "User not found");
+            case "Invalid verification code" -> fieldErrors.put("code", "Invalid verification code");
+            case "Phone number already verified" -> fieldErrors.put("phoneNumber", "Phone number already verified");
             default -> fieldErrors.put("general", message);
         }
         response.put("fieldErrors", fieldErrors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalStateException(IllegalStateException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        response.put("error", "Internal Server Error");
+        response.put("message", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
