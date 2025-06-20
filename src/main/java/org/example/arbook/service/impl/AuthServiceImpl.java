@@ -3,9 +3,8 @@ package org.example.arbook.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.config.security.JwtService;
-import org.example.arbook.model.dto.request.LogInDTO;
+import org.example.arbook.model.dto.request.LoginReq;
 import org.example.arbook.model.dto.request.RegisterReq;
-import org.example.arbook.model.dto.response.LogInResDTO;
 import org.example.arbook.model.entity.Role;
 import org.example.arbook.model.entity.User;
 import org.example.arbook.repository.RoleRepository;
@@ -33,26 +32,31 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public LogInResDTO logIn(LogInDTO logInDTO) {
-        UsernamePasswordAuthenticationToken auth = null;
-        try {
-            auth = new UsernamePasswordAuthenticationToken(
-                    logInDTO.getPhoneNumber(), logInDTO.getPassword()
-            );
-            authenticationManager.authenticate(auth);
-            String token = jwtService.generateToken(logInDTO.getPhoneNumber());
-            return new LogInResDTO(token, " Logged In successfully");
-        } catch (DisabledException e) {
-            return new LogInResDTO(null, "Account is not active");
-        } catch (BadCredentialsException e) {
-            return new LogInResDTO(null, "Invalid Phone number or Password");
-        } catch (UsernameNotFoundException e) {
-            return new LogInResDTO(null, "User not found");
-        } catch (Exception e) {
-            return new LogInResDTO(null, "Login failed");
+    @Transactional
+    public String logIn(LoginReq loginReq) {
+        // Verify user exists
+        User user = userRepository.findByPhoneNumberOptional(loginReq.phoneNumber())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + loginReq.phoneNumber()));
+
+        // Check if user is active
+        if (!user.isEnabled()) {
+            throw new DisabledException("User account is disabled");
         }
 
+        try {
+            // Perform authentication
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    loginReq.phoneNumber(), loginReq.password()
+            );
+            authenticationManager.authenticate(authToken);
+        } catch (BadCredentialsException e) {
+            throw new IllegalArgumentException("Invalid phone number or password");
+        } catch (DisabledException e) {
+            throw new DisabledException("User account is disabled");
+        }
 
+        // Generate JWT token
+        return jwtService.generateToken(loginReq.phoneNumber());
     }
 
     /**

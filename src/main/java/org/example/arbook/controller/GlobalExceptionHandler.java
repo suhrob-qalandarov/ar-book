@@ -3,6 +3,9 @@ package org.example.arbook.controller;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,6 +45,60 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles invalid credentials during authentication.
+     */
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleBadCredentialsException(BadCredentialsException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.UNAUTHORIZED.value());
+        response.put("error", "Unauthorized");
+        response.put("message", "Invalid phone number or password");
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("credentials", "Invalid phone number or password");
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    /**
+     * Handles disabled user accounts during authentication.
+     */
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Map<String, Object>> handleDisabledException(DisabledException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.FORBIDDEN.value());
+        response.put("error", "Forbidden");
+        response.put("message", "User account is disabled");
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("account", "User account is disabled");
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Handles cases where the user is not found during authentication.
+     */
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", "User not found");
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("phoneNumber", "User not found");
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    /**
      * Handles business logic errors thrown by services.
      */
     @ExceptionHandler(IllegalArgumentException.class)
@@ -60,21 +117,13 @@ public class GlobalExceptionHandler {
             case "User not found" -> fieldErrors.put("phoneNumber", "User not found");
             case "Invalid verification code" -> fieldErrors.put("code", "Invalid verification code");
             case "Phone number already verified" -> fieldErrors.put("phoneNumber", "Phone number already verified");
+            case "Invalid phone number or password" ->
+                    fieldErrors.put("credentials", "Invalid phone number or password");
             default -> fieldErrors.put("general", message);
         }
         response.put("fieldErrors", fieldErrors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalStateException(IllegalStateException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.put("error", "Internal Server Error");
-        response.put("message", ex.getMessage());
-        response.put("timestamp", LocalDateTime.now().format(formatter));
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**

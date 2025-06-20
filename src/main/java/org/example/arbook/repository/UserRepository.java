@@ -13,6 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByPhoneNumber(String phoneNumber);
 
     @Query(value = "SELECT * FROM users WHERE phone_number = :phoneNumber", nativeQuery = true)
-    Optional<User> findByPhoneNumberOptional(@Param("phoneNumber") String phoneNumber);
+    Optional<User>  findByPhoneNumberOptional(@Param("phoneNumber") String phoneNumber);
 
 }
