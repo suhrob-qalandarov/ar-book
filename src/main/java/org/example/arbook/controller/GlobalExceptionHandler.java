@@ -117,6 +117,8 @@ public class GlobalExceptionHandler {
             case "User not found" -> fieldErrors.put("phoneNumber", "User not found");
             case "Invalid verification code" -> fieldErrors.put("code", "Invalid verification code");
             case "Phone number already verified" -> fieldErrors.put("phoneNumber", "Phone number already verified");
+            case "SMS code cannot be empty" -> fieldErrors.put("code", "SMS code cannot be empty");
+            case "SMS code must be a 6 digit number" -> fieldErrors.put("code", "SMS code must be a 6 digit number");
             case "Invalid phone number or password" ->
                     fieldErrors.put("credentials", "Invalid phone number or password");
             default -> fieldErrors.put("general", message);
