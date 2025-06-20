@@ -67,7 +67,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:8080"); // Explicitly allow Swagger UI origin
+        configuration.addAllowedOrigin("http://13.53.39.188"); // Explicitly allow Swagger UI origin
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(false); // Disable credentials for local testing
