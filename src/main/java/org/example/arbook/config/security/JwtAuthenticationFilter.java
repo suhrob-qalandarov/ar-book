@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.arbook.model.entity.User;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -43,5 +44,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request,response);
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        return HttpMethod.OPTIONS.matches(method)
+               || path.startsWith("/swagger-ui")
+               || path.startsWith("/v3/api-docs")
+               || path.startsWith("/swagger-ui.html")
+               || path.startsWith("/api/v1/auth/login")
+               || path.startsWith("/api/v1/auth/register")
+               || path.startsWith("/api/v1/auth/verify");
+    }
+
 
 }

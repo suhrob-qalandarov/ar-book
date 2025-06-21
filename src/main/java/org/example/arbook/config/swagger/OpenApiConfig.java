@@ -15,12 +15,10 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(title = "AR BOOK", version = "v1", description = "AR BOOK PROJECT"),
         servers = @Server(url = "http://localhost:8080"),
         security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
-
 )
 public class OpenApiConfig {
-
     @Bean
-    public OpenAPI customizeOpenAPl() {
+    public OpenAPI customizeOpenAPI() {
         final String SCHEME_NAME = "bearerAuth";
         return new OpenAPI()
                 .addSecurityItem(new SecurityRequirement().addList(SCHEME_NAME))
@@ -31,6 +29,7 @@ public class OpenApiConfig {
                                 .bearerFormat("JWT")
                 ));
     }
+
 
 //
 //    @Bean

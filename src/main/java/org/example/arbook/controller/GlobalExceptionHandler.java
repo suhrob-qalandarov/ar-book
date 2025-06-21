@@ -1,6 +1,8 @@
 package org.example.arbook.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -178,7 +180,16 @@ public class GlobalExceptionHandler {
      * Handles uncaught exceptions to prevent stack trace leaks.
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+    public ResponseEntity<Map<String, Object>> handleGenericException(HttpServletRequest request, Exception ex) {
+        // If it's a CORS preflight request — allow it
+        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
+            return ResponseEntity.ok()
+                    .header("Access-Control-Allow-Origin", "*")
+                    .header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS")
+                    .header("Access-Control-Allow-Headers", "*")
+                    .build();
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
         response.put("error", "Internal Server Error");
