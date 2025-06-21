@@ -1,5 +1,7 @@
 package org.example.arbook.model.enums;
 
 public enum BookStatus {
-    CREATED
+    CREATED,
+    INCOMPLETE,
+    COMPLETED
 }

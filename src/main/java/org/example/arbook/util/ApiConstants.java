@@ -8,5 +8,9 @@ public interface ApiConstants {
     String LOGIN = "/login";
     String REGISTER = "/register";
     String VERIFY = "/verify";
+    String USER = "/user";
+    String ADMIN = "/admin";
+    String BOOK = "/book";
+    String BOOKS = "/books";
 }
 

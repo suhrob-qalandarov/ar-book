@@ -1,10 +1,7 @@
 package org.example.arbook.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.arbook.model.base.BaseEntity;
 import org.example.arbook.model.enums.BookStatus;
@@ -19,10 +16,12 @@ import org.example.arbook.model.enums.BookStatus;
 public class Book extends BaseEntity {
 
     private String title;
+    private String description;
     private Integer totalPages;
     private Short totalLanguages;
     @Enumerated(EnumType.STRING)
-    private BookStatus status;
+    @Builder.Default
+    private BookStatus status=BookStatus.CREATED;
     @ManyToOne
     private Category category;
     @ManyToOne
