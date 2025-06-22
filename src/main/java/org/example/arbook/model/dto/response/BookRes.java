@@ -6,7 +6,7 @@ public record BookRes(
         Long id,
         String description,
         Integer totalPages,
-        Short totalLanguages,
+        Integer totalLanguages,
         BookStatus status,
         String attachmentUrl
         ) {

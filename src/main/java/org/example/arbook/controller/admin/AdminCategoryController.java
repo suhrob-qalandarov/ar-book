@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.CategoryReq;
+import org.example.arbook.model.dto.request.CategoryUpdateReq;
 import org.example.arbook.model.entity.Category;
 import org.example.arbook.service.interfaces.admin.AdminCategoryService;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,7 @@ public class AdminCategoryController {
             @ApiResponse(responseCode = CODE_404, description = CATEGORY_NOT_FOUND)
     })
     @GetMapping("/{categoryId}")
-    public ResponseEntity<Category> getCategory(@RequestParam Long categoryId){
+    public ResponseEntity<Category> getCategory(@PathVariable Long categoryId){
         Category category = adminCategoryService.getCategory(categoryId);
         return ResponseEntity.ok(category);
     }
@@ -53,9 +54,9 @@ public class AdminCategoryController {
             @ApiResponse(responseCode = CODE_400, description = CATEGORY_EXIST)
     })
     @PostMapping
-    public ResponseEntity<Void> addCategory(@Valid @RequestBody CategoryReq categoryReq) {
-        adminCategoryService.addCategory(categoryReq);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Category> addCategory(@Valid @RequestBody CategoryReq categoryReq) {
+       Category category= adminCategoryService.addCategory(categoryReq);
+        return ResponseEntity.status(HttpStatus.CREATED).body(category);
     }
 
     @Operation(summary = UPDATE_CATEGORY_SUMMARY, responses = {
@@ -63,11 +64,12 @@ public class AdminCategoryController {
             @ApiResponse(responseCode = CODE_404, description = CATEGORY_NOT_FOUND),
             @ApiResponse(responseCode = CODE_400, description = CATEGORY_EXIST)
     })
+
     @PutMapping("/{categoryId}")
     public ResponseEntity<Void> updateCategory(
             @PathVariable Long categoryId,
-            @Valid @RequestBody CategoryReq categoryReq) {
-        adminCategoryService.updateCategory(categoryId, categoryReq);
+            @Valid @RequestBody CategoryUpdateReq categoryUpdateReq) {
+        adminCategoryService.updateCategory(categoryId, categoryUpdateReq);
         return ResponseEntity.ok().build();
     }
 }

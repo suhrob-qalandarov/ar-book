@@ -1,5 +1,6 @@
 package org.example.arbook.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.LoginReq;
@@ -22,6 +23,7 @@ import static org.example.arbook.util.ApiConstants.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(API + V1 + AUTH)
+@Tag(name = "Authorization Controller",description = "Login//Logout/Register/Verify phone number endpoints for all")
 public class AuthController {
 
     private final AuthService authService;

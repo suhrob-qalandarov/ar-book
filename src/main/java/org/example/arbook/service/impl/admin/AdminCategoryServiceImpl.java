@@ -3,6 +3,7 @@ package org.example.arbook.service.impl.admin;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.CategoryReq;
+import org.example.arbook.model.dto.request.CategoryUpdateReq;
 import org.example.arbook.model.entity.Category;
 import org.example.arbook.repository.CategoryRepository;
 import org.example.arbook.service.interfaces.admin.AdminCategoryService;
@@ -30,39 +31,38 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     @Transactional
-    public void addCategory(CategoryReq categoryReq) {
+    public Category addCategory(CategoryReq categoryReq) {
         if (categoryRepository.existsByName(categoryReq.name())) {
             throw new IllegalArgumentException("Category already exists with name: " + categoryReq.name());
         }
         Category category = convertToCategory(categoryReq);
-        Category savedCategory = categoryRepository.save(category);
+       return categoryRepository.save(category);
     }
 
     @Override
     @Transactional
-    public void updateCategory(Long id, CategoryReq categoryReq) {
+    public void updateCategory(Long id, CategoryUpdateReq categoryUpdateReq) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Category not found with id: " + id));
 
-        if (!categoryReq.name().trim().equals(existingCategory.getName()) &&
-                categoryRepository.existsByName(categoryReq.name().trim())
+        if (!categoryUpdateReq.name().trim().equals(existingCategory.getName()) &&
+                categoryRepository.existsByName(categoryUpdateReq.name().trim())
         ) {
-            throw new IllegalArgumentException("Category already exists with name: " + categoryReq.name());
+            throw new IllegalArgumentException("Category already exists with name: " + categoryUpdateReq.name());
         }
 
-        updateCategoryFields(existingCategory, categoryReq);
+        updateCategoryFields(existingCategory, categoryUpdateReq);
         categoryRepository.save(existingCategory);
     }
 
-    private void updateCategoryFields(Category category, CategoryReq categoryReq) {
-        if (!categoryReq.name().isBlank()) category.setName(categoryReq.name().trim());
-        category.setIsActive(categoryReq.isActive());
+    private void updateCategoryFields(Category category, CategoryUpdateReq categoryUpdateReq) {
+        if (!categoryUpdateReq.name().isBlank()) category.setName(categoryUpdateReq.name().trim());
+        category.setIsActive(categoryUpdateReq.isActive());
     }
 
     private Category convertToCategory(CategoryReq categoryReq) {
         Category category = new Category();
         if (!categoryReq.name().isBlank()) category.setName(categoryReq.name().trim());
-        category.setIsActive(categoryReq.isActive());
         return category;
     }
 }

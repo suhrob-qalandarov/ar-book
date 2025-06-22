@@ -1,7 +1,12 @@
 package org.example.arbook.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.arbook.exception.AttachmentNotFoundException;
+import org.example.arbook.exception.BookNotFoundException;
+import org.example.arbook.exception.CategoryNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
+import jakarta.validation.ConstraintViolationException; // Make sure this is the one you're using
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -198,4 +203,76 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    /**
+     * Handles custom exception when a category is not found.
+     */
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryNotFoundException(CategoryNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("categoryId", ex.getMessage());
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Handles custom exception when an attachment is not found.
+     */
+    @ExceptionHandler(AttachmentNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleAttachmentNotFoundException(AttachmentNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("attachmentId", ex.getMessage());
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(BookNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleAttachmentNotFoundException(BookNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("bookId", ex.getMessage());
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Bad Request");
+        response.put("message", "Validation failed");
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String field = violation.getPropertyPath().toString(); // e.g. "getOneBook.bookId"
+            String message = violation.getMessage(); // e.g. "must be greater than 0"
+            fieldErrors.put(field, message);
+        });
+
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
 }

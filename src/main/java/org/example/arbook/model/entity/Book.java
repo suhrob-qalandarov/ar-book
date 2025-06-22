@@ -18,10 +18,10 @@ public class Book extends BaseEntity {
     private String title;
     private String description;
     private Integer totalPages;
-    private Short totalLanguages;
+    private Integer totalLanguages;
     @Enumerated(EnumType.STRING)
     @Builder.Default
-    private BookStatus status=BookStatus.CREATED;
+    private BookStatus status=BookStatus.INCOMPLETE;
     @ManyToOne
     private Category category;
     @ManyToOne
