@@ -12,11 +12,11 @@ import java.util.List;
 @Service
 public interface AttachmentService {
 
-    Attachment uploadOne(MultipartFile file);
+    void uploadOne(MultipartFile file);
 
-    List<Attachment> uploadMultiple(MultipartFile[] files);
+    void uploadMultiple(MultipartFile[] files);
 
-    AttachmentRes update(Long attachmentId, MultipartFile file);
+    void update(Long attachmentId, MultipartFile file);
 
     void get(Long attachmentId, HttpServletResponse response) throws IOException;
 

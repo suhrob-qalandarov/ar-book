@@ -17,5 +17,7 @@ public interface ApiConstants {
 
     String CATEGORY = "/category";
     String CATEGORIES = "/categories";
+
+    String ATTACHMENT = "/attachment";
 }
 
