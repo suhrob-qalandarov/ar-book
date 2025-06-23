@@ -1,7 +1,6 @@
 package org.example.arbook.controller.admin;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -21,7 +20,8 @@ import static org.example.arbook.util.ApiConstants.*;
 
 @Tag(name = "Admin Book Controller", description = "API for managing books in the admin panel")
 @Validated
-@RestController(API + V1 + ADMIN + BOOK)
+@RestController
+@RequestMapping(API + V1 + ADMIN + BOOK)
 @RequiredArgsConstructor
 public class AdminBookController {
     private final AdminBookService adminBookService;

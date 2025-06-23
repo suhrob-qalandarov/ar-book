@@ -32,6 +32,7 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(auth ->
                 auth
+                        .requestMatchers("http://localhost:63342/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
@@ -74,6 +75,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("http://localhost:63342");
         configuration.addAllowedOrigin("http://13.53.39.188"); // Explicitly allow Swagger UI origin
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");

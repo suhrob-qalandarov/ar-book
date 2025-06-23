@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Phone | AR Book</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            width: 450px;
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        h4 {
+            color: #1e3a8a;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .form-label {
+            color: #1e40af;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+            padding: 0.75rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            outline: none;
+        }
+        .input-group-text {
+            background-color: #eff6ff;
+            border-radius: 8px 0 0 8px;
+            color: #1e40af;
+            font-weight: 500;
+        }
+        .invalid-feedback {
+            font-size: 0.85rem;
+            color: #dc2626;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-weight: 600;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(90deg, #1e40af 0%, #2563eb 100%);
+            transform: translateY(-2px);
+        }
+        .form-check-label {
+            color: #1e40af;
+            font-size: 0.9rem;
+        }
+        .form-check-input:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+<div class="card shadow-lg p-4">
+    <h4 class="text-center mb-4">Verify Phone Number</h4>
+    <form id="verifyForm" novalidate>
+        <div class="mb-3">
+            <label for="code" class="form-label">SMS Code</label>
+            <input type="text"
+                   class="form-control"
+                   id="code"
+                   placeholder="Enter 6-digit code"
+                   maxlength="6"
+                   inputmode="numeric"
+                   pattern="\d{6}"
+                   required
+                   autocomplete="one-time-code">
+            <div class="invalid-feedback" id="codeError"></div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Verify</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    const form = document.getElementById('verifyForm');
+    const codeInput = document.getElementById('code');
+    const codeError = document.getElementById('codeError');
+
+    // Allow only digits in the SMS code input
+    codeInput.addEventListener('input', () => {
+        codeInput.value = codeInput.value.replace(/\D/g, '');
+    });
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        // Clear validation classes
+        codeInput.classList.remove('is-invalid');
+        codeError.textContent = '';
+
+        const phoneNumber = localStorage.getItem('phoneNumber');
+        if (!phoneNumber) {
+            codeInput.classList.add('is-invalid');
+            codeError.textContent = 'Phone number not found. Please register again.';
+            setTimeout(() => {
+                codeInput.classList.remove('is-invalid');
+                codeError.textContent = '';
+            }, 5000);
+            return;
+        }
+
+        const payload = {
+            phoneNumber: phoneNumber,
+            code: codeInput.value.trim()
+        };
+
+        try {
+            const response = await axios.post('http://localhost:8080/api/v1/auth/verify', payload);
+            console.log(response.data);
+            alert('Phone number verified successfully!');
+            localStorage.removeItem('phoneNumber'); // Clean up localStorage
+            window.location.href = 'login.html'; // Redirect to login page
+        } catch (error) {
+            const errors = error?.response?.data?.fieldErrors || {};
+            Object.entries(errors).forEach(([field, message]) => {
+                const input = document.getElementById(field);
+                const errorDiv = document.getElementById(field + 'Error');
+                if (input && errorDiv) {
+                    input.classList.add('is-invalid');
+                    errorDiv.textContent = message;
+                    setTimeout(() => {
+                        input.classList.remove('is-invalid');
+                        errorDiv.textContent = '';
+                    }, 5000);
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

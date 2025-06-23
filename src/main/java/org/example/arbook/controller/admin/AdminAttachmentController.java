@@ -3,6 +3,7 @@ package org.example.arbook.controller.admin;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.arbook.service.interfaces.AttachmentService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,7 @@ public class AdminAttachmentController {
 
     private final AttachmentService attachmentService;
 
-    @PostMapping
+    @PostMapping( consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> uploadFile(@RequestParam("file") MultipartFile file) {
         System.out.println(file);
         log.debug("Uploading single file: {}", file.getOriginalFilename());
