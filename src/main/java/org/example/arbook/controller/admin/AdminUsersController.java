@@ -17,7 +17,7 @@ import java.util.List;
 import static org.example.arbook.util.ApiConstants.*;
 import static org.example.arbook.util.ExceptionCodes.CODE_200;
 
-@Tag(name = "Admin User Controller", description = "API for managing users in the admin panel")
+@Tag(name = "Admin Users Controller", description = "API for managing users in the admin panel")
 @Validated
 @RestController
 @RequiredArgsConstructor
