@@ -22,7 +22,7 @@ import static org.example.arbook.util.ApiConstants.*;
 
 @RestController
 @Validated
-@RequestMapping(API + V1 + USER + BOOK)
+@RequestMapping(API + V1 +  BOOK)
 @RequiredArgsConstructor
 @Tag(name = "User Book Controller" ,description = "User Book management endpoints")
 public class BookController {
