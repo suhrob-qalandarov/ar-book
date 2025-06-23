@@ -28,11 +28,11 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping(LOGIN)
-    public ResponseEntity<?> logIn(@Valid @RequestBody LoginReq loginReq) {
-        String token = authService.logIn(loginReq);
-        return ResponseEntity.ok(Map.of("token", token, "message", "Logged In Successfully"));
-    }
+            @PostMapping(LOGIN)
+            public ResponseEntity<?> logIn(@Valid @RequestBody LoginReq loginReq) {
+                String token = authService.logIn(loginReq);
+                return ResponseEntity.ok(Map.of("token", token, "message", "Logged In Successfully"));
+            }
 
     @PostMapping(REGISTER)
     public ResponseEntity<?> register(@Valid @RequestBody RegisterReq registerReq) {
