@@ -1,9 +1,12 @@
 package org.example.arbook.component;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.arbook.model.entity.Language;
 import org.example.arbook.model.entity.Role;
 import org.example.arbook.model.entity.User;
 import org.example.arbook.model.enums.Roles;
+import org.example.arbook.repository.LanguageRepository;
 import org.example.arbook.repository.RoleRepository;
 import org.example.arbook.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class Runner implements CommandLineRunner {
@@ -20,6 +24,7 @@ public class Runner implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final LanguageRepository languageRepository;
 
 
     @Override
@@ -43,6 +48,25 @@ public class Runner implements CommandLineRunner {
                                 .build()
                 );
             }
+        }
+
+        if (languageRepository.count() == 0) {
+            languageRepository.saveAll(List.of(
+                    Language.builder()
+                            .name("O'zbek")
+                            .isActive(true)
+                            .build(),
+                    Language.builder()
+                            .name("English")
+                            .isActive(true)
+                            .build(),
+                    Language.builder()
+                            .name("Русский")
+                            .isActive(true)
+                            .build()
+            ));
+
+            log.info("Added 3 default languages: O'zbek, English, Русский");
         }
     }
 }
