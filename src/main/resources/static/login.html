@@ -2,16 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
         }
         .login-container {
             max-width: 420px;
-            margin: 100px auto;
+            width: 100%;
+            margin: 1rem auto;
             padding: 2rem;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
@@ -72,6 +79,24 @@
             background-color: #2563eb;
             border-color: #2563eb;
         }
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+            h4 {
+                font-size: 1.25rem;
+            }
+            .form-control, .btn-primary {
+                font-size: 0.9rem;
+            }
+            .input-group-text {
+                font-size: 0.85rem;
+            }
+            .form-check-label {
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -88,8 +113,7 @@
                        class="form-control"
                        id="phone"
                        name="phone"
-                       pattern="^\d{9}$"
-                       maxlength="9"
+                       maxlength="12"
                        required
                        placeholder="Enter phone number">
             </div>
@@ -128,9 +152,20 @@
     const phoneError = document.getElementById('phoneError');
     const passwordError = document.getElementById('passwordError');
 
-    // Restrict phone input to digits only
+    // Format phone number input as "90 123 45 67"
     phoneInput.addEventListener('input', function () {
-        this.value = this.value.replace(/[^0-9]/g, '');
+        let raw = this.value.replace(/\D/g, '').substring(0, 9); // Only digits, max 9
+        let formatted = raw;
+        if (raw.length >= 3) {
+            formatted = raw.substring(0, 2) + ' ' + raw.substring(2, 5);
+            if (raw.length >= 6) {
+                formatted += ' ' + raw.substring(5, 7);
+            }
+            if (raw.length >= 8) {
+                formatted += ' ' + raw.substring(7, 9);
+            }
+        }
+        this.value = formatted;
     });
 
     // Show/hide password
@@ -152,34 +187,33 @@
         event.preventDefault();
         clearValidationErrors();
 
-        if (!form.checkValidity()) {
-            event.stopPropagation();
-            form.classList.add('was-validated');
-            // Show errors for 6 seconds
-            if (phoneInput.value.length !== 9) {
-                phoneInput.classList.add('is-invalid');
-                phoneError.style.display = 'block';
-                setTimeout(() => {
-                    phoneInput.classList.remove('is-invalid');
-                    phoneError.style.display = 'none';
-                }, 6000);
-            }
-            if (passwordInput.value.length < 8) {
-                passwordInput.classList.add('is-invalid');
-                passwordError.style.display = 'block';
-                setTimeout(() => {
-                    passwordInput.classList.remove('is-invalid');
-                    passwordError.style.display = 'none';
-                }, 6000);
-            }
+        const cleanedPhone = phoneInput.value.replace(/\s/g, '');
+
+        if (cleanedPhone.length !== 9 || !/^\d{9}$/.test(cleanedPhone)) {
+            phoneInput.classList.add('is-invalid');
+            phoneError.style.display = 'block';
+            setTimeout(() => {
+                phoneInput.classList.remove('is-invalid');
+                phoneError.style.display = 'none';
+            }, 6000);
             return;
         }
 
-        const fullPhone = '+998' + phoneInput.value;
+        if (passwordInput.value.length < 8) {
+            passwordInput.classList.add('is-invalid');
+            passwordError.style.display = 'block';
+            setTimeout(() => {
+                passwordInput.classList.remove('is-invalid');
+                passwordError.style.display = 'none';
+            }, 6000);
+            return;
+        }
+
+        const fullPhone = '+998' + cleanedPhone;
         const password = passwordInput.value;
 
         axios({
-            url: "http://localhost:8080/api/v1/auth/login",
+            url: "api/v1/auth/login",
             method: "POST",
             data: {
                 phoneNumber: fullPhone,
@@ -189,7 +223,7 @@
             console.log(res);
             localStorage.setItem("token", res.data.token);
             alert("Login successful");
-            window.location.href="home2.html";
+            window.location.href = "home2.html";
         }).catch(err => {
             console.log(err.response?.data);
 

@@ -31,24 +31,33 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(auth ->
-                auth
-                        .requestMatchers("http://localhost:63342/**").permitAll()
-                        .requestMatchers(
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(API + V1 + AUTH + LOGIN).permitAll()
-                        .requestMatchers(API + V1 + AUTH + REGISTER).permitAll()
-                        .requestMatchers(API + V1 + AUTH + VERIFY).permitAll()
+                        auth
+//                        .requestMatchers("http://localhost:63342/**").permitAll()
+                                .requestMatchers(
+                                        "/"
+                                        ,"/index.html/**"
+                                        ,"/home2.html"
+                                        , "/register.html"
+                                        , "/login.html"
+                                        , "/verifyPhone.html"
+                                ).permitAll()
+//                                .requestMatchers("/favicon.ico", "/error").permitAll()
+                                .requestMatchers(
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/**",
+                                        "/v3/api-docs/**").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers(API + V1 + AUTH + LOGIN).permitAll()
+                                .requestMatchers(API + V1 + AUTH + REGISTER).permitAll()
+                                .requestMatchers(API + V1 + AUTH + VERIFY).permitAll()
 
-                        .requestMatchers(API + V1 + ATTACHMENT).permitAll()
-                        .requestMatchers(API + V1 + ATTACHMENT + "/**").permitAll()
+                                .requestMatchers(API + V1 + ATTACHMENT).permitAll()
+                                .requestMatchers(API + V1 + ATTACHMENT + "/**").permitAll()
 
-                        .requestMatchers(API + V1 + CATEGORY).permitAll()
-                        .requestMatchers(API + V1 + BOOK).permitAll()
-                        .requestMatchers(API + V1 + BOOK + "/*").permitAll()
-                        .anyRequest().authenticated()
+                                .requestMatchers(API + V1 + CATEGORY).permitAll()
+                                .requestMatchers(API + V1 + BOOK).permitAll()
+                                .requestMatchers(API + V1 + BOOK + "/*").permitAll()
+                                .anyRequest().authenticated()
         );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -75,11 +84,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:63342");
         configuration.addAllowedOrigin("http://13.53.39.188"); // Explicitly allow Swagger UI origin
         configuration.addAllowedMethod("*");
+        configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(false); // Disable credentials for local testing
+        configuration.setAllowCredentials(true); // Disable credentials for local testing
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

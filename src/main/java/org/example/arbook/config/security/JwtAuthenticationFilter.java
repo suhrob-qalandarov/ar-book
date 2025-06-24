@@ -40,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.warn("🔴🔴JWT validation failed: {}", e.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("⚠️⚠️Invalid or expired token⚠️⚠️");
+                return;
             }
         }
         filterChain.doFilter(request, response);

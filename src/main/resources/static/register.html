@@ -2,19 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | AR Book</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
         }
         .card {
             border: none;
             border-radius: 15px;
             background: rgba(255, 255, 255, 0.95);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            width: 450px;
+            width: 100%;
+            max-width: 450px;
             padding: 2rem;
             transition: transform 0.3s ease;
         }
@@ -72,9 +79,23 @@
             background-color: #2563eb;
             border-color: #2563eb;
         }
+        @media (max-width: 576px) {
+            .card {
+                padding: 1.5rem;
+            }
+            h4 {
+                font-size: 1.25rem;
+            }
+            .form-control, .btn-primary {
+                font-size: 0.9rem;
+            }
+            .input-group-text {
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
-<body class="bg-light d-flex justify-content-center align-items-center vh-100">
+<body>
 <div class="card shadow-lg p-4">
     <h4 class="text-center mb-4">Create Account</h4>
     <form id="registerForm" novalidate>
@@ -95,9 +116,9 @@
                 <input type="tel"
                        class="form-control"
                        id="phoneNumber"
-                       placeholder="901234567"
+                       placeholder="Enter phone number"
                        pattern="^\d{9}$"
-                       maxlength="9"
+                       maxlength="12"
                        inputmode="numeric"
                        required>
             </div>
@@ -131,6 +152,19 @@
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
     const showPasswordCheck = document.getElementById('showPasswordCheck');
+    const phoneInput = document.getElementById('phoneNumber');
+
+    // Format phone number as user types
+    phoneInput.addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        if (value.length > 9) value = value.slice(0, 9); // Limit to 9 digits
+        let formatted = '';
+        if (value.length > 0) formatted += value.slice(0, 2);
+        if (value.length > 2) formatted += ' ' + value.slice(2, 5);
+        if (value.length > 5) formatted += ' ' + value.slice(5, 7);
+        if (value.length > 7) formatted += ' ' + value.slice(7, 9);
+        e.target.value = formatted;
+    });
 
     showPasswordCheck.addEventListener('change', function () {
         const type = this.checked ? 'text' : 'password';
@@ -144,8 +178,7 @@
         // Clear validation classes
         [...form.elements].forEach(input => input.classList.remove('is-invalid'));
 
-        const phoneSuffix = document.getElementById('phoneNumber').value.trim();
-        const phoneInput = document.getElementById('phoneNumber');
+        const phoneSuffix = phoneInput.value.replace(/\D/g, ''); // Remove spaces and non-digits
         const phoneNumberError = document.getElementById('phoneNumberError');
 
         // Validate phone format manually
@@ -170,10 +203,10 @@
         };
 
         try {
-            const response = await axios.post("http://localhost:8080/api/v1/auth/register", payload);
+            const response = await axios.post("api/v1/auth/register", payload);
             console.log(response.data);
             alert("Verification Code🔐 has been Sent to you phone . Please, verify it");
-            localStorage.setItem("phoneNumber",fullPhone)
+            localStorage.setItem("phoneNumber", fullPhone);
             window.location.href = "verifyPhone.html";
         } catch (error) {
             const errors = error?.response?.data?.fieldErrors || {};
