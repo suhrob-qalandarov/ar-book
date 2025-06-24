@@ -34,12 +34,15 @@ public class SecurityConfig {
                         auth
 //                        .requestMatchers("http://localhost:63342/**").permitAll()
                                 .requestMatchers(
+                                        "/admin/main-page.html"
+                                ).permitAll()
+                                .requestMatchers(
                                         "/"
                                         ,"/index.html/**"
-                                        ,"/home2.html"
-                                        , "/register.html"
-                                        , "/login.html"
-                                        , "/verifyPhone.html"
+                                        ,"/auth/home2.html"
+                                        , "/auth/register.html"
+                                        , "/auth/login.html"
+                                        , "/auth/verifyPhone.html"
                                 ).permitAll()
 //                                .requestMatchers("/favicon.ico", "/error").permitAll()
                                 .requestMatchers(

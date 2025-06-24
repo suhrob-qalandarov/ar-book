@@ -213,7 +213,7 @@
         const password = passwordInput.value;
 
         axios({
-            url: "api/v1/auth/login",
+            url: "/api/v1/auth/login",
             method: "POST",
             data: {
                 phoneNumber: fullPhone,
@@ -223,7 +223,7 @@
             console.log(res);
             localStorage.setItem("token", res.data.token);
             alert("Login successful");
-            window.location.href = "home2.html";
+            window.location.href = "/auth/home2.html";
         }).catch(err => {
             console.log(err.response?.data);
 

@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | AR Book</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --light-blue: #dbeafe;
+            --dark-blue: #1e40af;
+            --hover-blue: #3b82f6;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--hover-blue) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-info h6 {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .user-info small {
+            opacity: 0.8;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - 70px);
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 999;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-menu {
+            padding: 2rem 0;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 1rem 2rem;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border-left-color: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: 70px;
+            padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+
+        .content-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            color: var(--dark-blue);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .action-left {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .action-right {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-create {
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--hover-blue) 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-create:hover {
+            background: linear-gradient(90deg, var(--dark-blue) 0%, var(--primary-blue) 100%);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            width: 300px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            outline: none;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            min-width: 150px;
+        }
+
+        /* Data Table */
+        .data-table {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: var(--light-blue);
+            color: var(--dark-blue);
+            font-weight: 600;
+            border: none;
+            padding: 1.25rem;
+        }
+
+        .table tbody td {
+            padding: 1.25rem;
+            vertical-align: middle;
+            border-color: #f1f5f9;
+        }
+
+        .table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Action Buttons */
+        .btn-action {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view {
+            background: #f0f9ff;
+            color: var(--primary-blue);
+            border: 1px solid #bfdbfe;
+        }
+
+        .btn-view:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-edit {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        .btn-edit:hover {
+            background: #d97706;
+            color: white;
+        }
+
+        .btn-enable {
+            background: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .btn-enable:hover {
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-disable {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .btn-disable:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            background: var(--light-blue);
+            color: var(--dark-blue);
+            border-radius: 15px 15px 0 0;
+            border-bottom: none;
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--dark-blue);
+        }
+
+        .detail-value {
+            color: #64748b;
+        }
+
+        /* Form Styles */
+        .form-label {
+            color: var(--dark-blue);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .brand-name {
+                display: none;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-left, .action-right {
+                justify-content: center;
+            }
+
+            .search-box input {
+                width: 100%;
+            }
+
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Fade In Animation */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="logo-section">
+        <div class="logo">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="brand-name">AR Book Admin</div>
+    </div>
+    <div class="user-section">
+        <div class="user-info text-end">
+            <h6>John Doe</h6>
+            <small>Administrator</small>
+        </div>
+        <div class="user-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+    </div>
+</header>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-menu">
+        <a href="#" class="menu-item active" data-section="dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#" class="menu-item" data-section="categories">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+        </a>
+        <a href="#" class="menu-item" data-section="books">
+            <i class="fas fa-book"></i>
+            <span>Books</span>
+        </a>
+        <a href="#" class="menu-item" data-section="orders">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Orders</span>
+        </a>
+        <a href="#" class="menu-item" data-section="statistics">
+            <i class="fas fa-chart-bar"></i>
+            <span>Statistics</span>
+        </a>
+        <a href="#" class="menu-item" data-section="users">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+        </a>
+        <a href="#" class="menu-item" data-section="settings">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Dashboard Section -->
+    <div id="dashboard-section" class="content-section">
+        <div class="content-header fade-in">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Welcome to AR Book Admin Panel</p>
+        </div>
+
+        <div class="stats-grid fade-in">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div class="stat-number">24</div>
+                <div class="stat-label">Total Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-number">156</div>
+                <div class="stat-label">Total Books</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-number">89</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number">342</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Section -->
+    <div id="categories-section" class="content-section" style="display: none;">
+        <div class="content-header fade-in">
+            <h1 class="page-title">Categories</h1>
+            <p class="page-subtitle">Manage book categories</p>
+        </div>
+
+        <div class="action-bar fade-in">
+            <div class="action-left">
+                <button class="btn btn-create" onclick="showCreateCategoryModal()">
+                    <i class="fas fa-plus"></i> Create Category
+                </button>
+            </div>
+            <div class="action-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search categories..." id="categorySearch">
+                </div>
+                <select class="filter-select" id="categoryStatusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="data-table fade-in">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="categoriesTableBody">
+                    <!-- Categories will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Books Section -->
+    <div id="books-section" class="content-section" style="display: none;">
+        <div class="content-header fade-in">
+            <h1 class="page-title">Books</h1>
+            <p class="page-subtitle">Manage book collection</p>
+        </div>
+
+        <div class="action-bar fade-in">
+            <div class="action-left">
+                <button class="btn btn-create" onclick="showCreateBookModal()">
+                    <i class="fas fa-plus"></i> Create Book
+                </button>
+            </div>
+            <div class="action-right">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search books..." id="bookSearch">
+                </div>
+                <select class="filter-select" id="bookStatusFilter">
+                    <option value="">All Status</option>
+                    <option value="COMPLETE">Complete</option>
+                    <option value="INCOMPLETE">Incomplete</option>
+                </select>
+                <select class="filter-select" id="bookCategoryFilter">
+                    <option value="">All Categories</option>
+                    <!-- Categories will be loaded here -->
+                </select>
+            </div>
+        </div>
+
+        <div class="data-table fade-in">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Pages</th>
+                        <th>Languages</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="booksTableBody">
+                    <!-- Books will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Other sections (Orders, Statistics, etc.) would follow similar pattern -->
+    <div id="orders-section" class="content-section" style="display: none;">
+        <div class="content-header fade-in">
+            <h1 class="page-title">Orders</h1>
+            <p class="page-subtitle">Manage customer orders</p>
+        </div>
+        <div class="data-table fade-in">
+            <p class="text-center p-5">Orders management coming soon...</p>
+        </div>
+    </div>
+
+    <div id="statistics-section" class="content-section" style="display: none;">
+        <div class="content-header fade-in">
+            <h1 class="page-title">Statistics</h1>
+            <p class="page-subtitle">View detailed analytics</p>
+        </div>
+        <div class="data-table fade-in">
+            <p class="text-center p-5">Statistics dashboard coming soon...</p>
+        </div>
+    </div>
+
+    <div id="users-section" class="content-section" style="display: none;">
+        <div class="content-header fade-in">
+            <h1 class="page-title">Users</h1>
+            <p class="page-subtitle">Manage system users</p>
+        </div>
+        <div class="data-table fade-in">
+            <p class="text-center p-5">User management coming soon...</p>
+        </div>
+    </div>
+
+    <div id="settings-section" class="content-section" style="display: none;">
+        <div class="content-header fade-in">
+            <h1 class="page-title">Settings</h1>
+            <p class="page-subtitle">System configuration</p>
+        </div>
+        <div class="data-table fade-in">
+            <p class="text-center p-5">Settings panel coming soon...</p>
+        </div>
+    </div>
+</main>
+
+<!-- Category Detail Modal -->
+<div class="modal fade" id="categoryDetailModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Category Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="categoryDetailBody">
+                <!-- Category details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Book Detail Modal -->
+<div class="modal fade" id="bookDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Book Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="bookDetailBody">
+                <!-- Book details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Category Modal -->
+<div class="modal fade" id="categoryFormModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryFormTitle">Create Category</h5>
+                <button type="button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="categoryName" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-create" onclick="saveCategory()">
+                    <button type="button" class="btn btn btn btn-create" onclick="saveCategory()">
+                        <span id="categorySaveText">Save Category</span>
+                        <span id="categorySaveLoading" class="loading" style="display: none;"></span>
+                    </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Book Modal -->
+<div class="modal fade" id="bookFormModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookFormTitle">Create Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bookForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="bookTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="bookTitle" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bookCategory" class="form-label">Category</label>
+                            <select class="form-control" id="bookCategory" required>
+                                <option value="">Select Category</option>
+                                <!-- Categories will be loaded here -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bookDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="bookDescription" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="bookPages" class="form-label">Total Pages</label>
+                            <input type="number" class="form-control" id="bookPages" min="1">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bookLanguages" class="form-label">Languages</label>
+                            <input type="number" class="form-control" id="bookLanguages" min="1">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="bookStatus" class="form-label">Status</label>
+                        <select class="form-control" id="bookStatus">
+                            <option value="INCOMPLETE">Incomplete</option>
+                            <option value="COMPLETE">Complete</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-create" onclick="saveBook()">
+                    <span id="bookSaveText">Save Book</span>
+                    <span id="bookSaveLoading" class="loading" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Global variables
+    let currentEditingCategoryId = null;
+    let currentEditingBookId = null;
+    let categories = [];
+    let books = [];
+
+    // API Base URL - Update this to match your Spring Boot API
+    const API_BASE_URL = '/api/v1/admin';
+
+    // Check for token on page load
+    function checkToken() {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = 'auth/login.html';
+        }
+    }
+
+    // Configure Axios interceptor for requests
+    axios.interceptors.request.use(
+        config => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                config.headers.Authorization = token;
+            }
+            return config;
+        },
+        error => Promise.reject(error)
+    );
+
+    // Configure Axios interceptor for responses to handle 401 errors
+    axios.interceptors.response.use(
+        response => response,
+        error => {
+            if (error.response && error.response.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = 'auth/login.html';
+            }
+            return Promise.reject(error);
+        }
+    );
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+        checkToken();
+        initializeApp();
+    });
+
+    function initializeApp() {
+        setupEventListeners();
+        loadCategories();
+        loadBooks();
+    }
+
+    function setupEventListeners() {
+        // Sidebar navigation
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.getAttribute('data-section');
+                showSection(section);
+
+                // Update active menu item
+                document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Search functionality
+        document.getElementById('categorySearch')?.addEventListener('input', filterCategories);
+        document.getElementById('bookSearch')?.addEventListener('input', filterBooks);
+
+        // Filter functionality
+        document.getElementById('categoryStatusFilter')?.addEventListener('change', filterCategories);
+        document.getElementById('bookStatusFilter')?.addEventListener('change', filterBooks);
+        document.getElementById('bookCategoryFilter')?.addEventListener('change', filterBooks);
+    }
+
+    function showSection(sectionName) {
+        // Hide all sections
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.style.display = 'none';
+        });
+
+        // Show selected section
+        const targetSection = document.getElementById(sectionName + '-section');
+        if (targetSection) {
+            targetSection.style.display = 'block';
+            targetSection.classList.add('fade-in');
+        }
+    }
+
+    // Categories Management
+    async function loadCategories() {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/category`);
+            categories = response.data;
+            renderCategories(categories);
+            populateCategoryFilters();
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            showNotification('Error loading categories', 'error');
+        }
+    }
+
+    function renderCategories(categoriesToRender) {
+        const tbody = document.getElementById('categoriesTableBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = categoriesToRender.map(category => `
+                <tr>
+                    <td>${category.id}</td>
+                    <td>${category.name}</td>
+                    <td>
+                        <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}">
+                            ${category.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>${formatDate(category.createdAt)}</td>
+                    <td>
+                        <button class="btn btn-action btn-view" onclick="viewCategory(${category.id})">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-action btn-edit" onclick="editCategory(${category.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-action ${category.isActive ? 'btn-disable' : 'btn-enable'}"
+                                onclick="toggleCategoryStatus(${category.id}, ${!category.isActive})">
+                            <i class="fas fa-${category.isActive ? 'ban' : 'check'}"></i>
+                            ${category.isActive ? 'Disable' : 'Enable'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+    }
+
+    function filterCategories() {
+        const searchTerm = document.getElementById('categorySearch')?.value.toLowerCase() || '';
+        const statusFilter = document.getElementById('categoryStatusFilter')?.value || '';
+
+        let filtered = categories.filter(category => {
+            const matchesSearch = category.name.toLowerCase().includes(searchTerm);
+            const matchesStatus = !statusFilter ||
+                (statusFilter === 'active' && category.isActive) ||
+                (statusFilter === 'inactive' && !category.isActive);
+
+            return matchesSearch && matchesStatus;
+        });
+
+        renderCategories(filtered);
+    }
+
+    async function viewCategory(categoryId) {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/category/${categoryId}`);
+            const category = response.data;
+
+            document.getElementById('categoryDetailBody').innerHTML = `
+                    <div class="detail-row">
+                        <span class="detail-label">ID:</span>
+                        <span class="detail-value">${category.id}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value">${category.name}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value">
+                            <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}}">
+                                ${category.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">CreatedAt:</span>
+                        <span class="detail-value">${formatDate(category.createdAt)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Updated At:</span>
+                        <span class="detail-value">${formatDate(category.updatedAt)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Created By:</span>
+                        <span class="detail-value">${category.createdBy || 'System'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Updated By:</span>
+                        <span class="detail-value">${category.updatedBy || 'System'}</span>
+                    </div>
+                `;
+
+            new bootstrap.Modal(document.getElementById('categoryDetailModal')).show();
+        } catch (error) {
+            console.error('Error loading category details:', error);
+            showNotification('Error loading category details', 'error');
+        }
+    }
+
+    function showCreateCategoryModal() {
+        currentEditingCategoryId = null;
+        document.getElementById('categoryFormTitle').textContent = 'Create Category';
+        document.getElementById('categoryName').value = '';
+        new bootstrap.Modal(document.getElementById('categoryFormModal')).show();
+    }
+
+    function editCategory(categoryId) {
+        const category = categories.find(c => c.id === categoryId);
+        if (!category) return;
+
+        currentEditingCategoryId = categoryId;
+        document.getElementById('categoryFormTitle').textContent = 'Edit Category';
+        document.getElementById('categoryName').value = category.name;
+        new bootstrap.Modal(document.getElementById('categoryFormModal')).show();
+    }
+
+    async function saveCategory() {
+        const name = document.getElementById('categoryName').value.trim();
+        if (!name) {
+            showNotification('Please enter a category name', 'error');
+            return;
+        }
+
+        const saveButton = document.querySelector('#categoryFormModal .btn-create');
+        const saveText = document.getElementById('categorySaveText');
+        const saveLoading = document.getElementById('categorySaveLoading');
+
+        saveText.style.display = 'none';
+        saveLoading.style.display = 'inline-block';
+        saveButton.disabled = true;
+
+        try {
+            if (currentEditingCategoryId) {
+                // Update existing category
+                await axios.put(`${API_BASE_URL}/category/${currentEditingCategoryId}`, { name });
+                showNotification('Category updated successfully', 'success');
+            } else {
+                // Create new a category
+                await axios.post(`${API_BASE_URL}/category`, { name });
+                showNotification('Category created successfully', 'success');
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('categoryFormModal')).hide();
+            loadCategories();
+        } catch (error) {
+            console.error('Error saving category:', error);
+            showNotification('Error saving category', 'error');
+        } finally {
+            saveText.style.display = 'inline';
+            saveLoading.style.display = 'none';
+            saveButton.disabled = false;
+        }
+    }
+
+    async function toggleCategoryStatus(categoryId, newStatus) {
+        try {
+            const category = categories.find(c => c.id === categoryId);
+            await axios.put(`${API_BASE_URL}/category/${categoryId}`, {
+                name: category.name
+            });
+            showNotification(`Category ${newStatus ? 'enabled' : 'disabled'} successfully`, 'success');
+            loadCategories();
+        } catch (error) {
+            console.error('Error updating category status:', error);
+            showNotification('Error updating category status', 'error');
+        }
+    }
+
+    // Books Management
+    async function loadBooks() {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/book`);
+            books = response.data;
+            renderBooks(books);
+        } catch (error) {
+            console.error('Error loading books:', error);
+            showNotification('Error loading books', 'error');
+        }
+    }
+
+    function renderBooks(booksToRender) {
+        const tbody = document.getElementById('booksTableBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = booksToRender.map(book => `
+                <tr>
+                    <td>${book.id}</td>
+                    <td>${book.title}</td>
+                    <td>${book.category ? book.category.name : 'N/A'}</td>
+                    <td>
+                        <span class="status-badge ${book.status === 'COMPLETE' ? 'status-active' : 'status-inactive'}">
+                            ${book.status}
+                        </span>
+                    </td>
+                    <td>${book.totalPages || 'N/A'}</td>
+                    <td>${book.totalLanguages || 'N/A'}</td>
+                    <td>
+                        <span class="status-badge ${book.isActive ? 'status-active' : 'status-inactive'}">
+                            ${book.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-action btn-view" onclick="viewBook(${book.id})">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-action btn-edit" onclick="editBook(${book.id})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-action ${book.isActive ? 'btn-disable' : 'btn-enable'}"
+                                onclick="toggleBookStatus(${book.id}, ${!book.isActive})">
+                            <i class="fas fa-${book.isActive ? 'ban' : 'check'}"></i>
+                            ${book.isActive ? 'Disable' : 'Enable'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+    }
+
+    function filterBooks() {
+        const searchTerm = document.getElementById('bookSearch')?.value.toLowerCase() || '';
+        const statusFilter = document.getElementById('bookStatusFilter')?.value || '';
+        const categoryFilter = document.getElementById('bookCategoryFilter')?.value || '';
+
+        let filtered = books.filter(book => {
+            const matchesSearch = book.title.toLowerCase().includes(searchTerm) ||
+                (book.description && book.description.toLowerCase().includes(searchTerm));
+            const matchesStatus = !statusFilter || book.status === statusFilter;
+            const matchesCategory = !categoryFilter ||
+                (book.category && book.category.id.toString() === categoryFilter);
+
+            return matchesSearch && matchesStatus && matchesCategory;
+        });
+
+        renderBooks(filtered);
+    }
+
+    async function viewBook(bookId) {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/book/${bookId}`);
+            const book = response.data;
+
+            document.getElementById('bookDetailBody').innerHTML = `
+                    <div class="detail-row">
+                        <span class="detail-label">ID:</span>
+                        <span class="detail-value">${book.id}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Title:</span>
+                        <span class="detail-value">${book.title}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Description:</span>
+                        <span class="detail-value">${book.description || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Category:</span>
+                        <span class="detail-value">${book.category ? book.category.name : 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value">
+                            <span class="status-badge ${book.status === 'COMPLETE' ? 'status-active' : 'status-inactive'}">
+                                ${book.status}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Pages:</span>
+                        <span class="detail-value">${book.totalPages || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Languages:</span>
+                        <span class="detail-value">${book.totalLanguages || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Active:</span>
+                        <span class="detail-value">
+                            <span class="status-badge ${book.isActive ? 'status-active' : 'status-inactive'}">
+                                ${book.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Created At:</span>
+                        <span class="detail-value">${formatDate(book.createdAt)}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Updated At:</span>
+                        <span class="detail-value">${formatDate(book.updatedAt)}</span>
+                    </div>
+                `;
+
+            new bootstrap.Modal(document.getElementById('bookDetailModal')).show();
+        } catch (error) {
+            console.error('Error loading book details:', error);
+            showNotification('Error loading book details', 'error');
+        }
+    }
+
+    function showCreateBookModal() {
+        currentEditingBookId = null;
+        document.getElementById('bookFormTitle').textContent = 'Create Book';
+        document.getElementById('bookForm').reset();
+        populateBookCategorySelect();
+        new bootstrap.Modal(document.getElementById('bookFormModal')).show();
+    }
+
+    function editBook(bookId) {
+        const book = books.find(b => b.id === bookId);
+        if (!book) return;
+
+        currentEditingBookId = bookId;
+        document.getElementById('bookFormTitle').textContent = 'Edit Book';
+        document.getElementById('bookTitle').value = book.title;
+        document.getElementById('bookDescription').value = book.description || '';
+        document.getElementById('bookPages').value = book.totalPages || '';
+        document.getElementById('bookLanguages').value = book.totalLanguages || '';
+        document.getElementById('bookStatus').value = book.status;
+
+        populateBookCategorySelect();
+        if (book.category) {
+            document.getElementById('bookCategory').value = book.category.id;
+        }
+
+        new bootstrap.Modal(document.getElementById('bookFormModal')).show();
+    }
+
+    async function saveBook() {
+        const title = document.getElementById('bookTitle').value.trim();
+        const categoryId = document.getElementById('bookCategory').value;
+        const description = document.getElementById('bookDescription').value.trim();
+        const totalPages = parseInt(document.getElementById('bookPages').value) || null;
+        const totalLanguages = parseInt(document.getElementById('bookLanguages').value) || null;
+        const status = document.getElementById('bookStatus').value;
+
+        if (!title) {
+            showNotification('Please enter a book title', 'error');
+            return;
+        }
+
+        const saveButton = document.querySelector('#bookFormModal .btn-create');
+        const saveText = document.getElementById('bookSaveText');
+        const saveLoading = document.getElementById('bookSaveLoading');
+
+        saveText.style.display = 'none';
+        saveLoading.style.display = 'inline-block';
+        saveButton.disabled = true;
+
+        const bookData = {
+            title,
+            description: description || null,
+            totalPages,
+            totalLanguages,
+            status,
+            categoryId: categoryId ? parseInt(categoryId) : null
+        };
+
+        try {
+            if (currentEditingBookId) {
+                // Update existing book
+                await axios.put(`${API_BASE_URL}/book/${currentEditingBookId}`, bookData);
+                showNotification('Book updated successfully', 'success');
+            } else {
+                // Create new book
+                await axios.post(`${API_BASE_URL}/book`, bookData);
+                showNotification('Book created successfully', 'success');
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById('bookFormModal')).hide();
+            loadBooks();
+        } catch (error) {
+            console.error('Error saving book:', error);
+            showNotification('Error saving book', 'error');
+        } finally {
+            saveText.style.display = 'inline';
+            saveLoading.style.display = 'none';
+            saveButton.disabled = false;
+        }
+    }
+
+    async function toggleBookStatus(bookId, newStatus) {
+        try {
+            const book = books.find(b => b.id === bookId);
+            const bookData = {
+                title: book.title,
+                description: book.description,
+                totalPages: book.totalPages,
+                totalLanguages: book.totalLanguages,
+                status: book.status,
+                categoryId: book.category ? book.category.id : null
+            };
+
+            await axios.put(`${API_BASE_URL}/book/${bookId}`, bookData);
+            showNotification(`Book ${newStatus ? 'enabled' : 'disabled'} successfully`, 'success');
+            loadBooks();
+        } catch (error) {
+            console.error('Error updating book status:', error);
+            showNotification('Error updating book status', 'error');
+        }
+    }
+
+    // Utility Functions
+    function populateCategoryFilters() {
+        const bookCategoryFilter = document.getElementById('bookCategoryFilter');
+        if (bookCategoryFilter) {
+            bookCategoryFilter.innerHTML = '<option value="">All Categories</option>' +
+                categories.map(category =>
+                    `<option value="${category.id}">${category.name}</option>`
+                ).join('');
+        }
+    }
+
+    function populateBookCategorySelect() {
+        const bookCategorySelect = document.getElementById('bookCategory');
+        if (bookCategorySelect) {
+            bookCategorySelect.innerHTML = '<option value="">Select Category</option>' +
+                categories.filter(c => c.isActive).map(category =>
+                    `<option value="${category.id}">${category.name}</option>`
+                ).join('');
+        }
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} alert-dismissible fade show`;
+        notification.style.position = 'fixed';
+        notification.style.top = '90px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+        document.body.appendChild(notification);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('show');
+    }
+
+    // Add mobile menu button for responsive design
+    if (window.innerWidth <= 768) {
+        const header = document.querySelector('.header');
+        const mobileMenuBtn = document.createElement('button');
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        mobileMenuBtn.className = 'btn btn-link text-white d-md-none';
+        mobileMenuBtn.onclick = toggleSidebar;
+        header.querySelector('.logo-section').appendChild(mobileMenuBtn);
+    }
+</script>
+</body>
+</html>

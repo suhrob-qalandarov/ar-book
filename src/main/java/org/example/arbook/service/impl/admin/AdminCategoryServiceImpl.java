@@ -26,7 +26,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     public List<Category> getCategories() {
-        return categoryRepository.findAllByIsActiveIsTrue();
+        return categoryRepository.findAll();
     }
 
     @Override

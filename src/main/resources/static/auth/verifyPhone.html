@@ -151,7 +151,7 @@
         };
 
         try {
-            const response = await axios.post('api/v1/auth/verify', payload);
+            const response = await axios.post('/api/v1/auth/verify', payload);
             console.log(response.data);
             alert('Phone number verified successfully!');
             localStorage.removeItem('phoneNumber'); // Clean up localStorage
