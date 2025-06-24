@@ -3,7 +3,6 @@ package org.example.arbook.service.impl.admin;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.CategoryReq;
-import org.example.arbook.model.dto.request.CategoryUpdateReq;
 import org.example.arbook.model.entity.Category;
 import org.example.arbook.repository.CategoryRepository;
 import org.example.arbook.service.interfaces.admin.AdminCategoryService;
@@ -41,17 +40,17 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     @Transactional
-    public void updateCategory(Long id, CategoryUpdateReq categoryUpdateReq) {
+    public void updateCategory(Long id, CategoryReq categoryReq) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Category not found with id: " + id));
 
-        if (!categoryUpdateReq.name().trim().equals(existingCategory.getName()) &&
-                categoryRepository.existsByName(categoryUpdateReq.name().trim())
+        if (!categoryReq.name().equals(existingCategory.getName()) &&
+                categoryRepository.existsByName(categoryReq.name().trim())
         ) {
-            throw new IllegalArgumentException("Category already exists with name: " + categoryUpdateReq.name());
+            throw new IllegalArgumentException("Category already exists with name: " + categoryReq.name());
         }
 
-        updateCategoryFields(existingCategory, categoryUpdateReq);
+        updateCategoryFields(existingCategory, categoryReq);
         categoryRepository.save(existingCategory);
     }
 
@@ -67,9 +66,8 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
         return newStatus ? "activated" : "deactivated";
     }
 
-    private void updateCategoryFields(Category category, CategoryUpdateReq categoryUpdateReq) {
+    private void updateCategoryFields(Category category, CategoryReq categoryUpdateReq) {
         if (!categoryUpdateReq.name().isBlank()) category.setName(categoryUpdateReq.name().trim());
-        category.setIsActive(categoryUpdateReq.isActive());
     }
 
     private Category convertToCategory(CategoryReq categoryReq) {

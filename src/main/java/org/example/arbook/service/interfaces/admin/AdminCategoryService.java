@@ -1,7 +1,6 @@
 package org.example.arbook.service.interfaces.admin;
 
 import org.example.arbook.model.dto.request.CategoryReq;
-import org.example.arbook.model.dto.request.CategoryUpdateReq;
 import org.example.arbook.model.entity.Category;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +15,7 @@ public interface AdminCategoryService {
 
     Category addCategory(CategoryReq categoryReq);
 
-    void updateCategory(Long categoryId, CategoryUpdateReq categoryUpdateReq);
+    void updateCategory(Long categoryId, CategoryReq categoryUpdateReq);
 
     String activateOrDeactivateCategory(Long id);
 }

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.CategoryReq;
-import org.example.arbook.model.dto.request.CategoryUpdateReq;
 import org.example.arbook.model.entity.Category;
 import org.example.arbook.service.interfaces.admin.AdminCategoryService;
 import org.springframework.http.HttpStatus;
@@ -67,8 +66,8 @@ public class AdminCategoryController {
     @PutMapping("/{categoryId}")
     public ResponseEntity<Void> updateCategory(
             @PathVariable Long categoryId,
-            @Valid @RequestBody CategoryUpdateReq categoryUpdateReq) {
-        adminCategoryService.updateCategory(categoryId, categoryUpdateReq);
+            @Valid @RequestBody CategoryReq categoryReq) {
+        adminCategoryService.updateCategory(categoryId, categoryReq);
         return ResponseEntity.ok().build();
     }
 
