@@ -64,7 +64,6 @@ public class AdminCategoryController {
             @ApiResponse(responseCode = CODE_404, description = CATEGORY_NOT_FOUND),
             @ApiResponse(responseCode = CODE_400, description = CATEGORY_EXIST)
     })
-
     @PutMapping("/{categoryId}")
     public ResponseEntity<Void> updateCategory(
             @PathVariable Long categoryId,
@@ -72,4 +71,11 @@ public class AdminCategoryController {
         adminCategoryService.updateCategory(categoryId, categoryUpdateReq);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/{categoryId}")
+    public ResponseEntity<?> activateOrDeactivateCategory(@PathVariable Long categoryId) {
+        String message = adminCategoryService.activateOrDeactivateCategory(categoryId);
+        return ResponseEntity.ok("Category " + message);
+    }
+
 }
