@@ -792,7 +792,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="categoryFormTitle">Create Category</h5>
-                <button type="button" type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="categoryForm">
@@ -803,12 +803,11 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-create" onclick="saveCategory()">
-                    <button type="button" class="btn btn btn btn-create" onclick="saveCategory()">
-                        <span id="categorySaveText">Save Category</span>
-                        <span id="categorySaveLoading" class="loading" style="display: none;"></span>
-                    </button>
+                    <span id="categorySaveText">Save Category</span>
+                    <span id="categorySaveLoading" class="loading" style="display: none;"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -883,32 +882,31 @@
     // API Base URL - Update this to match your Spring Boot API
     const API_BASE_URL = '/api/v1/admin';
 
-    // Check for token on page load
-    function checkToken() {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            window.location.href = 'auth/login.html';
-        }
-    }
+    // Axios instance with default headers
+    const axiosInstance = axios.create({
+        baseURL: API_BASE_URL,
+    });
 
-    // Configure Axios interceptor for requests
-    axios.interceptors.request.use(
-        config => {
-            const token = localStorage.getItem("token");
-            if (token) {
-                config.headers.Authorization = token;
+    // Add request interceptor to include Authorization header
+    axiosInstance.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'auth/login.html';
+                return Promise.reject(new Error('No token found'));
             }
+            config.headers.Authorization = `${token}`;
             return config;
         },
-        error => Promise.reject(error)
+        (error) => Promise.reject(error)
     );
 
-    // Configure Axios interceptor for responses to handle 401 errors
-    axios.interceptors.response.use(
-        response => response,
-        error => {
-            if (error.response && error.response.status === 401) {
-                localStorage.removeItem("token");
+    // Add response interceptor to handle unauthorized responses
+    axiosInstance.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                localStorage.removeItem('token');
                 window.location.href = 'auth/login.html';
             }
             return Promise.reject(error);
@@ -917,7 +915,11 @@
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
-        checkToken();
+        // Check for token on page load
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'auth/login.html';
+            return;
+        }
         initializeApp();
     });
 
@@ -968,7 +970,7 @@
     // Categories Management
     async function loadCategories() {
         try {
-            const response = await axios.get(`${API_BASE_URL}/category`);
+            const response = await axiosInstance.get('/category');
             categories = response.data;
             renderCategories(categories);
             populateCategoryFilters();
@@ -1027,7 +1029,7 @@
 
     async function viewCategory(categoryId) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/category/${categoryId}`);
+            const response = await axiosInstance.get(`/category/${categoryId}`);
             const category = response.data;
 
             document.getElementById('categoryDetailBody').innerHTML = `
@@ -1042,13 +1044,13 @@
                     <div class="detail-row">
                         <span class="detail-label">Status:</span>
                         <span class="detail-value">
-                            <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}}">
+                            <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}">
                                 ${category.isActive ? 'Active' : 'Inactive'}
                             </span>
                         </span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">CreatedAt:</span>
+                        <span class="detail-label">Created At:</span>
                         <span class="detail-value">${formatDate(category.createdAt)}</span>
                     </div>
                     <div class="detail-row">
@@ -1107,11 +1109,11 @@
         try {
             if (currentEditingCategoryId) {
                 // Update existing category
-                await axios.put(`${API_BASE_URL}/category/${currentEditingCategoryId}`, { name });
+                await axiosInstance.put(`/category/${currentEditingCategoryId}`, { name });
                 showNotification('Category updated successfully', 'success');
             } else {
-                // Create new a category
-                await axios.post(`${API_BASE_URL}/category`, { name });
+                // Create new category
+                await axiosInstance.post('/category', { name });
                 showNotification('Category created successfully', 'success');
             }
 
@@ -1129,22 +1131,20 @@
 
     async function toggleCategoryStatus(categoryId, newStatus) {
         try {
-            const category = categories.find(c => c.id === categoryId);
-            await axios.put(`${API_BASE_URL}/category/${categoryId}`, {
-                name: category.name
-            });
+            await axiosInstance.patch(`/category/${categoryId}`);
             showNotification(`Category ${newStatus ? 'enabled' : 'disabled'} successfully`, 'success');
             loadCategories();
         } catch (error) {
             console.error('Error updating category status:', error);
-            showNotification('Error updating category status', 'error');
+            const message = error.response?.status === 404 ? 'Category not found' : 'Error updating category status';
+            showNotification(message, 'error');
         }
     }
 
     // Books Management
     async function loadBooks() {
         try {
-            const response = await axios.get(`${API_BASE_URL}/book`);
+            const response = await axiosInstance.get('/book');
             books = response.data;
             renderBooks(books);
         } catch (error) {
@@ -1211,7 +1211,7 @@
 
     async function viewBook(bookId) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/book/${bookId}`);
+            const response = await axiosInstance.get(`/book/${bookId}`);
             const book = response.data;
 
             document.getElementById('bookDetailBody').innerHTML = `
@@ -1333,11 +1333,11 @@
         try {
             if (currentEditingBookId) {
                 // Update existing book
-                await axios.put(`${API_BASE_URL}/book/${currentEditingBookId}`, bookData);
+                await axiosInstance.put(`/book/${currentEditingBookId}`, bookData);
                 showNotification('Book updated successfully', 'success');
             } else {
                 // Create new book
-                await axios.post(`${API_BASE_URL}/book`, bookData);
+                await axiosInstance.post('/book', bookData);
                 showNotification('Book created successfully', 'success');
             }
 
@@ -1365,7 +1365,7 @@
                 categoryId: book.category ? book.category.id : null
             };
 
-            await axios.put(`${API_BASE_URL}/book/${bookId}`, bookData);
+            await axiosInstance.put(`/book/${bookId}`, bookData);
             showNotification(`Book ${newStatus ? 'enabled' : 'disabled'} successfully`, 'success');
             loadBooks();
         } catch (error) {
