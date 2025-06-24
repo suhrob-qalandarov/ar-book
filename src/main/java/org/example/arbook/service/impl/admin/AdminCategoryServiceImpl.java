@@ -26,7 +26,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     public List<Category> getCategories() {
-        return categoryRepository.findAll();
+        return categoryRepository.findAll(); // for admin
     }
 
     @Override
@@ -53,6 +53,18 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
         updateCategoryFields(existingCategory, categoryUpdateReq);
         categoryRepository.save(existingCategory);
+    }
+
+    @Override
+    public String activateOrDeactivateCategory(Long id) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("not found with id: " + id));
+
+        boolean newStatus = !category.getIsActive();
+        category.setIsActive(newStatus);
+        categoryRepository.save(category);
+
+        return newStatus ? "activated" : "deactivated";
     }
 
     private void updateCategoryFields(Category category, CategoryUpdateReq categoryUpdateReq) {

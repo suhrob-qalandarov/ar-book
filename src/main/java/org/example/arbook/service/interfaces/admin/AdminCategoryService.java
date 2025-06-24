@@ -17,4 +17,6 @@ public interface AdminCategoryService {
     Category addCategory(CategoryReq categoryReq);
 
     void updateCategory(Long categoryId, CategoryUpdateReq categoryUpdateReq);
+
+    String activateOrDeactivateCategory(Long id);
 }
