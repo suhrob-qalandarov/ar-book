@@ -68,7 +68,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void uploadOne(MultipartFile file) {
+    public Long uploadOne(MultipartFile file) {
         validateFile(file);
         String key;
         try {
@@ -77,15 +77,18 @@ public class AttachmentServiceImpl implements AttachmentService {
             log.error("Failed to upload file {} to S3: {}", file.getOriginalFilename(), e.getMessage());
             throw new RuntimeException("Unable to upload file to S3", e);
         }
-        saveAttachment(file, key);
+        return saveAttachment(file, key);
     }
 
     @Override
-    public void uploadMultiple(MultipartFile[] files) {
+    public List<Long> uploadMultiple(MultipartFile[] files) {
         if (files == null || files.length == 0) {
             throw new IllegalArgumentException("No files provided for upload");
         }
-        Arrays.stream(files).forEach(this::uploadOne);
+
+        return Arrays.stream(files)
+                .map(this::uploadOne)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -116,14 +119,15 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
-    private void saveAttachment(MultipartFile file, String key) {
+    private Long saveAttachment(MultipartFile file, String key) {
         Attachment newAttachment = Attachment.builder()
                 .fileUrl(key)
                 .contentType(determineContentType(file))
                 .isActive(true)
                 .build();
         try {
-            attachmentRepository.save(newAttachment);
+            Attachment saved = attachmentRepository.save(newAttachment);
+            return saved.getId();
         } catch (Exception e) {
             log.error("Failed to save attachment for file {}: {}", file.getOriginalFilename(), e.getMessage());
             //s3Service.deleteFile(key); // Agar DB da xato bo'lsa, S3 dan faylni o'chirish

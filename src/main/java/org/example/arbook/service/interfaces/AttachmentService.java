@@ -12,9 +12,9 @@ import java.util.List;
 @Service
 public interface AttachmentService {
 
-    void uploadOne(MultipartFile file);
+    Long uploadOne(MultipartFile file);
 
-    void uploadMultiple(MultipartFile[] files);
+    List<Long> uploadMultiple(MultipartFile[] files);
 
     void update(Long attachmentId, MultipartFile file);
 
