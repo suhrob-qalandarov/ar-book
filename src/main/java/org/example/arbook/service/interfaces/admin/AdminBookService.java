@@ -8,11 +8,13 @@ import org.example.arbook.model.entity.Book;
 import java.util.List;
 
 public interface AdminBookService {
-    List<BookRes> getAllBooks();
+    List<Book> getAllBooks();
 
     Book updateBook(Long bookId, BookReq bookReq);
 
     Book createBook(@Valid BookReq bookReq);
 
     Book getOneBook(Long bookId);
+
+    String activateOrDeactivateBook(Long bookId);
 }

@@ -344,6 +344,16 @@
             color: #dc2626;
         }
 
+        .status-complete {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .status-incomplete {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
         /* Modal Styles */
         .modal-content {
             border: none;
@@ -446,6 +456,15 @@
         .stat-label {
             color: #64748b;
             font-weight: 500;
+        }
+
+        /* Image Preview */
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 1rem 0;
+            border-radius: 8px;
+            object-fit: cover;
         }
 
         /* Responsive */
@@ -675,7 +694,7 @@
                 </div>
                 <select class="filter-select" id="bookStatusFilter">
                     <option value="">All Status</option>
-                    <option value="COMPLETE">Complete</option>
+                    <option value="COMPLETED">Completed</option>
                     <option value="INCOMPLETE">Incomplete</option>
                 </select>
                 <select class="filter-select" id="bookCategoryFilter">
@@ -838,24 +857,27 @@
                     </div>
                     <div class="mb-3">
                         <label for="bookDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="bookDescription" rows="3"></textarea>
+                        <textarea class="form-control" id="bookDescription" rows="3" required></textarea>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="bookPages" class="form-label">Total Pages</label>
-                            <input type="number" class="form-control" id="bookPages" min="1">
+                            <input type="number" class="form-control" id="bookPages" min="1" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="bookLanguages" class="form-label">Languages</label>
-                            <input type="number" class="form-control" id="bookLanguages" min="1">
+                            <input type="number" class="form-control" id="bookLanguages" min="1" required>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="bookStatus" class="form-label">Status</label>
-                        <select class="form-control" id="bookStatus">
-                            <option value="INCOMPLETE">Incomplete</option>
-                            <option value="COMPLETE">Complete</option>
-                        </select>
+                        <label for="bookAttachment" class="form-label">Current Attachment</label>
+                        <div id="currentAttachmentPreview"></div>
+                        <input type="hidden" id="currentAttachmentId">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newBookAttachment" class="form-label">New Attachment</label>
+                        <input type="file" class="form-control" id="newBookAttachment" accept="image/*" required>
+                        <div id="newAttachmentPreview" class="mt-2"></div>
                     </div>
                 </form>
             </div>
@@ -880,7 +902,7 @@
     let books = [];
 
     // API Base URL - Update this to match your Spring Boot API
-    const API_BASE_URL = '/api/v1/admin';
+    const API_BASE_URL = '/api/v1';
 
     // Axios instance with default headers
     const axiosInstance = axios.create({
@@ -951,6 +973,22 @@
         document.getElementById('categoryStatusFilter')?.addEventListener('change', filterCategories);
         document.getElementById('bookStatusFilter')?.addEventListener('change', filterBooks);
         document.getElementById('bookCategoryFilter')?.addEventListener('change', filterBooks);
+
+        // File input preview
+        const newBookAttachment = document.getElementById('newBookAttachment');
+        if (newBookAttachment) {
+            newBookAttachment.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('newAttachmentPreview');
+                        preview.innerHTML = `<img src="${e.target.result}" class="image-preview" alt="New Attachment Preview">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
     }
 
     function showSection(sectionName) {
@@ -970,7 +1008,7 @@
     // Categories Management
     async function loadCategories() {
         try {
-            const response = await axiosInstance.get('/category');
+            const response = await axiosInstance.get('/admin/category');
             categories = response.data;
             renderCategories(categories);
             populateCategoryFilters();
@@ -1029,7 +1067,7 @@
 
     async function viewCategory(categoryId) {
         try {
-            const response = await axiosInstance.get(`/category/${categoryId}`);
+            const response = await axiosInstance.get(`/admin/category/${categoryId}`);
             const category = response.data;
 
             document.getElementById('categoryDetailBody').innerHTML = `
@@ -1109,11 +1147,11 @@
         try {
             if (currentEditingCategoryId) {
                 // Update existing category
-                await axiosInstance.put(`/category/${currentEditingCategoryId}`, { name });
+                await axiosInstance.put(`/admin/category/${currentEditingCategoryId}`, { name });
                 showNotification('Category updated successfully', 'success');
             } else {
                 // Create new category
-                await axiosInstance.post('/category', { name });
+                await axiosInstance.post('/admin/category', { name });
                 showNotification('Category created successfully', 'success');
             }
 
@@ -1131,7 +1169,7 @@
 
     async function toggleCategoryStatus(categoryId, newStatus) {
         try {
-            await axiosInstance.patch(`/category/${categoryId}`);
+            await axiosInstance.patch(`/admin/category/${categoryId}`);
             showNotification(`Category ${newStatus ? 'enabled' : 'disabled'} successfully`, 'success');
             loadCategories();
         } catch (error) {
@@ -1144,7 +1182,7 @@
     // Books Management
     async function loadBooks() {
         try {
-            const response = await axiosInstance.get('/book');
+            const response = await axiosInstance.get('/admin/book');
             books = response.data;
             renderBooks(books);
         } catch (error) {
@@ -1163,7 +1201,7 @@
                     <td>${book.title}</td>
                     <td>${book.category ? book.category.name : 'N/A'}</td>
                     <td>
-                        <span class="status-badge ${book.status === 'COMPLETE' ? 'status-active' : 'status-inactive'}">
+                        <span class="status-badge ${book.status === 'COMPLETED' ? 'status-complete' : 'status-incomplete'}">
                             ${book.status}
                         </span>
                     </td>
@@ -1211,8 +1249,14 @@
 
     async function viewBook(bookId) {
         try {
-            const response = await axiosInstance.get(`/book/${bookId}`);
+            const response = await axiosInstance.get(`/admin/book/${bookId}`);
             const book = response.data;
+
+            // Create attachment image URL if attachment exists
+            let attachmentHtml = 'No attachment';
+            if (book.attachment && book.attachment.id) {
+                attachmentHtml = `<img src="/api/v1/attachment/${book.attachment.id}" class="image-preview" alt="Book Cover">`;
+            }
 
             document.getElementById('bookDetailBody').innerHTML = `
                     <div class="detail-row">
@@ -1234,7 +1278,7 @@
                     <div class="detail-row">
                         <span class="detail-label">Status:</span>
                         <span class="detail-value">
-                            <span class="status-badge ${book.status === 'COMPLETE' ? 'status-active' : 'status-inactive'}">
+                            <span class="status-badge ${book.status === 'COMPLETED' ? 'status-complete' : 'status-incomplete'}">
                                 ${book.status}
                             </span>
                         </span>
@@ -1246,6 +1290,10 @@
                     <div class="detail-row">
                         <span class="detail-label">Total Languages:</span>
                         <span class="detail-value">${book.totalLanguages || 'N/A'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Attachment:</span>
+                        <span class="detail-value">${attachmentHtml}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Active:</span>
@@ -1263,6 +1311,14 @@
                         <span class="detail-label">Updated At:</span>
                         <span class="detail-value">${formatDate(book.updatedAt)}</span>
                     </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Created By:</span>
+                        <span class="detail-value">${book.createdBy || 'System'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Updated By:</span>
+                        <span class="detail-value">${book.updatedBy || 'System'}</span>
+                    </div>
                 `;
 
             new bootstrap.Modal(document.getElementById('bookDetailModal')).show();
@@ -1276,6 +1332,10 @@
         currentEditingBookId = null;
         document.getElementById('bookFormTitle').textContent = 'Create Book';
         document.getElementById('bookForm').reset();
+        document.getElementById('currentAttachmentPreview').innerHTML = '';
+        document.getElementById('newAttachmentPreview').innerHTML = '';
+        document.getElementById('currentAttachmentId').value = '';
+        document.getElementById('newBookAttachment').value = '';
         populateBookCategorySelect();
         new bootstrap.Modal(document.getElementById('bookFormModal')).show();
     }
@@ -1290,7 +1350,18 @@
         document.getElementById('bookDescription').value = book.description || '';
         document.getElementById('bookPages').value = book.totalPages || '';
         document.getElementById('bookLanguages').value = book.totalLanguages || '';
-        document.getElementById('bookStatus').value = book.status;
+        document.getElementById('newAttachmentPreview').innerHTML = '';
+        document.getElementById('newBookAttachment').value = '';
+
+        // Show current attachment if exists
+        if (book.attachment && book.attachment.id) {
+            document.getElementById('currentAttachmentPreview').innerHTML =
+                `<img src="/api/v1/attachment/${book.attachment.id}" class="image-preview" alt="Current Book Cover">`;
+            document.getElementById('currentAttachmentId').value = book.attachment.id;
+        } else {
+            document.getElementById('currentAttachmentPreview').innerHTML = 'No attachment';
+            document.getElementById('currentAttachmentId').value = '';
+        }
 
         populateBookCategorySelect();
         if (book.category) {
@@ -1306,10 +1377,31 @@
         const description = document.getElementById('bookDescription').value.trim();
         const totalPages = parseInt(document.getElementById('bookPages').value) || null;
         const totalLanguages = parseInt(document.getElementById('bookLanguages').value) || null;
-        const status = document.getElementById('bookStatus').value;
+        const newAttachment = document.getElementById('newBookAttachment').files[0];
+        let attachmentId = document.getElementById('currentAttachmentId').value;
 
         if (!title) {
             showNotification('Please enter a book title', 'error');
+            return;
+        }
+
+        if (!categoryId) {
+            showNotification('Please select a category', 'error');
+            return;
+        }
+
+        if (!description) {
+            showNotification('Please enter a description', 'error');
+            return;
+        }
+
+        if (!totalPages) {
+            showNotification('Please enter total pages', 'error');
+            return;
+        }
+
+        if (!totalLanguages) {
+            showNotification('Please enter total languages', 'error');
             return;
         }
 
@@ -1321,24 +1413,49 @@
         saveLoading.style.display = 'inline-block';
         saveButton.disabled = true;
 
-        const bookData = {
-            title,
-            description: description || null,
-            totalPages,
-            totalLanguages,
-            status,
-            categoryId: categoryId ? parseInt(categoryId) : null
-        };
-
         try {
+            // Handle attachment
+            if (!currentEditingBookId && !newAttachment) {
+                showNotification('Please upload an attachment for new book', 'error');
+                throw new Error('Attachment required for new book');
+            }
+
+            if (newAttachment) {
+                const formData = new FormData();
+                formData.append('file', newAttachment);
+
+                let attachmentResponse;
+                if (attachmentId && currentEditingBookId) {
+                    // Update existing attachment
+                    attachmentResponse = await axiosInstance.put(`/admin/attachment/${attachmentId}`, formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                } else {
+                    // Create new attachment
+                    attachmentResponse = await axiosInstance.post('/admin/attachment', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    attachmentId = attachmentResponse.data;
+                }
+            }
+
+            const bookData = {
+                title,
+                description,
+                totalPages,
+                totalLanguages,
+                categoryId: parseInt(categoryId),
+                attachmentId: parseInt(attachmentId)
+            };
+
             if (currentEditingBookId) {
                 // Update existing book
-                await axiosInstance.put(`/book/${currentEditingBookId}`, bookData);
+                await axiosInstance.put(`/admin/book/${currentEditingBookId}`, bookData);
                 showNotification('Book updated successfully', 'success');
             } else {
                 // Create new book
-                await axiosInstance.post('/book', bookData);
-                showNotification('Book created successfully', 'success');
+                await axiosInstance.post('/admin/book', bookData);
+                showNotification('Book created successfully', '');
             }
 
             bootstrap.Modal.getInstance(document.getElementById('bookFormModal')).hide();
@@ -1355,18 +1472,8 @@
 
     async function toggleBookStatus(bookId, newStatus) {
         try {
-            const book = books.find(b => b.id === bookId);
-            const bookData = {
-                title: book.title,
-                description: book.description,
-                totalPages: book.totalPages,
-                totalLanguages: book.totalLanguages,
-                status: book.status,
-                categoryId: book.category ? book.category.id : null
-            };
-
-            await axiosInstance.put(`/book/${bookId}`, bookData);
-            showNotification(`Book ${newStatus ? 'enabled' : 'disabled'} successfully`, 'success');
+            await axiosInstance.patch(`/admin/book/${bookId}`);
+            showNotification(`Book ${newStatus ? 'enabled' : 'disabled'} successfully`);
             loadBooks();
         } catch (error) {
             console.error('Error updating book status:', error);

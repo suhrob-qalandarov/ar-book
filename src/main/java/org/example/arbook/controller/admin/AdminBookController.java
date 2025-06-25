@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.BookReq;
-import org.example.arbook.model.dto.response.BookRes;
 import org.example.arbook.model.entity.Book;
 import org.example.arbook.service.interfaces.admin.AdminBookService;
 import org.springframework.http.HttpStatus;
@@ -28,8 +27,8 @@ public class AdminBookController {
 
     @Operation(summary = "Retrieve all books", description = "Returns a list of all books")
     @GetMapping
-    public ResponseEntity<List<BookRes>> getAllBooks() {
-        List<BookRes> bookRes = adminBookService.getAllBooks();
+    public ResponseEntity<List<Book>> getAllBooks() {
+        List<Book> bookRes = adminBookService.getAllBooks();
         return ResponseEntity.ok(bookRes);
     }
 
@@ -52,5 +51,11 @@ public class AdminBookController {
     public ResponseEntity<Book> updateBook(@PathVariable @Positive Long bookId, @Valid @RequestBody BookReq bookReq) {
         Book updatedBook = adminBookService.updateBook(bookId, bookReq);
         return ResponseEntity.ok(updatedBook);
+    }
+
+    @PatchMapping("/{bookId}")
+    public ResponseEntity<?> activateOrDeactivateBook(@PathVariable Long bookId) {
+        String message = adminBookService.activateOrDeactivateBook(bookId);
+        return ResponseEntity.ok("Book " + message);
     }
 }

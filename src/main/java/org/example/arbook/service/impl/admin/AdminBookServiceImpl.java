@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +29,9 @@ public class AdminBookServiceImpl implements AdminBookService {
     private final AttachmentRepository attachmentRepository;
 
     @Override
-    public List<BookRes> getAllBooks() {
+    public List<Book> getAllBooks() {
         List<Book> books = bookRepository.findAll();
-        return books.stream()
-                .map(bookMapper::toBookResponse).toList();
+        return books;
     }
 
 
@@ -39,6 +39,18 @@ public class AdminBookServiceImpl implements AdminBookService {
     public Book getOneBook(Long bookId) {
         return bookRepository.findById(bookId).orElseThrow(() ->
                 new BookNotFoundException("Book not found with ID " + bookId));
+    }
+
+    @Override
+    public String activateOrDeactivateBook(Long bookId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new NoSuchElementException("not found with id: " + bookId));
+
+        boolean newStatus = !book.getIsActive();
+            book.setIsActive(newStatus);
+            bookRepository.save(book);
+
+            return newStatus ? "activated" : "deactivated";
     }
 
 
