@@ -2,12 +2,10 @@ package org.example.arbook.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.response.BookRes;
-import org.example.arbook.model.entity.Book;
 import org.example.arbook.service.interfaces.user.BookService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

@@ -14,6 +14,8 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -34,18 +36,21 @@ public class S3ServiceImpl implements S3Service {
         String filename = file.getOriginalFilename() != null ? file.getOriginalFilename() : file.getName();
         String key = System.currentTimeMillis() + "_" + filename;
 
+        // Set metadata explicitly
+        Map<String, String> metadataMap = new HashMap<>();
+        metadataMap.put("Content-Type", file.getContentType());
+
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
-                .contentType(file.getContentType())
+                .metadata(metadataMap) // pass content-type here
                 .build();
 
         try (InputStream inputStream = file.getInputStream()) {
             s3Client.putObject(objectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
             log.info("Uploaded file to S3 with key: {}", key);
-
         } catch (S3Exception e) {
-            log.error("Failed to upload file to S3: {}", e.getMessage());
+            log.error("Failed to upload file to S3: {}", e.awsErrorDetails().errorMessage());
             throw new RuntimeException("Unable to upload file to S3", e);
         }
 

@@ -5,6 +5,7 @@ import org.example.arbook.exception.AttachmentNotFoundException;
 import org.example.arbook.exception.BookNotFoundException;
 import org.example.arbook.exception.CategoryNotFoundException;
 import org.example.arbook.model.dto.request.BookReq;
+import org.example.arbook.model.dto.response.AdminBookRes;
 import org.example.arbook.model.dto.response.BookRes;
 import org.example.arbook.model.entity.Attachment;
 import org.example.arbook.model.entity.Book;
@@ -29,33 +30,35 @@ public class AdminBookServiceImpl implements AdminBookService {
     private final AttachmentRepository attachmentRepository;
 
     @Override
-    public List<Book> getAllBooks() {
+    public List<AdminBookRes> getAllBooks() {
         List<Book> books = bookRepository.findAll();
-        return books;
+        return bookMapper.toAdminBookResponseList(books);
     }
 
 
     @Override
-    public Book getOneBook(Long bookId) {
-        return bookRepository.findById(bookId).orElseThrow(() ->
+    public AdminBookRes getOneBook(Long bookId) {
+        Book book = bookRepository.findById(bookId).orElseThrow(() ->
                 new BookNotFoundException("Book not found with ID " + bookId));
+        return bookMapper.toAdminBookResponse(book);
     }
 
+    @Transactional
     @Override
     public String activateOrDeactivateBook(Long bookId) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new NoSuchElementException("not found with id: " + bookId));
 
         boolean newStatus = !book.getIsActive();
-            book.setIsActive(newStatus);
-            bookRepository.save(book);
+        book.setIsActive(newStatus);
+        bookRepository.save(book);
 
-            return newStatus ? "activated" : "deactivated";
+        return newStatus ? "activated" : "deactivated";
     }
 
-
+    @Transactional
     @Override
-    public Book updateBook(Long bookId, BookReq bookReq) {
+    public AdminBookRes updateBook(Long bookId, BookReq bookReq) {
         Book book = bookMapper.toBook(bookReq);
         book.setId(bookId);
 
@@ -70,13 +73,14 @@ public class AdminBookServiceImpl implements AdminBookService {
 
         book.setAttachment(attachment);
 
-        return bookRepository.save(book);
+        Book updatedBook = bookRepository.save(book);
+        return bookMapper.toAdminBookResponse(updatedBook);
     }
 
 
     @Override
     @Transactional
-    public Book createBook(BookReq bookReq) {
+    public AdminBookRes createBook(BookReq bookReq) {
         Book book = bookMapper.toBook(bookReq);
 
         Category category = categoryRepository.findById(bookReq.categoryId())
@@ -87,6 +91,7 @@ public class AdminBookServiceImpl implements AdminBookService {
                 .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found with ID: " + bookReq.attachmentId()));
         book.setAttachment(attachment);
 
-        return bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
+        return bookMapper.toAdminBookResponse(savedBook);
     }
 }

@@ -27,7 +27,6 @@
             overflow-x: hidden;
         }
 
-        /* Header */
         .header {
             background: linear-gradient(90deg, var(--primary-blue) 0%, var(--hover-blue) 100%);
             color: white;
@@ -92,7 +91,6 @@
             opacity: 0.8;
         }
 
-        /* Sidebar */
         .sidebar {
             position: fixed;
             top: 70px;
@@ -134,7 +132,6 @@
             text-align: center;
         }
 
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             margin-top: 70px;
@@ -162,7 +159,6 @@
             font-size: 1rem;
         }
 
-        /* Action Bar */
         .action-bar {
             background: white;
             padding: 1.5rem;
@@ -240,7 +236,6 @@
             min-width: 150px;
         }
 
-        /* Data Table */
         .data-table {
             background: white;
             border-radius: 15px;
@@ -270,7 +265,6 @@
             background: #f8fafc;
         }
 
-        /* Action Buttons */
         .btn-action {
             padding: 0.5rem 1rem;
             border-radius: 6px;
@@ -324,7 +318,6 @@
             color: white;
         }
 
-        /* Status Badge */
         .status-badge {
             padding: 0.375rem 0.75rem;
             border-radius: 20px;
@@ -354,7 +347,6 @@
             color: #d97706;
         }
 
-        /* Modal Styles */
         .modal-content {
             border: none;
             border-radius: 15px;
@@ -393,7 +385,6 @@
             color: #64748b;
         }
 
-        /* Form Styles */
         .form-label {
             color: var(--dark-blue);
             font-weight: 600;
@@ -412,7 +403,6 @@
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        /* Statistics Cards */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -458,7 +448,6 @@
             font-weight: 500;
         }
 
-        /* Image Preview */
         .image-preview {
             max-width: 100%;
             max-height: 200px;
@@ -467,7 +456,6 @@
             object-fit: cover;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -507,7 +495,6 @@
             }
         }
 
-        /* Loading Animation */
         .loading {
             display: inline-block;
             width: 20px;
@@ -522,7 +509,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Fade In Animation */
         .fade-in {
             animation: fadeIn 0.5s ease-in;
         }
@@ -727,7 +713,7 @@
         </div>
     </div>
 
-    <!-- Other sections (Orders, Statistics, etc.) would follow similar pattern -->
+    <!-- Other sections (Orders, Statistics, etc.) -->
     <div id="orders-section" class="content-section" style="display: none;">
         <div class="content-header fade-in">
             <h1 class="page-title">Orders</h1>
@@ -901,7 +887,7 @@
     let categories = [];
     let books = [];
 
-    // API Base URL - Update this to match your Spring Boot API
+    // API Base URL
     const API_BASE_URL = '/api/v1';
 
     // Axios instance with default headers
@@ -937,7 +923,6 @@
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
-        // Check for token on page load
         if (!localStorage.getItem('token')) {
             window.location.href = 'auth/login.html';
             return;
@@ -959,17 +944,14 @@
                 const section = this.getAttribute('data-section');
                 showSection(section);
 
-                // Update active menu item
                 document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
                 this.classList.add('active');
             });
         });
 
-        // Search functionality
+        // Search and filter functionality
         document.getElementById('categorySearch')?.addEventListener('input', filterCategories);
         document.getElementById('bookSearch')?.addEventListener('input', filterBooks);
-
-        // Filter functionality
         document.getElementById('categoryStatusFilter')?.addEventListener('change', filterCategories);
         document.getElementById('bookStatusFilter')?.addEventListener('change', filterBooks);
         document.getElementById('bookCategoryFilter')?.addEventListener('change', filterBooks);
@@ -992,12 +974,9 @@
     }
 
     function showSection(sectionName) {
-        // Hide all sections
         document.querySelectorAll('.content-section').forEach(section => {
             section.style.display = 'none';
         });
-
-        // Show selected section
         const targetSection = document.getElementById(sectionName + '-section');
         if (targetSection) {
             targetSection.style.display = 'block';
@@ -1023,30 +1002,30 @@
         if (!tbody) return;
 
         tbody.innerHTML = categoriesToRender.map(category => `
-                <tr>
-                    <td>${category.id}</td>
-                    <td>${category.name}</td>
-                    <td>
-                        <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}">
-                            ${category.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                    </td>
-                    <td>${formatDate(category.createdAt)}</td>
-                    <td>
-                        <button class="btn btn-action btn-view" onclick="viewCategory(${category.id})">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        <button class="btn btn-action btn-edit" onclick="editCategory(${category.id})">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-action ${category.isActive ? 'btn-disable' : 'btn-enable'}"
-                                onclick="toggleCategoryStatus(${category.id}, ${!category.isActive})">
-                            <i class="fas fa-${category.isActive ? 'ban' : 'check'}"></i>
-                            ${category.isActive ? 'Disable' : 'Enable'}
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            <tr>
+                <td>${category.id}</td>
+                <td>${category.name}</td>
+                <td>
+                    <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}">
+                        ${category.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
+                <td>${formatDate(category.createdAt)}</td>
+                <td>
+                    <button class="btn btn-action btn-view" onclick="viewCategory(${category.id})">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="btn btn-action btn-edit" onclick="editCategory(${category.id})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-action ${category.isActive ? 'btn-disable' : 'btn-enable'}"
+                            onclick="toggleCategoryStatus(${category.id}, ${!category.isActive})">
+                        <i class="fas fa-${category.isActive ? 'ban' : 'check'}"></i>
+                        ${category.isActive ? 'Disable' : 'Enable'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 
     function filterCategories() {
@@ -1058,7 +1037,6 @@
             const matchesStatus = !statusFilter ||
                 (statusFilter === 'active' && category.isActive) ||
                 (statusFilter === 'inactive' && !category.isActive);
-
             return matchesSearch && matchesStatus;
         });
 
@@ -1071,39 +1049,39 @@
             const category = response.data;
 
             document.getElementById('categoryDetailBody').innerHTML = `
-                    <div class="detail-row">
-                        <span class="detail-label">ID:</span>
-                        <span class="detail-value">${category.id}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Name:</span>
-                        <span class="detail-value">${category.name}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Status:</span>
-                        <span class="detail-value">
-                            <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}">
-                                ${category.isActive ? 'Active' : 'Inactive'}
-                            </span>
+                <div class="detail-row">
+                    <span class="detail-label">ID:</span>
+                    <span class="detail-value">${category.id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value">${category.name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}">
+                            ${category.isActive ? 'Active' : 'Inactive'}
                         </span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Created At:</span>
-                        <span class="detail-value">${formatDate(category.createdAt)}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Updated At:</span>
-                        <span class="detail-value">${formatDate(category.updatedAt)}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Created By:</span>
-                        <span class="detail-value">${category.createdBy || 'System'}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Updated By:</span>
-                        <span class="detail-value">${category.updatedBy || 'System'}</span>
-                    </div>
-                `;
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Created At:</span>
+                    <span class="detail-value">${formatDate(category.createdAt)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Updated At:</span>
+                    <span class="detail-value">${formatDate(category.updatedAt)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Created By:</span>
+                    <span class="detail-value">${category.createdBy || 'System'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Updated By:</span>
+                    <span class="detail-value">${category.updatedBy || 'System'}</span>
+                </div>
+            `;
 
             new bootstrap.Modal(document.getElementById('categoryDetailModal')).show();
         } catch (error) {
@@ -1146,11 +1124,9 @@
 
         try {
             if (currentEditingCategoryId) {
-                // Update existing category
                 await axiosInstance.put(`/admin/category/${currentEditingCategoryId}`, { name });
                 showNotification('Category updated successfully', 'success');
             } else {
-                // Create new category
                 await axiosInstance.post('/admin/category', { name });
                 showNotification('Category created successfully', 'success');
             }
@@ -1196,37 +1172,37 @@
         if (!tbody) return;
 
         tbody.innerHTML = booksToRender.map(book => `
-                <tr>
-                    <td>${book.id}</td>
-                    <td>${book.title}</td>
-                    <td>${book.category ? book.category.name : 'N/A'}</td>
-                    <td>
-                        <span class="status-badge ${book.status === 'COMPLETED' ? 'status-complete' : 'status-incomplete'}">
-                            ${book.status}
-                        </span>
-                    </td>
-                    <td>${book.totalPages || 'N/A'}</td>
-                    <td>${book.totalLanguages || 'N/A'}</td>
-                    <td>
-                        <span class="status-badge ${book.isActive ? 'status-active' : 'status-inactive'}">
-                            ${book.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-action btn-view" onclick="viewBook(${book.id})">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                        <button class="btn btn-action btn-edit" onclick="editBook(${book.id})">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-action ${book.isActive ? 'btn-disable' : 'btn-enable'}"
-                                onclick="toggleBookStatus(${book.id}, ${!book.isActive})">
-                            <i class="fas fa-${book.isActive ? 'ban' : 'check'}"></i>
-                            ${book.isActive ? 'Disable' : 'Enable'}
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            <tr>
+                <td>${book.id}</td>
+                <td>${book.title}</td>
+                <td>${book.categoryName || 'N/A'}</td>
+                <td>
+                    <span class="status-badge ${book.status === 'COMPLETED' ? 'status-complete' : 'status-incomplete'}">
+                        ${book.status}
+                    </span>
+                </td>
+                <td>${book.totalPages || 'N/A'}</td>
+                <td>${book.totalLanguages || 'N/A'}</td>
+                <td>
+                    <span class="status-badge ${book.isActive ? 'status-active' : 'status-inactive'}">
+                        ${book.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-action btn-view" onclick="viewBook(${book.id})">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="btn btn-action btn-edit" onclick="editBook(${book.id})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-action ${book.isActive ? 'btn-disable' : 'btn-enable'}"
+                            onclick="toggleBookStatus(${book.id}, ${!book.isActive})">
+                        <i class="fas fa-${book.isActive ? 'ban' : 'check'}"></i>
+                        ${book.isActive ? 'Disable' : 'Enable'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 
     function filterBooks() {
@@ -1239,8 +1215,7 @@
                 (book.description && book.description.toLowerCase().includes(searchTerm));
             const matchesStatus = !statusFilter || book.status === statusFilter;
             const matchesCategory = !categoryFilter ||
-                (book.category && book.category.id.toString() === categoryFilter);
-
+                (book.categoryName && book.categoryName.toLowerCase().includes(categoryFilter.toLowerCase()));
             return matchesSearch && matchesStatus && matchesCategory;
         });
 
@@ -1252,74 +1227,73 @@
             const response = await axiosInstance.get(`/admin/book/${bookId}`);
             const book = response.data;
 
-            // Create attachment image URL if attachment exists
             let attachmentHtml = 'No attachment';
-            if (book.attachment && book.attachment.id) {
-                attachmentHtml = `<img src="/api/v1/attachment/${book.attachment.id}" class="image-preview" alt="Book Cover">`;
+            if (book.attachmentId) {
+                attachmentHtml = `<img src="/api/v1/attachment/${book.attachmentId}" class="image-preview" alt="Book Cover">`;
             }
 
             document.getElementById('bookDetailBody').innerHTML = `
-                    <div class="detail-row">
-                        <span class="detail-label">ID:</span>
-                        <span class="detail-value">${book.id}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Title:</span>
-                        <span class="detail-value">${book.title}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Description:</span>
-                        <span class="detail-value">${book.description || 'N/A'}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Category:</span>
-                        <span class="detail-value">${book.category ? book.category.name : 'N/A'}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Status:</span>
-                        <span class="detail-value">
-                            <span class="status-badge ${book.status === 'COMPLETED' ? 'status-complete' : 'status-incomplete'}">
-                                ${book.status}
-                            </span>
+                <div class="detail-row">
+                    <span class="detail-label">ID:</span>
+                    <span class="detail-value">${book.id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Title:</span>
+                    <span class="detail-value">${book.title}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Description:</span>
+                    <span class="detail-value">${book.description || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Category:</span>
+                    <span class="detail-value">${book.categoryName || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="status-badge ${book.status === 'COMPLETED' ? 'status-complete' : 'status-incomplete'}">
+                            ${book.status}
                         </span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Total Pages:</span>
-                        <span class="detail-value">${book.totalPages || 'N/A'}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Total Languages:</span>
-                        <span class="detail-value">${book.totalLanguages || 'N/A'}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Attachment:</span>
-                        <span class="detail-value">${attachmentHtml}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Active:</span>
-                        <span class="detail-value">
-                            <span class="status-badge ${book.isActive ? 'status-active' : 'status-inactive'}">
-                                ${book.isActive ? 'Active' : 'Inactive'}
-                            </span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Pages:</span>
+                    <span class="detail-value">${book.totalPages || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Languages:</span>
+                    <span class="detail-value">${book.totalLanguages || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Attachment:</span>
+                    <span class="detail-value">${attachmentHtml}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Active:</span>
+                    <span class="detail-value">
+                        <span class="status-badge ${book.isActive ? 'status-active' : 'status-inactive'}">
+                            ${book.isActive ? 'Active' : 'Inactive'}
                         </span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Created At:</span>
-                        <span class="detail-value">${formatDate(book.createdAt)}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Updated At:</span>
-                        <span class="detail-value">${formatDate(book.updatedAt)}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Created By:</span>
-                        <span class="detail-value">${book.createdBy || 'System'}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Updated By:</span>
-                        <span class="detail-value">${book.updatedBy || 'System'}</span>
-                    </div>
-                `;
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Created At:</span>
+                    <span class="detail-value">${formatDate(book.createdAt)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Updated At:</span>
+                    <span class="detail-value">${formatDate(book.updatedAt)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Created By:</span>
+                    <span class="detail-value">${book.createdBy || 'System'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Updated By:</span>
+                    <span class="detail-value">${book.updatedBy || 'System'}</span>
+                </div>
+            `;
 
             new bootstrap.Modal(document.getElementById('bookDetailModal')).show();
         } catch (error) {
@@ -1353,21 +1327,17 @@
         document.getElementById('newAttachmentPreview').innerHTML = '';
         document.getElementById('newBookAttachment').value = '';
 
-        // Show current attachment if exists
-        if (book.attachment && book.attachment.id) {
+        if (book.attachmentId) {
             document.getElementById('currentAttachmentPreview').innerHTML =
-                `<img src="/api/v1/attachment/${book.attachment.id}" class="image-preview" alt="Current Book Cover">`;
-            document.getElementById('currentAttachmentId').value = book.attachment.id;
+                `<img src="/api/v1/attachment/${book.attachmentId}" class="image-preview" alt="Current Book Cover">`;
+            document.getElementById('currentAttachmentId').value = book.attachmentId;
         } else {
             document.getElementById('currentAttachmentPreview').innerHTML = 'No attachment';
             document.getElementById('currentAttachmentId').value = '';
         }
 
         populateBookCategorySelect();
-        if (book.category) {
-            document.getElementById('bookCategory').value = book.category.id;
-        }
-
+        document.getElementById('bookCategory').value = book.categoryName ? categories.find(c => c.name === book.categoryName)?.id || '' : '';
         new bootstrap.Modal(document.getElementById('bookFormModal')).show();
     }
 
@@ -1414,7 +1384,6 @@
         saveButton.disabled = true;
 
         try {
-            // Handle attachment
             if (!currentEditingBookId && !newAttachment) {
                 showNotification('Please upload an attachment for new book', 'error');
                 throw new Error('Attachment required for new book');
@@ -1426,12 +1395,10 @@
 
                 let attachmentResponse;
                 if (attachmentId && currentEditingBookId) {
-                    // Update existing attachment
                     attachmentResponse = await axiosInstance.put(`/admin/attachment/${attachmentId}`, formData, {
                         headers: { 'Content-Type': 'multipart/form-data' }
                     });
                 } else {
-                    // Create new attachment
                     attachmentResponse = await axiosInstance.post('/admin/attachment', formData, {
                         headers: { 'Content-Type': 'multipart/form-data' }
                     });
@@ -1445,17 +1412,15 @@
                 totalPages,
                 totalLanguages,
                 categoryId: parseInt(categoryId),
-                attachmentId: parseInt(attachmentId)
+                attachmentId: parseInt(attachmentId) || null
             };
 
             if (currentEditingBookId) {
-                // Update existing book
                 await axiosInstance.put(`/admin/book/${currentEditingBookId}`, bookData);
                 showNotification('Book updated successfully', 'success');
             } else {
-                // Create new book
                 await axiosInstance.post('/admin/book', bookData);
-                showNotification('Book created successfully', '');
+                showNotification('Book created successfully', 'success');
             }
 
             bootstrap.Modal.getInstance(document.getElementById('bookFormModal')).hide();
@@ -1472,8 +1437,8 @@
 
     async function toggleBookStatus(bookId, newStatus) {
         try {
-            await axiosInstance.patch(`/admin/book/${bookId}`);
-            showNotification(`Book ${newStatus ? 'enabled' : 'disabled'} successfully`);
+            const response = await axiosInstance.patch(`/admin/book/${bookId}`);
+            showNotification(`Book ${response.data}`, 'success');
             loadBooks();
         } catch (error) {
             console.error('Error updating book status:', error);
@@ -1514,7 +1479,6 @@
     }
 
     function showNotification(message, type = 'info') {
-        // Create notification element
         const notification = document.createElement('div');
         notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} alert-dismissible fade show`;
         notification.style.position = 'fixed';
@@ -1523,13 +1487,12 @@
         notification.style.zIndex = '9999';
         notification.style.minWidth = '300px';
         notification.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
 
         document.body.appendChild(notification);
 
-        // Auto remove after 5 seconds
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.parentNode.removeChild(notification);
@@ -1543,7 +1506,6 @@
         sidebar.classList.toggle('show');
     }
 
-    // Add mobile menu button for responsive design
     if (window.innerWidth <= 768) {
         const header = document.querySelector('.header');
         const mobileMenuBtn = document.createElement('button');

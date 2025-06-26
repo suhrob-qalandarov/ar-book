@@ -28,6 +28,6 @@ public class BookPage extends BaseEntity {
     @ManyToOne
     private Book book;
 
-    @OneToMany(mappedBy = "bookPage")
+    @OneToMany(mappedBy = "bookPage",fetch = FetchType.EAGER)
     private List<PageContent> pageContents;
 }

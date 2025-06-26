@@ -6,6 +6,8 @@ import lombok.experimental.SuperBuilder;
 import org.example.arbook.model.base.BaseEntity;
 import org.example.arbook.model.enums.BookStatus;
 
+import java.util.List;
+
 @Getter
 @Setter
 @SuperBuilder
@@ -19,13 +21,15 @@ public class Book extends BaseEntity {
     private String description;
     private Integer totalPages;
     private Integer totalLanguages;
-    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private BookStatus status=BookStatus.INCOMPLETE;
+    @Enumerated(EnumType.STRING)
+    private BookStatus status = BookStatus.INCOMPLETE;
     @ManyToOne
     private Category category;
     @ManyToOne
     private Attachment attachment;
+    @OneToMany(mappedBy = "book")
+    private List<BookPage> bookPages;
 
 
 }

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.BookReq;
+import org.example.arbook.model.dto.response.AdminBookRes;
 import org.example.arbook.model.entity.Book;
 import org.example.arbook.service.interfaces.admin.AdminBookService;
 import org.springframework.http.HttpStatus;
@@ -27,29 +28,29 @@ public class AdminBookController {
 
     @Operation(summary = "Retrieve all books", description = "Returns a list of all books")
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        List<Book> bookRes = adminBookService.getAllBooks();
+    public ResponseEntity<List<AdminBookRes>> getAllBooks() {
+        List<AdminBookRes> bookRes = adminBookService.getAllBooks();
         return ResponseEntity.ok(bookRes);
     }
 
     @Operation(summary = "Create a new book", description = "Creates a book with the provided details")
     @PostMapping
-    public ResponseEntity<Book> createBook(@Valid @RequestBody BookReq bookReq) {
-        Book book = adminBookService.createBook(bookReq);
+    public ResponseEntity<AdminBookRes> createBook(@Valid @RequestBody BookReq bookReq) {
+        AdminBookRes book = adminBookService.createBook(bookReq);
         return ResponseEntity.status(HttpStatus.CREATED).body(book);
     }
 
     @Operation(summary = "Retrieve a particular book", description = "Returns a book by given Id")
     @GetMapping("/{bookId}")
-    public ResponseEntity<Book> getOneBook(@PathVariable @Positive Long bookId) {
-        Book book = adminBookService.getOneBook(bookId);
+    public ResponseEntity<AdminBookRes> getOneBook(@PathVariable @Positive Long bookId) {
+        AdminBookRes book = adminBookService.getOneBook(bookId);
         return ResponseEntity.ok(book);
     }
 
     @Operation(summary = "Update a book by ID", description = "Updates and Returns book details for the given book ID.")
     @PutMapping("/{bookId}")
-    public ResponseEntity<Book> updateBook(@PathVariable @Positive Long bookId, @Valid @RequestBody BookReq bookReq) {
-        Book updatedBook = adminBookService.updateBook(bookId, bookReq);
+    public ResponseEntity<AdminBookRes> updateBook(@PathVariable @Positive Long bookId, @Valid @RequestBody BookReq bookReq) {
+        AdminBookRes updatedBook = adminBookService.updateBook(bookId, bookReq);
         return ResponseEntity.ok(updatedBook);
     }
 
