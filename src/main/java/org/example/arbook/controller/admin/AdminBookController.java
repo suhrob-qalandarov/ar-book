@@ -59,4 +59,18 @@ public class AdminBookController {
         String message = adminBookService.activateOrDeactivateBook(bookId);
         return ResponseEntity.ok("Book " + message);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -30,7 +30,7 @@ public class AdminLanguagesController {
             @ApiResponse(responseCode = CODE_200, description = "Languages list retrieved successfully")
     })
     @GetMapping
-    public ResponseEntity<List<Language>> getCategories(){
+    public ResponseEntity<List<Language>> getLanguages(){
         List<Language> languages = languageRepository.findAll();
         return ResponseEntity.ok(languages);
     }

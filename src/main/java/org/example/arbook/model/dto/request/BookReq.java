@@ -11,7 +11,7 @@ import lombok.Builder;
 public record BookReq(
 
         @NotBlank(message = "Title can not be blank")
-        @Schema(description = "The title of the book", example = "The Great Gatsby")
+        @Schema(description = "The text of the book", example = "The Great Gatsby")
         String title,
 
         @NotBlank(message = "Description can not be blank")

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.example.arbook.exception.AttachmentNotFoundException;
 import org.example.arbook.exception.BookNotFoundException;
 import org.example.arbook.exception.CategoryNotFoundException;
+import org.example.arbook.exception.LanguageNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import jakarta.validation.ConstraintViolationException; // Make sure this is the one you're using
 
@@ -226,7 +227,7 @@ public class GlobalExceptionHandler {
      * Handles custom exception when an attachment is not found.
      */
     @ExceptionHandler(AttachmentNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleAttachmentNotFoundException(AttachmentNotFoundException ex) {
+    public ResponseEntity<Map<String, Object>> handleBookNotFoundException(AttachmentNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.NOT_FOUND.value());
         response.put("error", "Not Found");
@@ -240,7 +241,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
     @ExceptionHandler(BookNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleAttachmentNotFoundException(BookNotFoundException ex) {
+    public ResponseEntity<Map<String, Object>> handleBookNotFoundException(BookNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.NOT_FOUND.value());
         response.put("error", "Not Found");
@@ -249,6 +250,21 @@ public class GlobalExceptionHandler {
 
         Map<String, String> fieldErrors = new HashMap<>();
         fieldErrors.put("bookId", ex.getMessage());
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LanguageNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleLanguageNotFoundException(LanguageNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("languageId", ex.getMessage());
         response.put("fieldErrors", fieldErrors);
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

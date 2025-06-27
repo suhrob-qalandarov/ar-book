@@ -1,5 +1,6 @@
 package org.example.arbook.model.mapper;
 
+import org.example.arbook.model.dto.request.BookPageReq;
 import org.example.arbook.model.dto.request.BookReq;
 import org.example.arbook.model.dto.response.AdminBookRes;
 import org.example.arbook.model.dto.response.BookRes;
@@ -15,7 +16,16 @@ public interface BookMapper {
 
     @Mapping(source = "attachment.id", target = "attachmentId")
     BookRes toBookResponse(Book book);
-
+    @Mapping(source = "categoryId", target = "category.id")
+    @Mapping(source = "attachmentId", target = "attachment.id")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "isActive", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "bookPages", ignore = true)
     Book toBook(BookReq bookReq);
 
     @Mapping(source = "id", target = "bookId")
@@ -32,4 +42,6 @@ public interface BookMapper {
     AdminBookRes toAdminBookResponse(Book book);
 
     List<AdminBookRes> toAdminBookResponseList(List<Book> books);
+
+
 }
