@@ -6,8 +6,10 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.BookReq;
+import org.example.arbook.model.dto.request.BookStatusChangeReq;
 import org.example.arbook.model.dto.response.AdminBookRes;
-import org.example.arbook.model.entity.Book;
+import org.example.arbook.model.dto.response.EntireBookRes;
+import org.example.arbook.model.enums.BookStatus;
 import org.example.arbook.service.interfaces.admin.AdminBookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,11 +42,17 @@ public class AdminBookController {
         return ResponseEntity.status(HttpStatus.CREATED).body(book);
     }
 
-    @Operation(summary = "Retrieve a particular book", description = "Returns a book by given Id")
+    @Operation(summary = "Retrieve a particular book without its pages", description = "Returns a book(without its page contents) by given Id")
     @GetMapping("/{bookId}")
     public ResponseEntity<AdminBookRes> getOneBook(@PathVariable @Positive Long bookId) {
         AdminBookRes book = adminBookService.getOneBook(bookId);
         return ResponseEntity.ok(book);
+    }
+
+    @GetMapping(ENTIRE + "/{bookId}")
+    public ResponseEntity<EntireBookRes> getEntireBook(@PathVariable Long bookId) {
+        EntireBookRes entireBookRes = adminBookService.getEntireBook(bookId);
+        return ResponseEntity.ok(entireBookRes);
     }
 
     @Operation(summary = "Update a book by ID", description = "Updates and Returns book details for the given book ID.")
@@ -60,17 +68,11 @@ public class AdminBookController {
         return ResponseEntity.ok("Book " + message);
     }
 
-
-
-
-
-
-
-
-
-
-
-
+    @PatchMapping("/{bookId}" + STATUS)
+    public ResponseEntity<?> changeBookStatus(@PathVariable Long bookId, @Valid @RequestBody BookStatusChangeReq bookStatusChangeReq) {
+        BookStatus bookStatus = adminBookService.changeBookStatus(bookId, bookStatusChangeReq);
+        return ResponseEntity.ok("Book status changed to " + bookStatus.name());
+    }
 
 
 }

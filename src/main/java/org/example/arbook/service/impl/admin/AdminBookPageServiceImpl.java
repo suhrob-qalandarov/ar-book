@@ -1,16 +1,17 @@
 package org.example.arbook.service.impl.admin;
 
 import lombok.RequiredArgsConstructor;
-import org.example.arbook.exception.BookNotFoundException;
+import org.example.arbook.exception.AttachmentNotFoundException;
+import org.example.arbook.exception.BookPageNotFoundException;
 import org.example.arbook.model.dto.request.BookPageReq;
-import org.example.arbook.model.dto.request.PageContentReq;
+import org.example.arbook.model.dto.request.BookPageWithNoContentReq;
 import org.example.arbook.model.dto.response.BookPageRes;
-import org.example.arbook.model.dto.response.EntireBookRes;
-import org.example.arbook.model.entity.Book;
+import org.example.arbook.model.entity.Attachment;
 import org.example.arbook.model.entity.BookPage;
 import org.example.arbook.model.entity.PageContent;
 import org.example.arbook.model.mapper.BookMapper;
 import org.example.arbook.model.mapper.BookPageMapper;
+import org.example.arbook.repository.AttachmentRepository;
 import org.example.arbook.repository.BookPageRepository;
 import org.example.arbook.repository.BookRepository;
 import org.example.arbook.repository.PageContentRepository;
@@ -23,20 +24,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminBookPageServiceImpl implements AdminBookPageService {
-    private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
     private final BookPageMapper bookPageMapper;
-    private final PageContentRepository pageContentRepository;
     private final BookPageRepository bookPageRepository;
+    private final AttachmentRepository attachmentRepository;
 
-    @Override
-    @Transactional
-    public EntireBookRes getEntireBook(Long bookId) {
-        Book book = bookRepository.findById(bookId).orElseThrow(() ->
-                new BookNotFoundException("Book not found with ID: " + bookId)
-        );
-        return bookMapper.toEntireBookResponse(book);
-    }
 
     @Override
     @Transactional
@@ -53,8 +44,39 @@ public class AdminBookPageServiceImpl implements AdminBookPageService {
         return bookPageMapper.toBookPageRes(savedBookPage);
     }
 
+
     @Override
-    public BookPageRes updateBookPageWithContents(Long bookPageId, BookPageReq bookPageReq) {
-        return null;
+    public String enableOrDisableBookPage(Long bookPageId) {
+        BookPage bookPage = bookPageRepository.findById(bookPageId).orElseThrow(() ->
+                new BookPageNotFoundException("BookPage not found with ID : " + bookPageId));
+
+        bookPage.setIsActive(!bookPage.getIsActive());
+
+        return bookPage.getIsActive() ? "Activated" : "Deactivated";
     }
+
+    @Override
+    @Transactional
+    public BookPageRes updateBookPageWithNoContent(Long bookPageId, BookPageWithNoContentReq bookPageWithNoContentReq) {
+        BookPage bookPage = bookPageRepository.findById(bookPageId).orElseThrow(() ->
+                new BookPageNotFoundException("BookPage not found with ID : " + bookPageId)
+        );
+        Attachment file3D = attachmentRepository.findById(bookPageWithNoContentReq.file3DId()).orElseThrow(() ->
+                new AttachmentNotFoundException("Attachment not found with ID : " + bookPageId)
+        );
+        Attachment markerPhoto = attachmentRepository.findById(bookPageWithNoContentReq.markerPhotoId()).orElseThrow(() ->
+                new AttachmentNotFoundException("Attachment not found with ID : " + bookPageId)
+        );
+        bookPage.setFile3D(file3D);
+        bookPage.setMarkerPhoto(markerPhoto);
+        return bookPageMapper.toBookPageRes(bookPage);
+    }
+
+    @Override
+    public BookPageRes getOneBookPageWithContents(Long bookPageId) {
+        BookPage bookPage = bookPageRepository.findById(bookPageId).orElseThrow(() ->
+                new BookPageNotFoundException("BookPage not found with ID : " + bookPageId));
+        return bookPageMapper.toBookPageRes(bookPage);
+    }
+
 }

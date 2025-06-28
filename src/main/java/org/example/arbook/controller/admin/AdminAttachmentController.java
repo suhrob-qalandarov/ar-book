@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 import static org.example.arbook.util.ApiConstants.*;
 
 @Slf4j
@@ -24,6 +26,13 @@ public class AdminAttachmentController {
         log.debug("Uploading single file: {}", file.getOriginalFilename());
         Long savedAttachmentId = attachmentService.uploadOne(file);
         return ResponseEntity.ok(savedAttachmentId);
+    }
+
+    @PostMapping()
+    public ResponseEntity<List<Long>> uploadMultipleFiles(@RequestParam("files") List<MultipartFile> multipartFiles) {
+        log.debug("Uploading multiple files: {}", multipartFiles.size());
+        List<Long> filesLongId = attachmentService.uploadMultiple(multipartFiles);
+        return ResponseEntity.ok(filesLongId);
     }
 
     @PutMapping("/{attachmentId}")

@@ -1,10 +1,7 @@
 package org.example.arbook.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.example.arbook.exception.AttachmentNotFoundException;
-import org.example.arbook.exception.BookNotFoundException;
-import org.example.arbook.exception.CategoryNotFoundException;
-import org.example.arbook.exception.LanguageNotFoundException;
+import org.example.arbook.exception.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import jakarta.validation.ConstraintViolationException; // Make sure this is the one you're using
 
@@ -265,6 +262,35 @@ public class GlobalExceptionHandler {
 
         Map<String, String> fieldErrors = new HashMap<>();
         fieldErrors.put("languageId", ex.getMessage());
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(BookPageNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleBookPageNotFoundException(BookPageNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("bookPageId", ex.getMessage());
+        response.put("fieldErrors", fieldErrors);
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+   @ExceptionHandler(PageContentNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handlePageContentNotFoundException(PageContentNotFoundException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.NOT_FOUND.value());
+        response.put("error", "Not Found");
+        response.put("message", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        fieldErrors.put("pageContentId", ex.getMessage());
         response.put("fieldErrors", fieldErrors);
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);

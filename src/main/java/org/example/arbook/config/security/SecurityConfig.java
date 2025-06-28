@@ -34,7 +34,10 @@ public class SecurityConfig {
                         auth
 //                        .requestMatchers("http://localhost:63342/**").permitAll()
                                 .requestMatchers(
-                                        "/admin/main-page.html"
+                                        "/admin/main-page.html",
+                                        "/admin/book-page.html",
+                                        "/admin/book-page.html/**"
+
                                 ).permitAll()
                                 .requestMatchers(
                                         "/"

@@ -81,14 +81,12 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public List<Long> uploadMultiple(MultipartFile[] files) {
-        if (files == null || files.length == 0) {
+    public List<Long> uploadMultiple(List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
             throw new IllegalArgumentException("No files provided for upload");
         }
 
-        return Arrays.stream(files)
-                .map(this::uploadOne)
-                .collect(Collectors.toList());
+        return files.stream().map(this::uploadOne).toList();
     }
 
     @Override

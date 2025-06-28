@@ -25,6 +25,9 @@ public interface ApiConstants {
     String LANGUAGES = "/languages";
 
     String BOOK_PAGE="/book-page";
+    String STATUS="/status";
+    String ENTIRE="/entire";
+    String PAGE_CONTENT="/page-content";
 
 }
 

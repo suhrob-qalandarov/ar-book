@@ -14,7 +14,7 @@ public interface AttachmentService {
 
     Long uploadOne(MultipartFile file);
 
-    List<Long> uploadMultiple(MultipartFile[] files);
+    List<Long> uploadMultiple(List<MultipartFile> files);
 
     void update(Long attachmentId, MultipartFile file);
 

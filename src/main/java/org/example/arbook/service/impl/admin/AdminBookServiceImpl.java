@@ -5,11 +5,14 @@ import org.example.arbook.exception.AttachmentNotFoundException;
 import org.example.arbook.exception.BookNotFoundException;
 import org.example.arbook.exception.CategoryNotFoundException;
 import org.example.arbook.model.dto.request.BookReq;
+import org.example.arbook.model.dto.request.BookStatusChangeReq;
 import org.example.arbook.model.dto.response.AdminBookRes;
 import org.example.arbook.model.dto.response.BookRes;
+import org.example.arbook.model.dto.response.EntireBookRes;
 import org.example.arbook.model.entity.Attachment;
 import org.example.arbook.model.entity.Book;
 import org.example.arbook.model.entity.Category;
+import org.example.arbook.model.enums.BookStatus;
 import org.example.arbook.model.mapper.BookMapper;
 import org.example.arbook.repository.AttachmentRepository;
 import org.example.arbook.repository.BookRepository;
@@ -35,6 +38,14 @@ public class AdminBookServiceImpl implements AdminBookService {
         return bookMapper.toAdminBookResponseList(books);
     }
 
+    @Override
+    @Transactional
+    public EntireBookRes getEntireBook(Long bookId) {
+        Book book = bookRepository.findById(bookId).orElseThrow(() ->
+                new BookNotFoundException("Book not found with ID: " + bookId)
+        );
+        return bookMapper.toEntireBookResponse(book);
+    }
 
     @Override
     public AdminBookRes getOneBook(Long bookId) {
@@ -54,6 +65,16 @@ public class AdminBookServiceImpl implements AdminBookService {
         bookRepository.save(book);
 
         return newStatus ? "activated" : "deactivated";
+    }
+
+    @Override
+    @Transactional
+    public BookStatus changeBookStatus(Long bookId, BookStatusChangeReq bookStatusChangeReq) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new NoSuchElementException("not found with id: " + bookId));
+        book.setStatus(bookStatusChangeReq.status());
+        Book savedBook = bookRepository.save(book);
+        return savedBook.getStatus();
     }
 
     @Transactional

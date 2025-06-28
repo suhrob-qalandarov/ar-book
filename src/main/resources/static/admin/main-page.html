@@ -498,7 +498,7 @@
         .loading {
             display: inline-block;
             width: 20px;
-            height: 20px;
+            height:20px;
             border: 3px solid rgba(255,255,255,.3);
             border-radius: 50%;
             border-top-color: #fff;
@@ -1174,7 +1174,7 @@
         tbody.innerHTML = booksToRender.map(book => `
             <tr>
                 <td>${book.id}</td>
-                <td>${book.title}</td>
+                <td><a href="book-page.html?bookId=${book.id}" style="text-decoration: none; color: inherit;">${book.title}</a></td>
                 <td>${book.categoryName || 'N/A'}</td>
                 <td>
                     <span class="status-badge ${book.status === 'COMPLETED' ? 'status-complete' : 'status-incomplete'}">
