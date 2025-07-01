@@ -135,13 +135,23 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     private ContentType determineContentType(MultipartFile file) {
         String contentType = file.getContentType();
+        String fileName = file.getOriginalFilename();
         if (contentType == null) {
             throw new IllegalArgumentException("File content type cannot be determined");
         }
+
+        // Handle content type based on MIME type
         return switch (contentType.toLowerCase()) {
             case "image/jpeg", "image/png", "image/gif" -> ContentType.IMAGE;
             case "audio/mpeg", "audio/wav" -> ContentType.AUDIO;
             case "model/gltf-binary", "model/gltf+json" -> ContentType.FILE_3D;
+            case "application/octet-stream" -> {
+                // Check file extension for octet-stream
+                if (fileName != null && fileName.toLowerCase().endsWith(".glb")) {
+                    yield ContentType.FILE_3D;
+                }
+                throw new IllegalArgumentException("Unsupported file type: " + contentType);
+            }
             default -> throw new IllegalArgumentException("Unsupported file type: " + contentType);
         };
     }

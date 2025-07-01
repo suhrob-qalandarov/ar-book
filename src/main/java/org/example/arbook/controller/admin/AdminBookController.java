@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.BookReq;
-import org.example.arbook.model.dto.request.BookStatusChangeReq;
+import org.example.arbook.model.dto.request.BookPageStatusChangeReq;
 import org.example.arbook.model.dto.response.AdminBookRes;
 import org.example.arbook.model.dto.response.EntireBookRes;
 import org.example.arbook.model.enums.BookStatus;
@@ -69,7 +69,7 @@ public class AdminBookController {
     }
 
     @PatchMapping("/{bookId}" + STATUS)
-    public ResponseEntity<?> changeBookStatus(@PathVariable Long bookId, @Valid @RequestBody BookStatusChangeReq bookStatusChangeReq) {
+    public ResponseEntity<?> changeBookStatus(@PathVariable Long bookId, @Valid @RequestBody BookPageStatusChangeReq bookStatusChangeReq) {
         BookStatus bookStatus = adminBookService.changeBookStatus(bookId, bookStatusChangeReq);
         return ResponseEntity.ok("Book status changed to " + bookStatus.name());
     }

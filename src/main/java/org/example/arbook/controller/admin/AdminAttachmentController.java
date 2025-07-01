@@ -35,6 +35,9 @@ public class AdminAttachmentController {
         return ResponseEntity.ok(filesLongId);
     }
 
+
+
+
     @PutMapping("/{attachmentId}")
     public ResponseEntity<Void> updateFile(@PathVariable Long attachmentId, @RequestParam("file") MultipartFile file) {
         log.debug("Updating attachment ID: {}", attachmentId);

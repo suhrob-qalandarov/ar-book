@@ -5,9 +5,8 @@ import org.example.arbook.exception.AttachmentNotFoundException;
 import org.example.arbook.exception.BookNotFoundException;
 import org.example.arbook.exception.CategoryNotFoundException;
 import org.example.arbook.model.dto.request.BookReq;
-import org.example.arbook.model.dto.request.BookStatusChangeReq;
+import org.example.arbook.model.dto.request.BookPageStatusChangeReq;
 import org.example.arbook.model.dto.response.AdminBookRes;
-import org.example.arbook.model.dto.response.BookRes;
 import org.example.arbook.model.dto.response.EntireBookRes;
 import org.example.arbook.model.entity.Attachment;
 import org.example.arbook.model.entity.Book;
@@ -69,7 +68,7 @@ public class AdminBookServiceImpl implements AdminBookService {
 
     @Override
     @Transactional
-    public BookStatus changeBookStatus(Long bookId, BookStatusChangeReq bookStatusChangeReq) {
+    public BookStatus changeBookStatus(Long bookId, BookPageStatusChangeReq bookStatusChangeReq) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new NoSuchElementException("not found with id: " + bookId));
         book.setStatus(bookStatusChangeReq.status());

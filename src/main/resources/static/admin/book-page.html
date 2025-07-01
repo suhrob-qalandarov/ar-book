@@ -2,9 +2,1491 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Management | AR Book Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #007AFF;
+            --light-blue: #E3F2FD;
+            --dark-blue: #0056CC;
+            --hover-blue: #0066FF;
+            --success-green: #34C759;
+            --warning-orange: #FF9500;
+            --danger-red: #FF3B30;
+            --gray-light: #F2F2F7;
+            --gray-medium: #8E8E93;
+            --gray-dark: #1C1C1E;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--gray-dark);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--hover-blue) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            transform: translateX(-2px);
+        }
+
+        .main-container {
+            margin-top: 70px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .book-header {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .book-cover {
+            width: 200px;
+            height: 280px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-cover-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--light-blue) 0%, var(--primary-blue) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .book-description {
+            color: var(--gray-medium);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .book-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item {
+            background: var(--gray-light);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .meta-label {
+            font-size: 0.875rem;
+            color: var(--gray-medium);
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-dark);
+        }
+
+        .status-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .status-select {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .status-incomplete {
+            background: var(--gray-medium);
+            color: white;
+        }
+
+        .status-completed {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .status-on-sale {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        .pages-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .page-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .page-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .page-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .page-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-apple {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--dark-blue);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #28A745;
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: var(--warning-orange);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #E68900;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #E6342A;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-medium);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .page-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .page-media {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .media-item {
+            background: var(--gray-light);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .media-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-texts {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .text-content {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-blue);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .language-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .text-content p {
+            font-size: 1.1rem;
+            color: var(--gray-dark);
+            background: var(--gray-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+        }
+
+        .add-page-btn {
+            background: var(--white);
+            border: 2px dashed var(--primary-blue);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--primary-blue);
+            margin: 1rem;
+        }
+
+        .add-page-btn:hover {
+            background: var(--light-blue);
+            transform: translateY(-2px);
+        }
+
+        .add-page-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .modal-header {
+            background: var(--light-blue);
+            color: var(--dark-blue);
+            border-radius: 20px 20px 0 0;
+            border-bottom: none;
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-title {
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            color: var(--gray-dark);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control {
+            border: 1px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+            outline: none;
+        }
+
+        .content-row {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--gray-light);
+            border-radius: 12px;
+        }
+
+        .file-preview {
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            padding: 1rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .notification.success {
+            background: var(--success-green);
+        }
+
+        .notification.error {
+            background: var(--danger-red);
+        }
+
+        .notification.info {
+            background: var(--primary-blue);
+        }
+
+        @media (max-width: 768px) {
+            .book-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .book-cover {
+                width: 150px;
+                height: 210px;
+                margin: 0 auto;
+            }
+
+            .page-content {
+                grid-template-columns: 1fr;
+            }
+
+            .content-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1 >Local asdsadasdhost</h1>
+<!-- Header -->
+<header class="header">
+    <a href="main-page.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Books
+    </a>
+    <h1>Book Management</h1>
+    <div></div>
+</header>
+
+<!-- Main Container -->
+<div class="main-container">
+    <!-- Book Header -->
+    <div class="book-header fade-in" id="bookHeader" style="display: none;">
+        <div class="book-cover" id="bookCover">
+            <div class="status-controls">
+                <select class="status-select" id="statusSelect">
+                    <option value="INCOMPLETE">Incomplete</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="ON_SALE">On Sale</option>
+                </select>
+            </div>
+            <div class="book-cover-placeholder">
+                <i class="fas fa-book"></i>
+            </div>
+        </div>
+        <div class="book-info">
+            <h1 class="book-title" id="bookTitle">Loading...</h1>
+            <p class="book-description" id="bookDescription">Loading book details...</p>
+            <div class="book-meta" id="bookMeta">
+                <!-- Meta items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Pages Container -->
+    <div class="pages-container" id="pagesContainer">
+        <!-- Pages will be populated here -->
+    </div>
+
+    <!-- Add Page Button -->
+    <div class="add-page-btn" id="addPageBtn" style="display: none;" onclick="showCreatePageModal()">
+        <div class="add-page-icon">
+            <i class="fas fa-plus"></i>
+        </div>
+        <h3>Add New Page</h3>
+        <p>Create a new page for this book</p>
+    </div>
+</div>
+
+<!-- Create Page Modal -->
+<div class="modal fade" id="createPageModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Page</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createPageForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Marker Photo</label>
+                                <input type="file" class="form-control" id="markerPhoto" accept="image/*" required>
+                                <div class="file-preview" id="markerPhotoPreview"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">3D File</label>
+                                <input type="file" class="form-control" id="file3D" accept=".glb,.gltf" required>
+                                <div class="file-preview" id="file3DPreview"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="mt-4 mb-3">Page Contents</h6>
+                    <div id="pageContents">
+                        <!-- Content rows will be generated based on totalLanguages -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="savePage()">
+                    <span id="savePageText">Save Page</span>
+                    <span id="savePageLoading" class="loading" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Details Modal -->
+<div class="modal fade" id="viewDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewDetailsTitle">Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="viewDetailsBody">
+                <!-- Details will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Page Modal -->
+<div class="modal fade" id="editPageModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Page</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editPageForm">
+                    <input type="hidden" id="editPageId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Marker Photo</label>
+                                <div id="currentMarkerPhoto"></div>
+                                <input type="file" class="form-control" id="editMarkerPhoto" accept="image/*">
+                                <div class="file-preview" id="editMarkerPhotoPreview"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">3D File</label>
+                                <div id="currentFile3D"></div>
+                                <input type="file" class="form-control" id="editFile3D" accept=".glb,.gltf">
+                                <div class="file-preview" id="editFile3DPreview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updatePage()">
+                    <span id="updatePageText">Update Page</span>
+                    <span id="updatePageLoading" class="loading" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Content Modal -->
+<div class="modal fade" id="editContentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Content</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editContentForm">
+                    <input type="hidden" id="editContentId">
+                    <div class="form-group">
+                        <label class="form-label">Language</label>
+                        <select class="form-control" id="editContentLanguage" required>
+                            <!-- Languages will be populated here -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Text</label>
+                        <textarea class="form-control" id="editContentText" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Audio</label>
+                        <div id="currentAudio"></div>
+                        <input type="file" class="form-control" id="editContentAudio" accept="audio/*">
+                        <div class="file-preview" id="editContentAudioPreview"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateContent()">
+                    <span id="updateContentText">Update Content</span>
+                    <span id="updateContentLoading" class="loading" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Global variables
+    let currentBook = null;
+    let languages = [];
+    let bookId = null;
+
+    // API Base URL
+    const API_BASE_URL = '/api/v1';
+
+    // Axios instance with default headers
+    const axiosInstance = axios.create({
+        baseURL: API_BASE_URL,
+    });
+
+    // Add request interceptor to include Authorization header
+    axiosInstance.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'auth/login.html';
+                return Promise.reject(new Error('No token found'));
+            }
+            config.headers.Authorization = `${token}`;
+            return config;
+        },
+        (error) => Promise.reject(error)
+    );
+
+    // Add response interceptor to handle unauthorized responses
+    axiosInstance.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                localStorage.removeItem('token');
+                window.location.href = 'auth/login.html';
+            }
+            return Promise.reject(error);
+        }
+    );
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'auth/login.html';
+            return;
+        }
+
+        // Get bookId from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        bookId = urlParams.get('bookId');
+
+        if (!bookId) {
+            showNotification('Book ID not found', 'error');
+            setTimeout(() => {
+                window.location.href = 'main-page.html';
+            }, 2000);
+            return;
+        }
+
+        initializeApp();
+    });
+
+    async function initializeApp() {
+        try {
+            await loadLanguages();
+            await loadEntireBook();
+            setupEventListeners();
+        } catch (error) {
+            console.error('Error initializing app:', error);
+            showNotification('Error loading book data', 'error');
+        }
+    }
+
+    function setupEventListeners() {
+        // Status change listener
+        document.getElementById('statusSelect').addEventListener('change', changeBookStatus);
+
+        // File input listeners
+        setupFilePreview('markerPhoto', 'markerPhotoPreview');
+        setupFilePreview('file3D', 'file3DPreview');
+        setupFilePreview('editMarkerPhoto', 'editMarkerPhotoPreview');
+        setupFilePreview('editFile3D', 'editFile3DPreview');
+        setupFilePreview('editContentAudio', 'editContentAudioPreview');
+    }
+
+    function setupFilePreview(inputId, previewId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                const preview = document.getElementById(previewId);
+
+                if (file) {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview">`;
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (file.type.startsWith('audio/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            preview.innerHTML = `<audio controls class="audio-player"><source src="${e.target.result}" type="${file.type}"></audio>`;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        preview.innerHTML = `<p><i class="fas fa-file"></i> ${file.name}</p>`;
+                    }
+                } else {
+                    preview.innerHTML = '';
+                }
+            });
+        }
+    }
+
+    async function loadLanguages() {
+        try {
+            const response = await axiosInstance.get('/admin/languages');
+            languages = response.data;
+        } catch (error) {
+            console.error('Error loading languages:', error);
+            showNotification('Error loading languages', 'error');
+        }
+    }
+
+    async function loadEntireBook() {
+        try {
+            const response = await axiosInstance.get(`/admin/book/entire/${bookId}`);
+            currentBook = response.data;
+            renderBook();
+        } catch (error) {
+            console.error('Error loading book:', error);
+            showNotification('Error loading book details', 'error');
+        }
+    }
+
+    function renderBook() {
+        if (!currentBook) return;
+
+        // Update book header
+        document.getElementById('bookTitle').textContent = currentBook.title;
+        document.getElementById('bookDescription').textContent = currentBook.description || 'No description available';
+
+        // Update book cover
+        const bookCover = document.getElementById('bookCover');
+        if (currentBook.bookCoverId) {
+            bookCover.innerHTML = `<img src="/api/v1/attachment/${currentBook.bookCoverId}" alt="Book Cover"><div class="status-controls">
+                    <select class="status-select" id="statusSelect">
+                        <option value="INCOMPLETE">Incomplete</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="ON_SALE">On Sale</option>
+                    </select>
+                </div>`;
+        }
+
+        // Update meta information
+        const bookMeta = document.getElementById('bookMeta');
+        bookMeta.innerHTML = `
+                <div class="meta-item">
+                    <div class="meta-label">Category</div>
+                    <div class="meta-value">${currentBook.categoryName || 'N/A'}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Total Pages</div>
+                    <div class="meta-value">${currentBook.totalPages || 0}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Languages</div>
+                    <div class="meta-value">${currentBook.totalLanguages || 0}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Status</div>
+                    <div class="meta-value">${currentBook.bookStatus}</div>
+                </div>
+            `;
+
+        // Update status select
+        const statusSelect = document.getElementById('statusSelect');
+        statusSelect.value = currentBook.bookStatus;
+        statusSelect.className = `status-select status-${currentBook.bookStatus.toLowerCase().replace('_', '-')}`;
+
+        // Show book header
+        document.getElementById('bookHeader').style.display = 'flex';
+
+        // Render pages
+        renderPages();
+
+        // Show/hide add page button
+        updateAddPageButton();
+    }
+
+    function renderPages() {
+        const pagesContainer = document.getElementById('pagesContainer');
+
+        if (!currentBook.bookPages || currentBook.bookPages.length === 0) {
+            pagesContainer.innerHTML = '';
+            return;
+        }
+
+        pagesContainer.innerHTML = currentBook.bookPages.map((page, index) => `
+                <div class="page-card fade-in">
+                    <div class="page-header">
+                        <div class="page-number">Page ${index + 1}</div>
+                        <div class="page-controls">
+                            <button class="btn-apple btn-primary" onclick="viewPageDetails(${page.id})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="btn-apple btn-warning" onclick="editPage(${page.id})" ${currentBook.bookStatus === 'ON_SALE' ? 'disabled' : ''}>
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-apple ${page.isActive ? 'btn-danger' : 'btn-success'}" onclick="togglePageStatus(${page.id})">
+                                <i class="fas fa-${page.isActive ? 'ban' : 'check'}"></i>
+                                ${page.isActive ? 'Disable' : 'Enable'}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="page-content">
+                        <div class="page-media">
+                            <div class="media-item">
+                                <h6>Marker Photo</h6>
+                                ${page.markerPhotoId ? `<img src="/api/v1/attachment/${page.markerPhotoId}" class="media-preview" alt="Marker Photo">` : '<p>No marker photo</p>'}
+                            </div>
+                            <div class="media-item">
+                                <h6>3D File</h6>
+                                ${page.file3DId ? `<p><i class="fas fa-cube"></i> <strong>3D Model <span style="color: var(--primary-blue);">Available</span></strong></p>` : '<p>No 3D file</p>'}
+                            </div>
+                        </div>
+                        <div class="page-texts">
+                            ${page.pageContents.map(content => `
+                                <div class="text-content">
+                                    <div class="language-label"><strong>Language: ${languages.find(lang => lang.id === content.languageId)?.name || 'Unknown'}</strong></div>
+                                    <p>${content.text}</p>
+                                    ${content.audioId ? `<audio controls class="audio-player"><source src="/api/v1/attachment/${content.audioId}" type="audio/mpeg"></audio>` : '<p>No audio</p>'}
+                                    <div class="mt-2 d-flex gap-3">
+                                        <button class="btn-apple btn-primary btn-sm" onclick="viewContentDetails(${content.id})">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <button class="btn-apple btn-warning btn-sm" onclick="editContent(${content.id})" ${currentBook.bookStatus === 'ON_SALE' ? 'disabled' : ''}>
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function updateAddPageButton() {
+        const addPageBtn = document.getElementById('addPageBtn');
+        const currentPageCount = currentBook.bookPages ? currentBook.bookPages.length : 0;
+        const totalPages = currentBook.totalPages || 0;
+
+        if (currentPageCount < totalPages && currentBook.bookStatus !== 'ON_SALE') {
+            addPageBtn.style.display = 'block';
+        } else {
+            addPageBtn.style.display = 'none';
+        }
+    }
+
+    async function changeBookStatus() {
+        const newStatus = document.getElementById('statusSelect').value;
+
+        try {
+            await axiosInstance.patch(`/admin/book/${bookId}/status`, {
+                status: newStatus
+            });
+
+            currentBook.bookStatus = newStatus;
+            document.getElementById('statusSelect').className = `status-select status-${newStatus.toLowerCase().replace('_', '-')}`;
+
+            showNotification(`Book status changed to ${newStatus}`, 'success');
+
+            // Re-render to update disabled states
+            renderPages();
+            updateAddPageButton();
+
+        } catch (error) {
+            console.error('Error changing book status:', error);
+            showNotification('Error changing book status', 'error');
+            // Revert select value
+            document.getElementById('statusSelect').value = currentBook.bookStatus;
+        }
+    }
+
+    function showCreatePageModal() {
+        // Generate content inputs based on totalLanguages
+        const pageContents = document.getElementById('pageContents');
+        pageContents.innerHTML = '';
+
+        for (let i = 0; i < currentBook.totalLanguages; i++) {
+            const contentRow = document.createElement('div');
+            contentRow.className = 'content-row';
+            contentRow.innerHTML = `
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Language</label>
+                        <select class="form-control content-language" required>
+                            <option value="">Select Language</option>
+                            ${languages.map(lang => `<option value="${lang.id}">${lang.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Audio</label>
+                        <input type="file" class="form-control content-audio" accept="audio/*" required>
+                        <div class="file-preview"></div>
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label class="form-label">Text</label>
+                        <textarea class="form-control content-text" rows="3" required></textarea>
+                    </div>
+                `;
+            pageContents.appendChild(contentRow);
+
+            // Setup file preview for this audio input
+            const audioInput = contentRow.querySelector('.content-audio');
+            const audioPreview = contentRow.querySelector('.file-preview');
+            audioInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('audio/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        audioPreview.innerHTML = `<audio controls class="audio-player"><source src="${e.target.result}" type="${file.type}"></audio>`;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    audioPreview.innerHTML = '';
+                }
+            });
+        }
+
+        new bootstrap.Modal(document.getElementById('createPageModal')).show();
+    }
+
+    async function savePage() {
+        const form = document.getElementById('createPageForm');
+        const saveButton = document.querySelector('#createPageModal .btn-primary');
+        const saveText = document.getElementById('savePageText');
+        const saveLoading = document.getElementById('savePageLoading');
+
+        // Validate form
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        // Get form data
+        const markerPhoto = document.getElementById('markerPhoto').files[0];
+        const file3D = document.getElementById('file3D').files[0];
+        const contentLanguages = document.querySelectorAll('.content-language');
+        const contentAudios = document.querySelectorAll('.content-audio');
+        const contentTexts = document.querySelectorAll('.content-text');
+
+        if (!markerPhoto || !file3D) {
+            showNotification('Please select both marker photo and 3D file', 'error');
+            return;
+        }
+
+        // Validate content inputs
+        for (let i = 0; i < contentLanguages.length; i++) {
+            if (!contentLanguages[i].value || !contentAudios[i].files[0] || !contentTexts[i].value.trim()) {
+                showNotification(`Please fill all fields for content ${i + 1}`, 'error');
+                return;
+            }
+        }
+
+        saveText.style.display = 'none';
+        saveLoading.style.display = 'inline-block';
+        saveButton.disabled = true;
+
+        try {
+            // Upload marker photo
+            const markerFormData = new FormData();
+            markerFormData.append('file', markerPhoto);
+            const markerResponse = await axiosInstance.post('/admin/attachment', markerFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            const markerPhotoId = markerResponse.data;
+
+            // Upload 3D file
+            const file3DFormData = new FormData();
+            file3DFormData.append('file', file3D);
+            const file3DResponse = await axiosInstance.post('/admin/attachment', file3DFormData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            const file3DId = file3DResponse.data;
+
+            // Upload audio files and prepare page contents
+            const pageContents = [];
+            for (let i = 0; i < contentLanguages.length; i++) {
+                const audioFormData = new FormData();
+                audioFormData.append('file', contentAudios[i].files[0]);
+                const audioResponse = await axiosInstance.post('/admin/attachment', audioFormData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                const audioId = audioResponse.data;
+
+                pageContents.push({
+                    text: contentTexts[i].value.trim(),
+                    audioId: audioId,
+                    languageId: parseInt(contentLanguages[i].value)
+                });
+            }
+
+            // Create book page
+            const bookPageData = {
+                bookId: parseInt(bookId),
+                markerPhotoId: markerPhotoId,
+                file3DId: file3DId,
+                pageContents: pageContents
+            };
+
+            await axiosInstance.post('/admin/book-page', bookPageData);
+
+            showNotification('Page created successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('createPageModal')).hide();
+
+            // Reload book data
+            await loadEntireBook();
+
+        } catch (error) {
+            console.error('Error saving page:', error);
+            showNotification('Error saving page', 'error');
+        } finally {
+            saveText.style.display = 'inline';
+            saveLoading.style.display = 'none';
+            saveButton.disabled = false;
+        }
+    }
+
+    async function viewPageDetails(pageId) {
+        try {
+            const response = await axiosInstance.get(`/admin/book-page/${pageId}`);
+            const page = response.data;
+
+            document.getElementById('viewDetailsTitle').textContent = 'Page Details';
+            document.getElementById('viewDetailsBody').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Information</h6>
+                            <p><strong>ID:</strong> ${page.id}</p>
+                            <p><strong>Book ID:</strong> ${page.bookId}</p>
+                            <p><strong>Created At:</strong> ${formatDate(page.createdAt)}</p>
+                            <p><strong>Updated At:</strong> ${formatDate(page.updatedAt)}</p>
+                            <p><strong>Created By:</strong> ${page.createdBy || 'System'}</p>
+                            <p><strong>Updated By:</strong> ${page.updatedBy || 'System'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Media Files</h6>
+                            <p><strong>Marker Photo ID:</strong> ${page.markerPhotoId}</p>
+                            <p><strong>3D File ID:</strong> ${page.file3DId}</p>
+                            ${page.markerPhotoId ? `<img src="/api/v1/attachment/${page.markerPhotoId}" class="preview-image" alt="Marker Photo">` : ''}
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Page Contents</h6>
+                    ${page.pageContents.map(content => `
+                        <div class="border p-3 mb-3 rounded">
+                            <p><strong>Content ID:</strong> ${content.id}</p>
+                            <p><strong>Language:</strong> ${languages.find(lang => lang.id === content.languageId)?.name || 'Unknown'}</p>
+                            <p><strong>Text:</strong> ${content.text}</p>
+                            <p><strong>Audio ID:</strong> ${content.audioId}</p>
+                            ${content.audioId ? `<audio controls class="audio-player"><source src="/api/v1/attachment/${content.audioId}" type="audio/mpeg"></audio>` : ''}
+                            <p><strong>Created At:</strong> ${formatDate(content.createdAt)}</p>
+                            <p><strong>Updated At:</strong> ${formatDate(content.updatedAt)}</p>
+                        </div>
+                    `).join('')}
+                `;
+
+            new bootstrap.Modal(document.getElementById('viewDetailsModal')).show();
+        } catch (error) {
+            console.error('Error loading page details:', error);
+            showNotification('Error loading page details', 'error');
+        }
+    }
+
+    async function editPage(pageId) {
+        try {
+            const response = await axiosInstance.get(`/admin/book-page/${pageId}`);
+            const page = response.data;
+
+            document.getElementById('editPageId').value = pageId;
+
+            // Show current files
+            document.getElementById('currentMarkerPhoto').innerHTML = page.markerPhotoId ?
+                `<img src="/api/v1/attachment/${page.markerPhotoId}" class="preview-image" alt="Current Marker Photo">` :
+                'No current marker photo';
+
+            document.getElementById('currentFile3D').innerHTML = page.file3DId ?
+                '<p><i class="fas fa-cube"></i> <strong>3D Model <span style="color: var(--primary-blue);">Available</span></strong></p>' :
+                'No current 3D file';
+
+            new bootstrap.Modal(document.getElementById('editPageModal')).show();
+        } catch (error) {
+            console.error('Error loading page for edit:', error);
+            showNotification('Error loading page details', 'error');
+        }
+    }
+
+    async function updatePage() {
+        const pageId = document.getElementById('editPageId').value;
+        const markerPhoto = document.getElementById('editMarkerPhoto').files[0];
+        const file3D = document.getElementById('editFile3D').files[0];
+
+        const updateButton = document.querySelector('#editPageModal .btn-primary');
+        const updateText = document.getElementById('updatePageText');
+        const updateLoading = document.getElementById('updatePageLoading');
+
+        updateText.style.display = 'none';
+        updateLoading.style.display = 'inline-block';
+        updateButton.disabled = true;
+
+        try {
+            let markerPhotoId = null;
+            let file3DId = null;
+
+            // Get current page data
+            const currentPageResponse = await axiosInstance.get(`/admin/book-page/${pageId}`);
+            const currentPage = currentPageResponse.data;
+
+            // Upload new marker photo if provided
+            if (markerPhoto) {
+                const markerFormData = new FormData();
+                markerFormData.append('file', markerPhoto);
+
+                if (currentPage.markerPhotoId) {
+                    await axiosInstance.put(`/admin/attachment/${currentPage.markerPhotoId}`, markerFormData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    markerPhotoId = currentPage.markerPhotoId;
+                } else {
+                    const response = await axiosInstance.post('/admin/attachment', markerFormData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    markerPhotoId = response.data;
+                }
+            } else {
+                markerPhotoId = currentPage.markerPhotoId;
+            }
+
+            // Upload new 3D file if provided
+            if (file3D) {
+                const file3DFormData = new FormData();
+                file3DFormData.append('file', file3D);
+
+                if (currentPage.file3DId) {
+                    await axiosInstance.put(`/admin/attachment/${currentPage.file3DId}`, file3DFormData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    file3DId = currentPage.file3DId;
+                } else {
+                    const response = await axiosInstance.post('/admin/attachment', file3DFormData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    file3DId = response.data;
+                }
+            } else {
+                file3DId = currentPage.file3DId;
+            }
+
+            // Update page
+            const updateData = {
+                bookId: parseInt(bookId),
+                markerPhotoId: markerPhotoId,
+                file3DId: file3DId
+            };
+
+            await axiosInstance.put(`/admin/book-page/${pageId}`, updateData);
+
+            showNotification('Page updated successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('editPageModal')).hide();
+
+            // Reload book data
+            await loadEntireBook();
+
+        } catch (error) {
+            console.error('Error updating page:', error);
+            showNotification('Error updating page', 'error');
+        } finally {
+            updateText.style.display = 'inline';
+            updateLoading.style.display = 'none';
+            updateButton.disabled = false;
+        }
+    }
+
+    async function togglePageStatus(pageId) {
+        try {
+            const response = await axiosInstance.patch(`/admin/book-page/${pageId}`);
+            showNotification(response.data, 'success');
+            await loadEntireBook();
+        } catch (error) {
+            console.error('Error toggling page status:', error);
+            showNotification('Error updating page status', 'error');
+        }
+    }
+
+    async function viewContentDetails(contentId) {
+        try {
+            const response = await axiosInstance.get(`/admin/page-content/${contentId}`);
+            const content = response.data;
+
+            document.getElementById('viewDetailsTitle').textContent = 'Content Details';
+            document.getElementById('viewDetailsBody').innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Information</h6>
+                            <p><strong>ID:</strong> ${content.id}</p>
+                            <p><strong>Language:</strong> ${languages.find(lang => lang.id === content.languageId)?.name || 'Unknown'}</p>
+                            <p><strong>Audio ID:</strong> ${content.audioId}</p>
+                            <p><strong>Created At:</strong> ${formatDate(content.createdAt)}</p>
+                            <p><strong>Updated At:</strong> ${formatDate(content.updatedAt)}</p>
+                            <p><strong>Created By:</strong> ${content.createdBy || 'System'}</p>
+                            <p><strong>Updated By:</strong> ${content.updatedBy || 'System'}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Content</h6>
+                            <p><strong>Text:</strong></p>
+                            <div class="border p-3 rounded">${content.text}</div>
+                            ${content.audioId ? `
+                                <p class="mt-3"><strong>Audio:</strong></p>
+                                <audio controls class="audio-player">
+                                    <source src="/api/v1/attachment/${content.audioId}" type="audio/mpeg">
+                                </audio>
+                            ` : '<p class="mt-3">No audio available</p>'}
+                        </div>
+                    </div>
+                `;
+
+            new bootstrap.Modal(document.getElementById('viewDetailsModal')).show();
+        } catch (error) {
+            console.error('Error loading content details:', error);
+            showNotification('Error loading content details', 'error');
+        }
+    }
+
+    async function editContent(contentId) {
+        try {
+            const response = await axiosInstance.get(`/admin/page-content/${contentId}`);
+            const content = response.data;
+
+            document.getElementById('editContentId').value = contentId;
+            document.getElementById('editContentText').value = content.text;
+
+            // Populate language select
+            const languageSelect = document.getElementById('editContentLanguage');
+            languageSelect.innerHTML = languages.map(lang =>
+                `<option value="${lang.id}" ${lang.id === content.languageId ? 'selected' : ''}>${lang.name}</option>`
+            ).join('');
+
+            // Show current audio
+            document.getElementById('currentAudio').innerHTML = content.audioId ?
+                `<audio controls class="audio-player"><source src="/api/v1/attachment/${content.audioId}" type="audio/mpeg"></audio>` :
+                'No current audio';
+
+            new bootstrap.Modal(document.getElementById('editContentModal')).show();
+        } catch (error) {
+            console.error('Error loading content for edit:', error);
+            showNotification('Error loading content details', 'error');
+        }
+    }
+
+    async function updateContent() {
+        const contentId = document.getElementById('editContentId').value;
+        const text = document.getElementById('editContentText').value.trim();
+        const languageId = document.getElementById('editContentLanguage').value;
+        const audio = document.getElementById('editContentAudio').files[0];
+
+        if (!text || !languageId) {
+            showNotification('Please fill all required fields', 'error');
+            return;
+        }
+
+        const updateButton = document.querySelector('#editContentModal .btn-primary');
+        const updateText = document.getElementById('updateContentText');
+        const updateLoading = document.getElementById('updateContentLoading');
+
+        updateText.style.display = 'none';
+        updateLoading.style.display = 'inline-block';
+        updateButton.disabled = true;
+
+        try {
+            let audioId = null;
+
+            // Get current content data
+            const currentContentResponse = await axiosInstance.get(`/admin/page-content/${contentId}`);
+            const currentContent = currentContentResponse.data;
+
+            // Upload new audio if provided
+            if (audio) {
+                const audioFormData = new FormData();
+                audioFormData.append('file', audio);
+
+                if (currentContent.audioId) {
+                    await axiosInstance.put(`/admin/attachment/${currentContent.audioId}`, audioFormData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    audioId = currentContent.audioId;
+                } else {
+                    const response = await axiosInstance.post('/admin/attachment', audioFormData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    audioId = response.data;
+                }
+            } else {
+                audioId = currentContent.audioId;
+            }
+
+            // Update content
+            const updateData = {
+                text: text,
+                audioId: audioId,
+                languageId: parseInt(languageId)
+            };
+
+            await axiosInstance.put(`/admin/page-content/${contentId}`, updateData);
+
+            showNotification('Content updated successfully', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('editContentModal')).hide();
+
+            // Reload book data
+            await loadEntireBook();
+
+        } catch (error) {
+            console.error('Error updating content:', error);
+            showNotification('Error updating content', 'error');
+        } finally {
+            updateText.style.display = 'inline';
+            updateLoading.style.display = 'none';
+            updateButton.disabled = false;
+        }
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close btn-close-white ms-2" onclick="this.parentElement.remove()"></button>
+            `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+</script>
 </body>
 </html>

@@ -46,12 +46,13 @@ public class AdminBookPageServiceImpl implements AdminBookPageService {
 
 
     @Override
+    @Transactional
     public String enableOrDisableBookPage(Long bookPageId) {
         BookPage bookPage = bookPageRepository.findById(bookPageId).orElseThrow(() ->
                 new BookPageNotFoundException("BookPage not found with ID : " + bookPageId));
 
         bookPage.setIsActive(!bookPage.getIsActive());
-
+        bookPageRepository.save(bookPage);
         return bookPage.getIsActive() ? "Activated" : "Deactivated";
     }
 
@@ -71,6 +72,9 @@ public class AdminBookPageServiceImpl implements AdminBookPageService {
         bookPage.setMarkerPhoto(markerPhoto);
         return bookPageMapper.toBookPageRes(bookPage);
     }
+
+
+
 
     @Override
     public BookPageRes getOneBookPageWithContents(Long bookPageId) {

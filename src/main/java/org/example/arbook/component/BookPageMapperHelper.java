@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class BookPageMapperHelper {
+public class    BookPageMapperHelper {
 
     private final AttachmentRepository attachmentRepository;
     private final LanguageRepository languageRepository;

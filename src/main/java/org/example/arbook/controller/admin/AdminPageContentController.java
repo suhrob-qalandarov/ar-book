@@ -28,7 +28,7 @@ public class AdminPageContentController {
     }
 
     @GetMapping("/{pageContentId}")
-    public ResponseEntity<?> getOnePageContent(@PathVariable @Positive Long pageContentId) {
+    public ResponseEntity<PageContentRes> getOnePageContent(@PathVariable @Positive Long pageContentId) {
         PageContentRes pageContentRes = adminPageContentService.getOnePageContent(pageContentId);
         return ResponseEntity.ok(pageContentRes);
     }

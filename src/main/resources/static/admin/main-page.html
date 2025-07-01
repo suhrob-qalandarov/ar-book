@@ -1174,7 +1174,7 @@
         tbody.innerHTML = booksToRender.map(book => `
             <tr>
                 <td>${book.id}</td>
-                <td><a href="book-page.html?bookId=${book.id}" style="text-decoration: none; color: inherit;">${book.title}</a></td>
+                <td><a href="book-page.html?bookId=${book.id}"  style="font-size: 20px; font-weight: bold;">${book.title}</a></td>
                 <td>${book.categoryName || 'N/A'}</td>
                 <td>
                     <span class="status-badge ${book.status === 'COMPLETED' ? 'status-complete' : 'status-incomplete'}">

@@ -32,6 +32,7 @@ public interface BookMapper {
     @Mapping(source = "status", target = "bookStatus")
     @Mapping(source = "attachment.id", target = "bookCoverId")
     @Mapping(source = "bookPages", target = "bookPages")
+    @Mapping(source = "category.name", target = "categoryName")
         // <- this was missing
     EntireBookRes toEntireBookResponse(Book book);
 
