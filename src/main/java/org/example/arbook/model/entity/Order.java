@@ -20,12 +20,12 @@ import java.util.List;
 @Table(name = "orders")
 public class Order extends BaseEntity {
 
-    private Integer totalSum;
+    private String name;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @ManyToOne
-    private User user;
+    private Long userId;
 
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;

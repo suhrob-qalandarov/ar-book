@@ -29,5 +29,7 @@ public interface ApiConstants {
     String ENTIRE="/entire";
     String PAGE_CONTENT="/page-content";
 
+    String ORDER = "/order";
+    String ORDERS = "/orders";
 }
 

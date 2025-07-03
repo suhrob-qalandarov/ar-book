@@ -27,4 +27,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 """)
   Optional<Book> findByIdWithPages(@Param("id") Long id);
 
+    boolean existsBookByIdIs(Long id);
 }
