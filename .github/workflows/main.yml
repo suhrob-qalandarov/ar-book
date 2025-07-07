@@ -12,10 +12,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
       - name: Build with Maven
@@ -27,8 +27,12 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          port: 22
+          timeout: 30s
+          command_timeout: 10m
           script: |
-            cd /path/to/server/directory
-            docker-compose down
-            docker-compose build
-            docker-compose up -d
+            cd /path/to/server/directory || exit 1
+            docker-compose down || exit 1
+            docker-compose build || exit 1
+            docker-compose up -d || exit 1
+          debug: true
