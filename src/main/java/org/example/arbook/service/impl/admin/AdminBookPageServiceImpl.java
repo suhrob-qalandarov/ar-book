@@ -80,6 +80,12 @@ public class AdminBookPageServiceImpl implements AdminBookPageService {
     public BookPageRes getOneBookPageWithContents(Long bookPageId) {
         BookPage bookPage = bookPageRepository.findById(bookPageId).orElseThrow(() ->
                 new BookPageNotFoundException("BookPage not found with ID : " + bookPageId));
+
+        System.out.println(bookPage.toString());
+        System.out.println("✅✅✅");
+        System.out.println("✅✅✅");
+        System.out.println("✅✅✅");
+        System.out.println("✅✅✅");
         return bookPageMapper.toBookPageRes(bookPage);
     }
 

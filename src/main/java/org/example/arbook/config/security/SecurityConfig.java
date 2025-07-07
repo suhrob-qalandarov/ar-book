@@ -90,7 +90,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://13.53.39.188"); // Explicitly allow Swagger UI origin
+        configuration.addAllowedOrigin("http://13.60.252.171"); // Explicitly allow Swagger UI origin
         configuration.addAllowedMethod("*");
         configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");

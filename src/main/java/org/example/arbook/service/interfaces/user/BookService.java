@@ -5,7 +5,7 @@ import org.example.arbook.model.dto.response.BookRes;
 import java.util.List;
 
 public interface BookService {
-    List<BookRes> getActiveCompletedBooks();
+    List<BookRes> getActiveOnSaleBooks();
 
-    List<BookRes> getActiveCompletedBooksByCategoryId(Long categoryId);
+    List<BookRes> getActiveOnSaleBooksByCategoryId(Long categoryId);
 }

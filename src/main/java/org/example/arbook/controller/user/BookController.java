@@ -26,18 +26,20 @@ import static org.example.arbook.util.ApiConstants.*;
 public class BookController {
     private final BookService bookService;
 
-    @Operation(summary = "Get all active and completed books", description = "Retrieves a list of all active and completed books")
+    @Operation(summary = "Get all active and On Sale books", description = "Retrieves a list of all active and On Sale books")
     @GetMapping
-    public ResponseEntity<List<BookRes>> getActiveCompletedBooks() {
-        List<BookRes> books = bookService.getActiveCompletedBooks();
+    public ResponseEntity<List<BookRes>> getActiveOnSaleBooks() {
+        List<BookRes> books = bookService.getActiveOnSaleBooks();
         return books.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(books);
     }
 
-    @Operation(summary = "Get active and completed books by category", description = "Retrieves a list of active and completed books for a given category ID")
+    @Operation(summary = "Get active and On Sale books by category", description = "Retrieves a list of active and On Sale books for a given category ID")
     @GetMapping("/{categoryId}")
-    public ResponseEntity<List<BookRes>> getActiveCompletedBooksByCategoryId(
+    public ResponseEntity<List<BookRes>> getActiveOnSaleBooksByCategoryId(
             @Parameter(description = "ID of the category") @PathVariable @Positive Long categoryId) {
-        List<BookRes> books = bookService.getActiveCompletedBooksByCategoryId(categoryId);
+        List<BookRes> books = bookService.getActiveOnSaleBooksByCategoryId(categoryId);
         return books.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(books);
     }
+
+
 }

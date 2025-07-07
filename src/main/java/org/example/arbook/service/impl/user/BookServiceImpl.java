@@ -19,16 +19,16 @@ public class BookServiceImpl implements BookService {
     private final BookMapper bookMapper;
 
     @Override
-    public List<BookRes> getActiveCompletedBooks() {
-        List<Book> books = bookRepository.findByIsActiveTrueAndStatus(BookStatus.COMPLETED);
+    public List<BookRes> getActiveOnSaleBooks() {
+        List<Book> books = bookRepository.findByIsActiveTrueAndStatus(BookStatus.ON_SALE);
         return books.stream().
                 map(bookMapper::toBookResponse)
                 .toList();
     }
 
     @Override
-    public List<BookRes> getActiveCompletedBooksByCategoryId(Long categoryId) {
-        List<Book> books = bookRepository.findByIsActiveTrueAndStatusAndCategoryId(BookStatus.COMPLETED, categoryId);
+    public List<BookRes> getActiveOnSaleBooksByCategoryId(Long categoryId) {
+        List<Book> books = bookRepository.findByIsActiveTrueAndStatusAndCategoryId(BookStatus.ON_SALE, categoryId);
         return books.stream()
                 .map(bookMapper::toBookResponse)
                 .toList();
