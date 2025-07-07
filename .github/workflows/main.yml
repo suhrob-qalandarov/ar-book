@@ -41,11 +41,17 @@ jobs:
           timeout: 30s
           command_timeout: 10m
           script: |
+            # Ensure target directory exists
             mkdir -p /home/${{ secrets.SSH_USER }}/ar-book || exit 1
+
+            # ❌ Remove all old files to avoid overwrite errors
+            rm -rf /home/${{ secrets.SSH_USER }}/ar-book/* || exit 1
+
+            # Move new deployment files
             mv /tmp/ar-book-deployment/* /home/${{ secrets.SSH_USER }}/ar-book/ || exit 1
             cd /home/${{ secrets.SSH_USER }}/ar-book || exit 1
 
-            # 🔐 Create the .env file from GitHub secrets
+            # Create .env file from secrets
             cat <<EOF > .env
             DB_URL=${{ secrets.DB_URL }}
             DB_USER=${{ secrets.DB_USER }}
@@ -56,6 +62,7 @@ jobs:
             S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}
             EOF
 
-            docker-compose down || exit 1
+            docker-compose down --remove-orphans || exit 1
+            docker image prune -f || exit 1
             docker-compose build || exit 1
             docker-compose up -d || exit 1
