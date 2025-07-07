@@ -21,6 +21,16 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          source: "Dockerfile, docker-compose.yml, target/ar-book-0.0.1-SNAPSHOT.jar"
+          target: "/tmp/ar-book-deployment"  # Temporary directory to avoid manual creation
+
       - name: Login to Server via SSH
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -31,6 +41,10 @@ jobs:
           timeout: 30s
           command_timeout: 10m
           script: |
+            # Create the target directory if it doesn't exist
+            mkdir -p /path/to/server/directory || exit 1
+            # Move files from temporary location to target directory
+            mv /tmp/ar-book-deployment/* /path/to/server/directory/ || exit 1
             cd /path/to/server/directory || exit 1
             docker-compose down || exit 1
             docker-compose build || exit 1
