@@ -14,6 +14,7 @@ services:
       - S3_SECRET_KEY=${S3_SECRET_KEY}
     depends_on:
       - postgres
+    restart: unless-stopped
   postgres:
     image: postgres:latest
     environment:
@@ -24,5 +25,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
 volumes:
   postgres-data:
