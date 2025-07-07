@@ -29,7 +29,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           source: "Dockerfile, docker-compose.yml, target/ar-book-0.0.1-SNAPSHOT.jar"
-          target: "/tmp/ar-book-deployment"  # Temporary directory to avoid manual creation
+          target: "/tmp/ar-book-deployment"
 
       - name: Login to Server via SSH
         uses: appleboy/ssh-action@v0.1.10
@@ -42,10 +42,10 @@ jobs:
           command_timeout: 10m
           script: |
             # Create the target directory if it doesn't exist
-            mkdir -p /path/to/server/directory || exit 1
+            mkdir -p /home/${{ secrets.SSH_USER }}/ar-book || exit 1
             # Move files from temporary location to target directory
-            mv /tmp/ar-book-deployment/* /path/to/server/directory/ || exit 1
-            cd /path/to/server/directory || exit 1
+            mv /tmp/ar-book-deployment/* /home/${{ secrets.SSH_USER }}/ar-book/ || exit 1
+            cd /home/${{ secrets.SSH_USER }}/ar-book || exit 1
             docker-compose down || exit 1
             docker-compose build || exit 1
             docker-compose up -d || exit 1
