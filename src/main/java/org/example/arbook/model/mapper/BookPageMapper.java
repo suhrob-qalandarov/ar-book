@@ -13,6 +13,7 @@ import java.util.List;
 public interface BookPageMapper {
 
     @Mapping(source = "markerPhoto.id", target = "markerPhotoId")
+    @Mapping(source = "markerPattern.id", target = "markerPatternId")
     @Mapping(source = "file3D.id", target = "file3DId")
     @Mapping(source = "book.id", target = "bookId")
     BookPageRes toBookPageRes(BookPage bookPage);
@@ -21,6 +22,7 @@ public interface BookPageMapper {
 
     @Mapping(target = "book", source = "bookId", qualifiedByName = "mapBook")
     @Mapping(target = "markerPhoto", source = "markerPhotoId", qualifiedByName = "mapAttachment")
+    @Mapping(target = "markerPattern", source = "markerPatternId", qualifiedByName = "mapAttachment")
     @Mapping(target = "file3D", source = "file3DId", qualifiedByName = "mapAttachment")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

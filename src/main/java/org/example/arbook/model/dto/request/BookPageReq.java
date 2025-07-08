@@ -13,6 +13,9 @@ public record BookPageReq(
         @NotNull(message = "Marker photo ID cannot be null")
         Long markerPhotoId,
 
+        @NotNull(message = "MarkerPattern ID cannot be null")
+        Long markerPatternId,
+
         @NotNull(message = "3D file ID cannot be null")
         Long file3DId,
 

@@ -19,6 +19,8 @@ public class BookPage extends BaseEntity {
 
     @OneToOne
     private Attachment markerPhoto;
+    @OneToOne
+    private Attachment markerPattern;
 
     @OneToOne
     private Attachment file3D;

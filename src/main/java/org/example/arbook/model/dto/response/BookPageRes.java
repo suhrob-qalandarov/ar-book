@@ -7,6 +7,7 @@ public record BookPageRes(
         Long id,
         Long bookId,
         Long markerPhotoId,
+        Long markerPatternId,
         Long file3DId,
         List<PageContentRes> pageContents,
 
