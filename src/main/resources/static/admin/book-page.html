@@ -1349,19 +1349,14 @@
             }
           }
 
-          // Save pattern text to attachment
+          // Create a Blob from the pattern text
+          const patternBlob = new Blob([patternText], { type: "text/plain" });
 
+          // Prepare FormData with the Blob and specify the filename as 'pattern.patt'
           const patternFormData = new FormData();
-          patternFormData.append(
-            "file",
-            new Blob([patternText], { type: "text/plain" })
-          );
+          patternFormData.append("file", patternBlob, "pattern.patt");
 
-          // Create a new attachment for the pattern
-          patternFormData.append("name", "pattern.patt");
-
-          // Upload pattern file
-
+          // Upload pattern file to backend
           const patternResponse = await axiosInstance.post(
             "/admin/attachment",
             patternFormData,
@@ -1369,6 +1364,10 @@
               headers: { "Content-Type": "multipart/form-data" },
             }
           );
+
+          // You can now access the uploaded file ID or URL from patternResponse if needed
+          const patternFileId = patternResponse.data;
+          console.log("Pattern uploaded with ID:", patternFileId);
 
           // Upload 3D file
           const file3DFormData = new FormData();
@@ -1407,7 +1406,7 @@
           const bookPageData = {
             bookId: parseInt(bookId),
             markerPhotoId: markerPhotoId,
-            markerPatternId: patternResponse.data,
+            markerPatternId: patternFileId,
             file3DId: file3DId,
             pageContents: pageContents,
           };
