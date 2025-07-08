@@ -28,12 +28,12 @@ public class AdminAttachmentController {
         return ResponseEntity.ok(savedAttachmentId);
     }
 
-    @PostMapping()
-    public ResponseEntity<List<Long>> uploadMultipleFiles(@RequestParam("files") List<MultipartFile> multipartFiles) {
-        log.debug("Uploading multiple files: {}", multipartFiles.size());
-        List<Long> filesLongId = attachmentService.uploadMultiple(multipartFiles);
-        return ResponseEntity.ok(filesLongId);
-    }
+//    @PostMapping()
+//    public ResponseEntity<List<Long>> uploadMultipleFiles(@RequestParam("files") List<MultipartFile> multipartFiles) {
+//        log.debug("Uploading multiple files: {}", multipartFiles.size());
+//        List<Long> filesLongId = attachmentService.uploadMultiple(multipartFiles);
+//        return ResponseEntity.ok(filesLongId);
+//    }
 
 
 

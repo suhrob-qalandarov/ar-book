@@ -37,12 +37,13 @@ public class AttachmentServiceImpl implements AttachmentService {
                 case IMAGE -> "image/jpeg";
                 case AUDIO -> "audio/mpeg";
                 case FILE_3D -> "model/gltf-binary";
+                case PATTERN -> "application/x-patt";
             };
 
             response.setContentType(mimeType);
             response.setHeader("Content-Disposition", "inline; filename=\"" +
-                    (attachment.getId() != null ? "attachment_" + attachment.getId() : "attachment") +
-                    getFileExtension(attachment.getContentType()) + "\"");
+                                                      (attachment.getId() != null ? "attachment_" + attachment.getId() : "attachment") +
+                                                      getFileExtension(attachment.getContentType()) + "\"");
             response.getOutputStream().write(fileContent);
             response.getOutputStream().flush();
         } catch (IOException | S3Exception e) {
@@ -64,6 +65,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             case IMAGE -> ".jpg";
             case AUDIO -> ".mp3";
             case FILE_3D -> ".glb";
+            case PATTERN -> ".patt"; // Add extension for PATTERN
         };
     }
 
@@ -140,13 +142,13 @@ public class AttachmentServiceImpl implements AttachmentService {
             throw new IllegalArgumentException("File content type cannot be determined");
         }
 
-        // Handle content type based on MIME type
+        // Handle content type based on MIME type and file extension
         return switch (contentType.toLowerCase()) {
             case "image/jpeg", "image/png", "image/gif" -> ContentType.IMAGE;
             case "audio/mpeg", "audio/wav" -> ContentType.AUDIO;
             case "model/gltf-binary", "model/gltf+json" -> ContentType.FILE_3D;
+            case "text/plain" -> ContentType.PATTERN;
             case "application/octet-stream" -> {
-                // Check file extension for octet-stream
                 if (fileName != null && fileName.toLowerCase().endsWith(".glb")) {
                     yield ContentType.FILE_3D;
                 }
