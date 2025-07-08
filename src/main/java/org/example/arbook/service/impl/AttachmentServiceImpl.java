@@ -37,6 +37,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                 case IMAGE -> "image/jpeg";
                 case AUDIO -> "audio/mpeg";
                 case FILE_3D -> "model/gltf-binary";
+                case FILE_PATT -> "patt";
             };
 
             response.setContentType(mimeType);
@@ -64,6 +65,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             case IMAGE -> ".jpg";
             case AUDIO -> ".mp3";
             case FILE_3D -> ".glb";
+            case FILE_PATT -> ".patt";
         };
     }
 
@@ -143,6 +145,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         // Handle content type based on MIME type
         return switch (contentType.toLowerCase()) {
             case "image/jpeg", "image/png", "image/gif" -> ContentType.IMAGE;
+            case "patt" -> ContentType.FILE_PATT;
             case "audio/mpeg", "audio/wav" -> ContentType.AUDIO;
             case "model/gltf-binary", "model/gltf+json" -> ContentType.FILE_3D;
             case "application/octet-stream" -> {
