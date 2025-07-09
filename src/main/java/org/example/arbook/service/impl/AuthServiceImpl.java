@@ -5,8 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.arbook.config.security.JwtService;
 import org.example.arbook.model.dto.request.LoginReq;
 import org.example.arbook.model.dto.request.RegisterReq;
+import org.example.arbook.model.dto.response.LoginRes;
+import org.example.arbook.model.entity.QrCode;
 import org.example.arbook.model.entity.Role;
 import org.example.arbook.model.entity.User;
+import org.example.arbook.model.enums.QrCodeStatus;
+import org.example.arbook.repository.QrCodeRepository;
 import org.example.arbook.repository.RoleRepository;
 import org.example.arbook.repository.UserRepository;
 import org.example.arbook.service.interfaces.AuthService;
@@ -19,7 +23,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +36,12 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final QrCodeRepository qrCodeRepository;
 
 
     @Override
     @Transactional
-    public String logIn(LoginReq loginReq) {
+    public LoginRes logIn(LoginReq loginReq) {
         // Verify user exists
         User user = userRepository.findByPhoneNumberOptional(loginReq.phoneNumber())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + loginReq.phoneNumber()));
@@ -56,7 +64,13 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Generate JWT token
-        return jwtService.generateToken(loginReq.phoneNumber());
+        String token = jwtService.generateToken(loginReq.phoneNumber());
+        List<UUID> qrCodeUUIDs = qrCodeRepository
+                .findAllByIsActiveTrueAndStatusAndUserId(QrCodeStatus.ACTIVE, user.getId())
+                .stream()
+                .map(QrCode::getId)
+                .toList();
+        return new LoginRes(token, qrCodeUUIDs, "Logged In Successfully");
     }
 
     /**

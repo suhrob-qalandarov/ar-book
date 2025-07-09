@@ -3,6 +3,7 @@ package org.example.arbook.model.mapper;
 import org.example.arbook.component.BookPageMapperHelper;
 import org.example.arbook.model.dto.request.BookPageReq;
 import org.example.arbook.model.dto.response.BookPageRes;
+import org.example.arbook.model.dto.response.UserBookPageRes;
 import org.example.arbook.model.entity.BookPage;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,6 +18,11 @@ public interface BookPageMapper {
     @Mapping(source = "file3D.id", target = "file3DId")
     @Mapping(source = "book.id", target = "bookId")
     BookPageRes toBookPageRes(BookPage bookPage);
+
+    @Mapping(source = "markerPattern.id", target = "markerPatternId")
+    @Mapping(source = "file3D.id", target = "file3DId")
+    @Mapping(source = "book.id", target = "bookId")
+    UserBookPageRes toUserBookPageResponse(BookPage bookPage);
 
     List<BookPageRes> toBookPageResList(List<BookPage> bookPages);
 

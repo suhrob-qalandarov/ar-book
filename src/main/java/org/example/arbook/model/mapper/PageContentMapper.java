@@ -3,6 +3,7 @@ package org.example.arbook.model.mapper;
 import org.example.arbook.component.BookPageMapperHelper;
 import org.example.arbook.model.dto.request.PageContentReq;
 import org.example.arbook.model.dto.response.PageContentRes;
+import org.example.arbook.model.dto.response.UserPageContentRes;
 import org.example.arbook.model.entity.PageContent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,6 +17,10 @@ public interface PageContentMapper {
     @Mapping(source = "audio.id", target = "audioId")
     @Mapping(source = "language.id", target = "languageId")
     PageContentRes toPageContentRes(PageContent pageContent);
+
+    @Mapping(source = "audio.id", target = "audioId")
+    @Mapping(source = "language.id", target = "languageId")
+    UserPageContentRes toUserPageContentResponse(PageContent pageContent);
 
     List<PageContentRes> toPageContentResList(List<PageContent> contents);
 

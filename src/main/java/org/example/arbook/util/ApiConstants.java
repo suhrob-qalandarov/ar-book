@@ -21,6 +21,7 @@ public interface ApiConstants {
     String ATTACHMENT = "/attachment";
 
     String USERS = "/users";
+    String USER = "/user";
 
     String LANGUAGES = "/languages";
 

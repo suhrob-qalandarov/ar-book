@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.LoginReq;
 import org.example.arbook.model.dto.request.RegisterReq;
 import org.example.arbook.model.dto.request.VerifyPhoneReq;
+import org.example.arbook.model.dto.response.LoginRes;
 import org.example.arbook.service.interfaces.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,16 +24,16 @@ import static org.example.arbook.util.ApiConstants.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(API + V1 + AUTH)
-@Tag(name = "Authorization Controller",description = "Login//Logout/Register/Verify phone number endpoints for all")
+@Tag(name = "Authorization Controller", description = "Login//Logout/Register/Verify phone number endpoints for all")
 public class AuthController {
 
     private final AuthService authService;
 
-            @PostMapping(LOGIN)
-            public ResponseEntity<?> logIn(@Valid @RequestBody LoginReq loginReq) {
-                String token = authService.logIn(loginReq);
-                return ResponseEntity.ok(Map.of("token", token, "message", "Logged In Successfully"));
-            }
+    @PostMapping(LOGIN)
+    public ResponseEntity<LoginRes> logIn(@Valid @RequestBody LoginReq loginReq) {
+        LoginRes loginRes = authService.logIn(loginReq);
+        return ResponseEntity.ok(loginRes);
+    }
 
     @PostMapping(REGISTER)
     public ResponseEntity<?> register(@Valid @RequestBody RegisterReq registerReq) {

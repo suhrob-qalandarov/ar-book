@@ -1,5 +1,11 @@
 package org.example.arbook.model.dto.response;
 
-public record LoginRes(String token, String message){
+import java.util.List;
+import java.util.UUID;
+
+public record LoginRes(
+        String token,
+        List<UUID> qrCodeUUIDs,
+        String message) {
 
 }

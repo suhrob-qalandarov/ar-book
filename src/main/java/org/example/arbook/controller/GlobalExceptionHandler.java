@@ -89,7 +89,8 @@ public class GlobalExceptionHandler {
             case "Phone number already verified" -> fieldErrors.put("phoneNumber", "Phone number already verified");
             case "SMS code cannot be empty" -> fieldErrors.put("code", "SMS code cannot be empty");
             case "SMS code must be a 6 digit number" -> fieldErrors.put("code", "SMS code must be a 6 digit number");
-            case "Invalid phone number or password" -> fieldErrors.put("credentials", "Invalid phone number or password");
+            case "Invalid phone number or password" ->
+                    fieldErrors.put("credentials", "Invalid phone number or password");
             default -> {
                 if (message.startsWith("Category already exists with name:")) {
                     fieldErrors.put("name", message);
@@ -237,6 +238,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(BookNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleBookNotFoundException(BookNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -266,6 +268,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(BookPageNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleBookPageNotFoundException(BookPageNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
@@ -281,7 +284,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-   @ExceptionHandler(PageContentNotFoundException.class)
+    @ExceptionHandler(PageContentNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handlePageContentNotFoundException(PageContentNotFoundException ex) {
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.NOT_FOUND.value());
@@ -294,6 +297,15 @@ public class GlobalExceptionHandler {
         response.put("fieldErrors", fieldErrors);
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(QrCodeException.class)
+    public ResponseEntity<Map<String, Object>> handleQrCodeException(QrCodeException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", ex.getMessage());
+        response.put("timestamp", LocalDateTime.now().format(formatter));
+
+        return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 
 

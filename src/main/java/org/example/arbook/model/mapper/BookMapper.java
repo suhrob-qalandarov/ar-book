@@ -5,6 +5,7 @@ import org.example.arbook.model.dto.request.BookReq;
 import org.example.arbook.model.dto.response.AdminBookRes;
 import org.example.arbook.model.dto.response.BookRes;
 import org.example.arbook.model.dto.response.EntireBookRes;
+import org.example.arbook.model.dto.response.UserBookRes;
 import org.example.arbook.model.entity.Book;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,6 +17,7 @@ public interface BookMapper {
 
     @Mapping(source = "attachment.id", target = "attachmentId")
     BookRes toBookResponse(Book book);
+
     @Mapping(source = "categoryId", target = "category.id")
     @Mapping(source = "attachmentId", target = "attachment.id")
     @Mapping(target = "createdAt", ignore = true)
@@ -35,6 +37,11 @@ public interface BookMapper {
     @Mapping(source = "category.name", target = "categoryName")
         // <- this was missing
     EntireBookRes toEntireBookResponse(Book book);
+
+    @Mapping(source ="category.name",target = "categoryName")
+    @Mapping(source ="attachment.id",target = "attachmentId")
+    UserBookRes toUserBookResponse(Book book);
+
 
     List<EntireBookRes> toEntireBookResponseList(List<Book> books);
 
