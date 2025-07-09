@@ -18,7 +18,6 @@ import java.util.List;
 public class Book extends BaseEntity {
 
     private String title;
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String description;
     private Integer totalPages;
