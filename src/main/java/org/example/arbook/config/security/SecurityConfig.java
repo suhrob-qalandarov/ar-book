@@ -32,7 +32,9 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(auth ->
                         auth
-//                        .requestMatchers("http://localhost:63342/**").permitAll()
+                                .requestMatchers("http://localhost:5173/",
+                                        "http://localhost:5173/**")
+                                .permitAll()
                                 .requestMatchers(
                                         "/admin/main-page.html",
                                         "/admin/book-page.html",
@@ -41,8 +43,8 @@ public class SecurityConfig {
                                 ).permitAll()
                                 .requestMatchers(
                                         "/"
-                                        ,"/index.html/**"
-                                        ,"/auth/home2.html"
+                                        , "/index.html/**"
+                                        , "/auth/home2.html"
                                         , "/auth/register.html"
                                         , "/auth/login.html"
                                         , "/auth/verifyPhone.html"
@@ -90,7 +92,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://13.60.252.171"); // Explicitly allow Swagger UI origin
+        configuration.addAllowedOrigin("http://13.60.252.171/"); // Explicitly allow Swagger UI origin
+        configuration.addAllowedOrigin("http://13.60.252.171/**"); // Explicitly allow Swagger UI origin
+        configuration.addAllowedOrigin("http://localhost:5173/"); // Explicitly allow Swagger UI origin
+        configuration.addAllowedOrigin("http://localhost:5173/**"); // Explicitly allow Swagger UI origin
         configuration.addAllowedMethod("*");
         configuration.addAllowedOriginPattern("*");
         configuration.addAllowedHeader("*");
