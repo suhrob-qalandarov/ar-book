@@ -1,14 +1,13 @@
 package org.example.arbook.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.example.arbook.exception.BookNotFoundException;
-import org.example.arbook.model.dto.request.OrderItemReq;
 import org.example.arbook.model.dto.request.OrderReq;
 import org.example.arbook.model.dto.response.*;
-import org.example.arbook.model.entity.Order;
-import org.example.arbook.model.entity.QrCode;
-import org.example.arbook.model.entity.User;
+import org.example.arbook.model.dto.response.order.*;
+import org.example.arbook.model.entity.*;
 import org.example.arbook.model.enums.OrderStatus;
+import org.example.arbook.model.mapper.BookMapper;
 import org.example.arbook.repository.BookRepository;
 import org.example.arbook.repository.OrderRepository;
 import org.example.arbook.repository.QrCodeRepository;
@@ -18,10 +17,7 @@ import org.example.arbook.service.interfaces.admin.AdminBookService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +25,10 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final QrCodeRepository qrCodeRepository;
-    private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final AdminBookService adminBookService;
+    private final BookMapper bookMapper;
+    private final BookRepository bookRepository;
 
     @Transactional
     @Override
@@ -39,8 +36,8 @@ public class OrderServiceImpl implements OrderService {
         List<OrderRes> pendingOrders = orderRepository.findAllByStatus(OrderStatus.PENDING).stream()
                 .map(this::convertToOrderRes)
                 .toList();
-        List<OrderRes> acceptedOrders = orderRepository.findAllByStatus(OrderStatus.ACCEPTED).stream()
-                .map(this::convertToOrderRes)
+        List<AcceptedOrderRes> acceptedOrders = orderRepository.findAllByStatus(OrderStatus.ACCEPTED).stream()
+                .map(this::convertToAcceptedOrderRes)
                 .toList();
 
         return AdminOrderDashboardRes.builder()
@@ -58,6 +55,12 @@ public class OrderServiceImpl implements OrderService {
         return convertToOrderRes(order);
     }
 
+    @Override
+    public AcceptedOrderRes getAcceptedOrderRes(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        return convertToAcceptedOrderRes(order);
+    }
+
     @Transactional
     @Override
     public OrderRes getOrderResByName(String orderName) {
@@ -67,9 +70,24 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public OrderRes acceptOrder(Long orderId) {
+    public AcceptedOrderRes acceptOrderAndGetQrCodes(Long orderId) {
         Order order = orderRepository.acceptAndReturn(orderId);
-        return convertToOrderRes(order);
+        List<AcceptedOrderItemRes> acceptedOrderItemRes = new ArrayList<>();
+
+        for (OrderItem item : order.getOrderItems()) {
+            List<String> qrCodes = createQrCode(item.getBook().getId(), item.getAmount(), order.getId());
+            AcceptedOrderItemRes.builder()
+                    .amount(item.getAmount())
+                    .adminBookRes(bookMapper.toAdminBookResponse(item.getBook()))
+                    .qrCodes(qrCodes)
+                    .build();
+        }
+        return AcceptedOrderRes.builder()
+                .id(order.getId())
+                .name(order.getName())
+                .status(order.getStatus().name())
+                .orderItemList(acceptedOrderItemRes)
+                .build();
     }
 
     @Transactional
@@ -80,24 +98,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public List<QrCode> createOrderAndGetQrCodes(OrderReq orderReq) {
-        Order order = convertToOrder(orderReq);
-        order = orderRepository.save(order);
-
-        List<QrCode> allQrCodes = new ArrayList<>();
-
-        for (OrderItemReq item : orderReq.orderItemReqList()) {
-            if (!bookRepository.existsBookByIdIs(item.bookId())) {
-                throw new BookNotFoundException("Book not found with id: " + item.bookId());
-            }
-            List<QrCode> qrCodes = createQrCode(item.bookId(), item.amount(), order.getId());
-            allQrCodes.addAll(qrCodes);
+    @Override
+    public OrderRes createOrder(OrderReq orderReq) {
+        // Validate input
+        if (orderReq.userId() == null || orderReq.name() == null || orderReq.orderItemReqList() == null) {
+            throw new IllegalArgumentException("User ID, name, and order items are required");
         }
-        return allQrCodes;
+
+        Order order = convertToNewOrder(orderReq);
+        Order saved = orderRepository.save(order);
+        return convertToOrderRes(saved);
     }
 
     @Transactional
-    public List<QrCode> createQrCode(Long bookId, int amount, long orderId) {
+    public List<String> createQrCode(Long bookId, int amount, long orderId) {
         List<QrCode> qrCodes = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             qrCodes.add(QrCode.builder()
@@ -106,10 +120,46 @@ public class OrderServiceImpl implements OrderService {
                     .build());
         }
         List<QrCode> savedQrCodes = qrCodeRepository.saveAll(qrCodes);
+        return savedQrCodes.stream().map(qrCode -> qrCode.getId().toString()).toList();
+    }
 
-        //savedQrCodes.forEach(qrCode -> qrCode.setValue(shortUuid(qrCode.getId())));
+    private Order convertToNewOrder(OrderReq orderReq) {
+        // Validate user existence
+        User user = userRepository.findById(orderReq.userId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + orderReq.userId()));
 
-        return qrCodeRepository.saveAll(savedQrCodes);
+        // Create Order
+        Order order = Order.builder()
+                .name(orderReq.name())
+                .userId(orderReq.userId())
+                .status(OrderStatus.PENDING)
+                .isActive(true) // Set BaseEntity field
+                .createdBy("system") // Adjust based on authentication
+                .updatedBy("system") // Adjust based on authentication
+                .orderItems(new ArrayList<>()) // Initialize empty list
+                .build();
+
+        // Map OrderItemReq to OrderItem
+        List<OrderItem> orderItems = (List<OrderItem>) orderReq.orderItemReqList().stream()
+                .map(orderItemReq -> {
+                    // Validate book existence
+                    Book book = bookRepository.findById(orderItemReq.bookId())
+                            .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + orderItemReq.bookId()));
+                    return OrderItem.builder()
+                            .amount(orderItemReq.amount())
+                            .book(book)
+                            .order(order) // Set the Order reference
+                            .isActive(true) // Set BaseEntity field
+                            .createdBy("system")
+                            .updatedBy("system")
+                            .build();
+                })
+                .toList();
+
+        // Set orderItems on Order
+        order.setOrderItems(orderItems);
+
+        return order;
     }
 
     private Order convertToOrder(OrderReq orderReq) {
@@ -143,6 +193,28 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
+    private AcceptedOrderRes convertToAcceptedOrderRes(Order order) {
+        User user = userRepository.findById(order.getUserId()).orElseThrow();
+        List<QrCode> qrCodes = qrCodeRepository.findByOrderId(order.getId());
+        return AcceptedOrderRes.builder()
+                .id(order.getId())
+                .name(order.getName())
+                .status(order.getStatus().name())
+                .userRes(UserRes.builder()
+                        .id(user.getId())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .phoneNumber(user.getPhoneNumber())
+                        .build())
+                .orderItemList(order.getOrderItems().stream().map(orderItem -> AcceptedOrderItemRes.builder()
+                        .amount(orderItem.getAmount())
+                        .adminBookRes(adminBookService.getOneBook(orderItem.getBook().getId()))
+                        .qrCodes(qrCodes.stream().map(qrCode -> qrCode.getId().toString()).toList())
+                        .build()).toList())
+                .build();
+    }
+
+    /// Not used
     private String shortUuid(UUID uuid) {
         byte[] uuidBytes = toBytes(uuid);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(uuidBytes);

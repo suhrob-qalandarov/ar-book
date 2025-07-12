@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management - BookStore Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --secondary-blue: #3b82f6;
+            --light-blue: #dbeafe;
+            --dark-blue: #1e40af;
+            --accent-blue: #60a5fa;
+            --text-light: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+
+        .container-fluid {
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            width: 300px;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary-blue);
+            color: var(--primary-blue);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Data Table */
+        .data-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table thead th {
+            background: var(--light-blue);
+            color: var(--dark-blue);
+            font-weight: 600;
+            border: none;
+            padding: 1rem;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            border-color: var(--border-color);
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-accepted {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-declined {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
+        .btn-info {
+            background: #0ea5e9;
+            border-color: #0ea5e9;
+        }
+
+        .btn-success {
+            background: #10b981;
+            border-color: #10b981;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            border-color: #ef4444;
+        }
+
+        /* Modal Enhancements */
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        /* Order Items */
+        .order-items {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: var(--dark-blue);
+        }
+
+        .book-category {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .item-amount {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        /* Form Styles */
+        .form-control {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .search-box input {
+                width: 100%;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Orders Management</h1>
+        <p class="page-subtitle">Track and manage customer orders, update order status, and view order details.</p>
+    </div>
+
+    <!-- Order Statistics -->
+    <div class="stats-grid" id="orderStats">
+        <!-- Order statistics will be loaded here -->
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="search-filters">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" class="form-control" placeholder="Search orders by name or customer..." id="orderSearch">
+            </div>
+            <select class="form-select" style="width: auto;" id="orderStatusFilter">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="declined">Declined</option>
+            </select>
+        </div>
+        <button class="btn btn-outline-primary" onclick="refreshOrders()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh
+        </button>
+    </div>
+
+    <!-- Pending Orders Section -->
+    <div class="data-table mb-4">
+        <div class="table-header p-3 bg-warning bg-opacity-10">
+            <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Pending Orders</h5>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Order Name</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="pendingOrdersTableBody">
+            <!-- Pending orders will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Accepted Orders Section -->
+    <div class="data-table">
+        <div class="table-header p-3 bg-success bg-opacity-10">
+            <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Accepted Orders</h5>
+        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Order Name</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="acceptedOrdersTableBody">
+            <!-- Accepted orders will be loaded here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="orderDetailsContent">
+                <!-- Order details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Action Modal -->
+<div class="modal fade" id="orderActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderActionModalTitle">Confirm Action</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="orderActionModalBody">
+                <!-- Action confirmation content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmOrderAction">
+                    <span class="loading" id="orderActionLoading" style="display: none;"></span>
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Global variables
+    let orderDashboardData = null;
+    let currentOrderAction = null;
+
+    // API Base URL - Update this to match your Spring Boot API
+    const API_BASE_URL = 'http://localhost:8080/api/v1/admin';
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+        loadOrderDashboard();
+        initializeSearch();
+    });
+
+    // Order functions
+    async function loadOrderDashboard() {
+        try {
+            showLoadingState();
+            const response = await fetch(`${API_BASE_URL}/orders`);
+            if (response.ok) {
+                orderDashboardData = await response.json();
+                renderOrderDashboard();
+            } else {
+                showNotification('Failed to load orders', 'error');
+                renderEmptyOrderState();
+            }
+        } catch (error) {
+            console.error('Error loading orders:', error);
+            showNotification('Error connecting to server', 'error');
+            renderEmptyOrderState();
+        } finally {
+            hideLoadingState();
+        }
+    }
+
+    function renderOrderDashboard() {
+        // Render order statistics
+        renderOrderStats();
+
+        // Render pending orders
+        renderOrdersTable(orderDashboardData.pendingOrders || [], 'pendingOrdersTableBody');
+
+        // Render accepted orders
+        renderOrdersTable(orderDashboardData.acceptedOrders || [], 'acceptedOrdersTableBody');
+    }
+
+    function renderOrderStats() {
+        const statsContainer = document.getElementById('orderStats');
+        statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fef3c7; color: #d97706;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-number">${orderDashboardData.pendingCount || 0}</div>
+                    <div class="stat-label">Pending Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-number">${orderDashboardData.acceptedCount || 0}</div>
+                    <div class="stat-label">Accepted Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-number">${(orderDashboardData.pendingCount || 0) + (orderDashboardData.acceptedCount || 0)}</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fce7f3; color: #be185d;">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="stat-number">${getTotalItemsCount()}</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+            `;
+    }
+
+    function getTotalItemsCount() {
+        let total = 0;
+        if (orderDashboardData.pendingOrders) {
+            orderDashboardData.pendingOrders.forEach(order => {
+                order.orderItemResList.forEach(item => total += item.amount);
+            });
+        }
+        if (orderDashboardData.acceptedOrders) {
+            orderDashboardData.acceptedOrders.forEach(order => {
+                order.orderItemResList.forEach(item => total += item.amount);
+            });
+        }
+        return total;
+    }
+
+    function renderOrdersTable(orders, tableBodyId) {
+        const tbody = document.getElementById(tableBodyId);
+        tbody.innerHTML = '';
+
+        if (orders.length === 0) {
+            tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                            No orders found
+                        </td>
+                    </tr>
+                `;
+            return;
+        }
+
+        orders.forEach(order => {
+            const row = document.createElement('tr');
+            const totalItems = order.orderItemResList.reduce((sum, item) => sum + item.amount, 0);
+            const status = order.status.toLowerCase();
+
+            row.innerHTML = `
+                    <td><strong>#${order.id}</strong></td>
+                    <td><strong>${order.name}</strong></td>
+                    <td>
+                        <div>
+                            <strong>${order.userRes.firstName} ${order.userRes.lastName}</strong><br>
+                            <small class="text-muted">${order.userRes.phoneNumber}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">${totalItems} items</span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${status}">
+                            ${order.status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-info btn-sm" onclick="viewOrderDetails(${order.id})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${status === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="acceptOrder(${order.id})" title="Accept Order">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="declineOrder(${order.id})" title="Decline Order">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+            tbody.appendChild(row);
+        });
+    }
+
+    async function viewOrderDetails(orderId) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/order/${orderId}`);
+
+            if (response.ok) {
+                const order = await response.json();
+                renderOrderDetailsModal(order);
+                new bootstrap.Modal(document.getElementById('orderDetailsModal')).show();
+            } else {
+                showNotification('Order not found', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading order details:', error);
+            showNotification('Error loading order details', 'error');
+        }
+    }
+
+    function renderOrderDetailsModal(order) {
+        const content = document.getElementById('orderDetailsContent');
+        const totalItems = order.orderItemResList.reduce((sum, item) => sum + item.amount, 0);
+
+        content.innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Order Information</h6>
+                        <p><strong>Order ID:</strong> #${order.id}</p>
+                        <p><strong>Order Name:</strong> ${order.name}</p>
+                        <p><strong>Status:</strong>
+                            <span class="status-badge status-${order.status.toLowerCase()}">
+                                ${order.status}
+                            </span>
+                        </p>
+                        <p><strong>Total Items:</strong> ${totalItems}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Customer Information</h6>
+                        <p><strong>Name:</strong> ${order.userRes.firstName} ${order.userRes.lastName}</p>
+                        <p><strong>Phone:</strong> ${order.userRes.phoneNumber}</p>
+                        <p><strong>Customer ID:</strong> #${order.userRes.id}</p>
+                    </div>
+                </div>
+                <hr>
+                <h6>Order Items</h6>
+                <div class="order-items">
+                    ${order.orderItemResList.map(item => `
+                        <div class="order-item">
+                            <div class="book-info">
+                                <div class="book-title">${item.adminBookRes.title}</div>
+                                <div class="book-category">
+                                    <span class="badge bg-secondary">${item.adminBookRes.categoryName}</span>
+                                    <span class="text-muted ms-2">${item.adminBookRes.totalPages} pages</span>
+                                </div>
+                                <div class="text-muted small">${item.adminBookRes.description}</div>
+                            </div>
+                            <div class="item-amount">
+                                <span class="badge bg-primary">×${item.amount}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+    }
+
+    async function acceptOrder(orderId) {
+        currentOrderAction = { action: 'accept', orderId: orderId };
+
+        document.getElementById('orderActionModalTitle').textContent = 'Accept Order';
+        document.getElementById('orderActionModalBody').innerHTML = `
+                <p>Are you sure you want to accept order #${orderId}?</p>
+                <p class="text-muted">This action will move the order to the accepted orders list.</p>
+            `;
+
+        new bootstrap.Modal(document.getElementById('orderActionModal')).show();
+    }
+
+    async function declineOrder(orderId) {
+        currentOrderAction = { action: 'decline', orderId: orderId };
+
+        document.getElementById('orderActionModalTitle').textContent = 'Decline Order';
+        document.getElementById('orderActionModalBody').innerHTML = `
+                <p>Are you sure you want to decline order #${orderId}?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            `;
+
+        new bootstrap.Modal(document.getElementById('orderActionModal')).show();
+    }
+
+    // Handle order action confirmation
+    document.getElementById('confirmOrderAction').addEventListener('click', async function() {
+        if (!currentOrderAction) return;
+
+        const loading = document.getElementById('orderActionLoading');
+        loading.style.display = 'inline-block';
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/order/${currentOrderAction.orderId}`, {
+                method: 'PUT'
+            });
+
+            if (response.ok) {
+                const updatedOrder = await response.json();
+                showNotification(`Order ${currentOrderAction.action}ed successfully!`, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('orderActionModal')).hide();
+
+                // Reload fresh data from backend
+                await loadOrderDashboard();
+            } else {
+                const errorText = await response.text();
+                showNotification(`Error ${currentOrderAction.action}ing order: ${errorText}`, 'error');
+            }
+        } catch (error) {
+            console.error(`Error ${currentOrderAction.action}ing order:`, error);
+            showNotification('Network error. Please try again.', 'error');
+        } finally {
+            loading.style.display = 'none';
+            currentOrderAction = null;
+        }
+    });
+
+    function renderEmptyOrderState() {
+        document.getElementById('orderStats').innerHTML = `
+                <div class="col-12 text-center">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Unable to load order data. Please check your connection and try again.
+                    </div>
+                </div>
+            `;
+
+        document.getElementById('pendingOrdersTableBody').innerHTML = `
+                <tr><td colspan="6" class="text-center text-muted py-4">No data available</td></tr>
+            `;
+
+        document.getElementById('acceptedOrdersTableBody').innerHTML = `
+                <tr><td colspan="6" class="text-center text-muted py-4">No data available</td></tr>
+            `;
+    }
+
+    function showLoadingState() {
+        document.getElementById('orderStats').innerHTML = `
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading orders...</p>
+                </div>
+            `;
+    }
+
+    function hideLoadingState() {
+        // Loading state will be replaced by actual content
+    }
+
+    async function refreshOrders() {
+        await loadOrderDashboard();
+        showNotification('Orders refreshed successfully!', 'success');
+    }
+
+    // Search functionality
+    function initializeSearch() {
+        document.getElementById('orderSearch')?.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            filterOrders(searchTerm, document.getElementById('orderStatusFilter').value);
+        });
+
+        document.getElementById('orderStatusFilter')?.addEventListener('change', function() {
+            const statusFilter = this.value;
+            filterOrders(document.getElementById('orderSearch').value.toLowerCase(), statusFilter);
+        });
+    }
+
+    function filterOrders(searchTerm, statusFilter) {
+        if (!orderDashboardData) return;
+
+        let filteredPending = orderDashboardData.pendingOrders || [];
+        let filteredAccepted = orderDashboardData.acceptedOrders || [];
+
+        // Apply search filter
+        if (searchTerm) {
+            filteredPending = filteredPending.filter(order =>
+                order.name.toLowerCase().includes(searchTerm) ||
+                `${order.userRes.firstName} ${order.userRes.lastName}`.toLowerCase().includes(searchTerm) ||
+                order.userRes.phoneNumber.includes(searchTerm)
+            );
+
+            filteredAccepted = filteredAccepted.filter(order =>
+                order.name.toLowerCase().includes(searchTerm) ||
+                `${order.userRes.firstName} ${order.userRes.lastName}`.toLowerCase().includes(searchTerm) ||
+                order.userRes.phoneNumber.includes(searchTerm)
+            );
+        }
+
+        // Apply status filter
+        if (statusFilter === 'pending') {
+            filteredAccepted = [];
+        } else if (statusFilter === 'accepted') {
+            filteredPending = [];
+        }
+
+        renderOrdersTable(filteredPending, 'pendingOrdersTableBody');
+        renderOrdersTable(filteredAccepted, 'acceptedOrdersTableBody');
+    }
+
+    // Utility functions
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 3000);
+    }
+</script>
+</body>
+</html>

@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface QrCodeRepository extends JpaRepository<QrCode, UUID> {
 
     List<QrCode> findAllByIsActiveTrueAndStatusAndUserId(QrCodeStatus qrCodeStatus, Long id);
+
+    List<QrCode> findByOrderId(Long orderId);
 }

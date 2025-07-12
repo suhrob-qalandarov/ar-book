@@ -40,7 +40,8 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/admin/main-page.html",
                                         "/admin/book-page.html",
-                                        "/admin/book-page.html/**"
+                                        "/admin/book-page.html/**",
+                                        "/admin/orders.html/**"
 
                                 ).permitAll()
                                 .requestMatchers(
