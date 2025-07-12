@@ -40,11 +40,17 @@ public class OrderServiceImpl implements OrderService {
                 .map(this::convertToAcceptedOrderRes)
                 .toList();
 
+        List<OrderRes> declinedOrders = orderRepository.findAllByStatus(OrderStatus.DECLINED).stream()
+                .map(this::convertToOrderRes)
+                .toList();
+
         return AdminOrderDashboardRes.builder()
                 .pendingCount((long) pendingOrders.size())
                 .acceptedCount((long) acceptedOrders.size())
+                .declinedCount((long) declinedOrders.size())
                 .pendingOrders(pendingOrders)
                 .acceptedOrders(acceptedOrders)
+                .declinedOrders(declinedOrders)
                 .build();
     }
 

@@ -10,7 +10,9 @@ import java.util.List;
 public record AdminOrderDashboardRes (
         Long pendingCount,
         Long acceptedCount,
+        Long declinedCount,
         List<OrderRes> pendingOrders,
-        List<AcceptedOrderRes> acceptedOrders
+        List<AcceptedOrderRes> acceptedOrders,
+        List<OrderRes> declinedOrders
 ) {
 }
