@@ -19,6 +19,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
+
 import static org.example.arbook.util.ApiConstants.*;
 
 @Configuration
@@ -89,19 +91,44 @@ public class SecurityConfig {
         return new ProviderManager(authenticationProvider());
     }
 
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(
+//                List.of("http://localhost:5173", "http://13.60.252.171")
+//        );       configuration.addAllowedMethod("*");
+//        configuration.addAllowedOriginPattern("*");
+//        configuration.addAllowedHeader("*");
+//        configuration.setAllowCredentials(true); // Disable credentials for local testing
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://13.60.252.171/"); // Explicitly allow Swagger UI origin
-        configuration.addAllowedOrigin("http://13.60.252.171/**"); // Explicitly allow Swagger UI origin
-        configuration.addAllowedOrigin("http://localhost:5173/"); // Explicitly allow Swagger UI origin
-        configuration.addAllowedOrigin("http://localhost:5173/**"); // Explicitly allow Swagger UI origin
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedOriginPattern("*");
-        configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(true); // Disable credentials for local testing
+
+        // ✅ Allow only your trusted frontend origins (NO slash)
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://13.60.252.171"
+        ));
+
+        // ✅ Explicitly allow HTTP methods
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // ✅ Allow all headers
+        configuration.setAllowedHeaders(List.of("*"));
+
+        // ✅ Allow credentials (cookies, authorization headers, etc.)
+        configuration.setAllowCredentials(true);
+
+        // ✅ Register for all paths
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
+
 }
