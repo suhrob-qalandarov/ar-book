@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders Management - BookStore Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Orders Management | AR Book Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.css" rel="stylesheet">
     <style>
         :root {
             --primary-blue: #2563eb;
-            --secondary-blue: #3b82f6;
             --light-blue: #dbeafe;
             --dark-blue: #1e40af;
-            --accent-blue: #60a5fa;
-            --text-light: #64748b;
-            --border-color: #e2e8f0;
+            --hover-blue: #3b82f6;
+            --pending-color: #f59e0b;
+            --accepted-color: #10b981;
+            --declined-color: #ef4444;
         }
 
         * {
@@ -25,253 +25,330 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #334155;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            overflow-x: hidden;
         }
 
-        .container-fluid {
+        .header {
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--hover-blue) 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .brand-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-content {
+            margin-top: 70px;
             padding: 2rem;
+            min-height: calc(100vh - 70px);
         }
 
-        /* Page Header */
-        .page-header {
+        .content-header {
             background: white;
             padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             margin-bottom: 2rem;
-            border-left: 4px solid var(--primary-blue);
         }
 
         .page-title {
-            font-size: 2rem;
-            font-weight: 600;
             color: var(--dark-blue);
+            font-size: 2rem;
+            font-weight: 700;
             margin-bottom: 0.5rem;
         }
 
         .page-subtitle {
-            color: var(--text-light);
+            color: #64748b;
             font-size: 1rem;
         }
 
-        /* Action Bar */
-        .action-bar {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .search-filters {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .search-box input {
-            padding: 0.75rem 1rem 0.75rem 3rem;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            width: 300px;
-        }
-
-        .search-box input:focus {
-            border-color: var(--primary-blue);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-        }
-
-        /* Buttons */
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-
-        .btn-outline-primary {
-            border: 2px solid var(--primary-blue);
-            color: var(--primary-blue);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            background: transparent;
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--primary-blue);
-            color: white;
-        }
-
-        /* Data Table */
-        .data-table {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .table {
-            margin: 0;
-        }
-
-        .table thead th {
-            background: var(--light-blue);
-            color: var(--dark-blue);
-            font-weight: 600;
-            border: none;
-            padding: 1rem;
-        }
-
-        .table tbody td {
-            padding: 1rem;
-            border-color: var(--border-color);
-            vertical-align: middle;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f8fafc;
-        }
-
-        /* Status Badges */
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .status-accepted {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .status-declined {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.875rem;
-            border-radius: 6px;
-        }
-
-        .btn-info {
-            background: #0ea5e9;
-            border-color: #0ea5e9;
-        }
-
-        .btn-success {
-            background: #10b981;
-            border-color: #10b981;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            border-color: #ef4444;
-        }
-
-        /* Modal Enhancements */
-        .modal-header {
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
-            color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .modal-content {
-            border-radius: 12px;
-            border: none;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Statistics Cards */
-        .stats-grid {
+        .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .stat-card {
             background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--primary-blue);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
         }
 
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.pending {
+            border-left: 4px solid var(--pending-color);
+        }
+
+        .stat-card.accepted {
+            border-left: 4px solid var(--accepted-color);
+        }
+
+        .stat-card.declined {
+            border-left: 4px solid var(--declined-color);
         }
 
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
-            color: var(--dark-blue);
             margin-bottom: 0.5rem;
         }
 
+        .stat-number.pending {
+            color: var(--pending-color);
+        }
+
+        .stat-number.accepted {
+            color: var(--accepted-color);
+        }
+
+        .stat-number.declined {
+            color: var(--declined-color);
+        }
+
         .stat-label {
-            color: var(--text-light);
+            color: #64748b;
             font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.875rem;
         }
 
-        /* Order Items */
-        .order-items {
-            max-height: 200px;
-            overflow-y: auto;
+        .orders-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
         }
 
-        .order-item {
+        .order-column {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .column-header {
+            padding: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: white;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .column-header.pending {
+            background: var(--pending-color);
+        }
+
+        .column-header.accepted {
+            background: var(--accepted-color);
+        }
+
+        .column-header.declined {
+            background: var(--declined-color);
+        }
+
+        .orders-list {
+            padding: 1rem;
+            min-height: 400px;
+        }
+
+        .order-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .order-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .order-card.accepted {
+            border-left: 4px solid var(--accepted-color);
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: var(--dark-blue);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .order-customer {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-phone {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .order-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-view {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border: 1px solid #bfdbfe;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view:hover {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .modal-content {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .modal-header {
+            background: var(--light-blue);
+            color: var(--dark-blue);
+            border-radius: 15px 15px 0 0;
+            border-bottom: none;
+            padding: 1.5rem;
+        }
+
+        .modal-title {
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .order-details {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e2e8f0;
         }
 
-        .order-item:last-child {
+        .detail-row:last-child {
             border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--dark-blue);
+        }
+
+        .detail-value {
+            color: #64748b;
+        }
+
+        .order-items {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .order-item-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .book-image {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #f3f4f6;
         }
 
         .book-info {
@@ -281,544 +358,769 @@
         .book-title {
             font-weight: 600;
             color: var(--dark-blue);
+            margin-bottom: 0.25rem;
         }
 
-        .book-category {
+        .book-amount {
+            color: #64748b;
             font-size: 0.875rem;
-            color: var(--text-light);
         }
 
-        .item-amount {
-            font-weight: 600;
-            color: var(--primary-blue);
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
         }
 
-        /* Form Styles */
-        .form-control {
-            border: 2px solid var(--border-color);
+        .btn-qr {
+            background: var(--accepted-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-qr:hover {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-remove {
+            background: var(--declined-color);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-remove:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        .qr-codes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .qr-code-item {
+            background: white;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 0.75rem;
+            padding: 1rem;
+            text-align: center;
         }
 
-        .form-control:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        .qr-code-image {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 0.5rem;
+            background: #f3f4f6;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #64748b;
         }
 
-        .form-label {
+        .qr-actions {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-download {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-download:hover {
+            background: var(--dark-blue);
+            color: white;
+        }
+
+        .btn-block, .btn-activate {
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
             font-weight: 500;
-            color: var(--dark-blue);
-            margin-bottom: 0.5rem;
+            border: none;
+            transition: all 0.3s ease;
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .search-box input {
-                width: 100%;
-            }
-
-            .action-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
+        .btn-block {
+            background: #fee2e2;
+            color: #dc2626;
         }
 
-        /* Loading Animation */
+        .btn-block:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-activate {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .btn-activate:hover {
+            background: #16a34a;
+            color: white;
+        }
+
         .loading {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255,255,255,.3);
             border-radius: 50%;
-            border-top-color: white;
+            border-top-color: #fff;
             animation: spin 1s ease-in-out infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .sortable-ghost {
+            opacity: 0.4;
+        }
+
+        .sortable-chosen {
+            transform: rotate(5deg);
+        }
+
+        @media (max-width: 768px) {
+            .orders-board {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-body {
+                padding: 1rem;
+            }
+
+            .order-item-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="container-fluid">
-    <!-- Page Header -->
-    <div class="page-header">
+<!-- Header -->
+<header class="header">
+    <div class="logo-section">
+        <div class="logo">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="brand-name">AR Book Admin</div>
+    </div>
+    <div class="user-section">
+        <div class="user-info text-end">
+            <h6>John Doe</h6>
+            <small>Administrator</small>
+        </div>
+        <div class="user-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Content Header -->
+    <div class="content-header fade-in">
         <h1 class="page-title">Orders Management</h1>
-        <p class="page-subtitle">Track and manage customer orders, update order status, and view order details.</p>
+        <p class="page-subtitle">Manage customer orders and track their status</p>
     </div>
 
-    <!-- Order Statistics -->
-    <div class="stats-grid" id="orderStats">
-        <!-- Order statistics will be loaded here -->
+    <!-- Statistics Row -->
+    <div class="stats-row fade-in">
+        <div class="stat-card pending">
+            <div class="stat-number pending" id="pendingCount">0</div>
+            <div class="stat-label">Pending Orders</div>
+        </div>
+        <div class="stat-card accepted">
+            <div class="stat-number accepted" id="acceptedCount">0</div>
+            <div class="stat-label">Accepted Orders</div>
+        </div>
+        <div class="stat-card declined">
+            <div class="stat-number declined" id="declinedCount">0</div>
+            <div class="stat-label">Declined Orders</div>
+        </div>
     </div>
 
-    <!-- Action Bar -->
-    <div class="action-bar">
-        <div class="search-filters">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" class="form-control" placeholder="Search orders by name or customer..." id="orderSearch">
+    <!-- Orders Board -->
+    <div class="orders-board fade-in">
+        <!-- Pending Orders -->
+        <div class="order-column">
+            <div class="column-header pending">
+                <i class="fas fa-clock"></i> Pending Orders
             </div>
-            <select class="form-select" style="width: auto;" id="orderStatusFilter">
-                <option value="">All Status</option>
-                <option value="pending">Pending</option>
-                <option value="accepted">Accepted</option>
-                <option value="declined">Declined</option>
-            </select>
+            <div class="orders-list" id="pendingOrders">
+                <!-- Pending orders will be loaded here -->
+            </div>
         </div>
-        <button class="btn btn-outline-primary" onclick="refreshOrders()">
-            <i class="fas fa-sync-alt me-2"></i>Refresh
-        </button>
-    </div>
 
-    <!-- Pending Orders Section -->
-    <div class="data-table mb-4">
-        <div class="table-header p-3 bg-warning bg-opacity-10">
-            <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Pending Orders</h5>
+        <!-- Accepted Orders -->
+        <div class="order-column">
+            <div class="column-header accepted">
+                <i class="fas fa-check"></i> Accepted Orders
+            </div>
+            <div class="orders-list" id="acceptedOrders">
+                <!-- Accepted orders will be loaded here -->
+            </div>
         </div>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Order Name</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody id="pendingOrdersTableBody">
-            <!-- Pending orders will be loaded here -->
-            </tbody>
-        </table>
-    </div>
 
-    <!-- Accepted Orders Section -->
-    <div class="data-table">
-        <div class="table-header p-3 bg-success bg-opacity-10">
-            <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Accepted Orders</h5>
+        <!-- Declined Orders -->
+        <div class="order-column">
+            <div class="column-header declined">
+                <i class="fas fa-times"></i> Declined Orders
+            </div>
+            <div class="orders-list" id="declinedOrders">
+                <!-- Declined orders will be loaded here -->
+            </div>
         </div>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Order Name</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody id="acceptedOrdersTableBody">
-            <!-- Accepted orders will be loaded here -->
-            </tbody>
-        </table>
     </div>
-</div>
+</main>
 
-<!-- Order Details Modal -->
-<div class="modal fade" id="orderDetailsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<!-- Order Detail Modal -->
+<div class="modal fade" id="orderDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Order Details</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="orderModalTitle">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="orderDetailsContent">
-                <!-- Order details will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Order Information -->
+                    <div class="col-md-4">
+                        <h6 class="mb-3">Order Information</h6>
+                        <div class="order-details" id="orderDetailsContent">
+                            <!-- Order details will be loaded here -->
+                        </div>
+                    </div>
+                    <!-- Order Items -->
+                    <div class="col-md-8">
+                        <h6 class="mb-3">Order Items</h6>
+                        <div class="order-items" id="orderItemsContent">
+                            <!-- Order items will be loaded here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Order Action Modal -->
-<div class="modal fade" id="orderActionModal" tabindex="-1">
-    <div class="modal-dialog">
+<!-- QR Codes Modal -->
+<div class="modal fade" id="qrCodesModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="orderActionModalTitle">Confirm Action</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="qrModalTitle">QR Codes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="orderActionModalBody">
-                <!-- Action confirmation content -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="confirmOrderAction">
-                    <span class="loading" id="orderActionLoading" style="display: none;"></span>
-                    Confirm
-                </button>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Book Information -->
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <img id="qrBookImage" src="/placeholder.svg" alt="Book Cover" class="img-fluid mb-3" style="max-height: 200px;">
+                            <h6 id="qrBookTitle"></h6>
+                        </div>
+                    </div>
+                    <!-- QR Codes -->
+                    <div class="col-md-8">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">QR Codes</h6>
+                            <button class="btn btn-download" onclick="downloadQRCodesPDF()">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
+                        </div>
+                        <div class="qr-codes-grid" id="qrCodesGrid">
+                            <!-- QR codes will be loaded here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     // Global variables
-    let orderDashboardData = null;
-    let currentOrderAction = null;
+    let ordersData = null;
+    let currentOrderId = null;
+    let currentQRCodes = [];
+    let currentBookInfo = null;
 
-    // API Base URL - Update this to match your Spring Boot API
-    const API_BASE_URL = 'http://localhost:8080/api/v1/admin';
+    // API Base URL
+    const API_BASE_URL = '/api/v1';
+
+    // Axios instance with default headers
+    const axiosInstance = axios.create({
+        baseURL: API_BASE_URL,
+    });
+
+    // Add request interceptor to include Authorization header
+    axiosInstance.interceptors.request.use(
+        (config) => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '../auth/login.html';
+                return Promise.reject(new Error('No token found'));
+            }
+            config.headers.Authorization = `${token}`;
+            return config;
+        },
+        (error) => Promise.reject(error)
+    );
+
+    // Add response interceptor to handle unauthorized responses
+    axiosInstance.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+                localStorage.removeItem('token');
+                window.location.href = '../auth/login.html';
+            }
+            return Promise.reject(error);
+        }
+    );
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
-        loadOrderDashboard();
-        initializeSearch();
-    });
-
-    // Order functions
-    async function loadOrderDashboard() {
-        try {
-            showLoadingState();
-            const response = await fetch(`${API_BASE_URL}/orders`);
-            if (response.ok) {
-                orderDashboardData = await response.json();
-                renderOrderDashboard();
-            } else {
-                showNotification('Failed to load orders', 'error');
-                renderEmptyOrderState();
-            }
-        } catch (error) {
-            console.error('Error loading orders:', error);
-            showNotification('Error connecting to server', 'error');
-            renderEmptyOrderState();
-        } finally {
-            hideLoadingState();
-        }
-    }
-
-    function renderOrderDashboard() {
-        // Render order statistics
-        renderOrderStats();
-
-        // Render pending orders
-        renderOrdersTable(orderDashboardData.pendingOrders || [], 'pendingOrdersTableBody');
-
-        // Render accepted orders
-        renderOrdersTable(orderDashboardData.acceptedOrders || [], 'acceptedOrdersTableBody');
-    }
-
-    function renderOrderStats() {
-        const statsContainer = document.getElementById('orderStats');
-        statsContainer.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: #fef3c7; color: #d97706;">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="stat-number">${orderDashboardData.pendingCount || 0}</div>
-                    <div class="stat-label">Pending Orders</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: #dcfce7; color: #16a34a;">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-number">${orderDashboardData.acceptedCount || 0}</div>
-                    <div class="stat-label">Accepted Orders</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-number">${(orderDashboardData.pendingCount || 0) + (orderDashboardData.acceptedCount || 0)}</div>
-                    <div class="stat-label">Total Orders</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: #fce7f3; color: #be185d;">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="stat-number">${getTotalItemsCount()}</div>
-                    <div class="stat-label">Total Items</div>
-                </div>
-            `;
-    }
-
-    function getTotalItemsCount() {
-        let total = 0;
-        if (orderDashboardData.pendingOrders) {
-            orderDashboardData.pendingOrders.forEach(order => {
-                order.orderItemResList.forEach(item => total += item.amount);
-            });
-        }
-        if (orderDashboardData.acceptedOrders) {
-            orderDashboardData.acceptedOrders.forEach(order => {
-                order.orderItemResList.forEach(item => total += item.amount);
-            });
-        }
-        return total;
-    }
-
-    function renderOrdersTable(orders, tableBodyId) {
-        const tbody = document.getElementById(tableBodyId);
-        tbody.innerHTML = '';
-
-        if (orders.length === 0) {
-            tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
-                            <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                            No orders found
-                        </td>
-                    </tr>
-                `;
+        if (!localStorage.getItem('token')) {
+            window.location.href = '../auth/login.html';
             return;
         }
+        initializeApp();
+    });
 
-        orders.forEach(order => {
-            const row = document.createElement('tr');
-            const totalItems = order.orderItemResList.reduce((sum, item) => sum + item.amount, 0);
-            const status = order.status.toLowerCase();
+    function initializeApp() {
+        loadOrders();
+        setupDragAndDrop();
+    }
 
-            row.innerHTML = `
-                    <td><strong>#${order.id}</strong></td>
-                    <td><strong>${order.name}</strong></td>
-                    <td>
-                        <div>
-                            <strong>${order.userRes.firstName} ${order.userRes.lastName}</strong><br>
-                            <small class="text-muted">${order.userRes.phoneNumber}</small>
+    // Load orders from API
+    async function loadOrders() {
+        try {
+            const response = await axiosInstance.get('/admin/orders');
+            ordersData = response.data;
+
+            // Update statistics
+            updateStatistics();
+
+            // Render orders in columns
+            renderOrders();
+
+        } catch (error) {
+            console.error('Error loading orders:', error);
+            showNotification('Error loading orders', 'error');
+        }
+    }
+
+    function updateStatistics() {
+        if (!ordersData) return;
+
+        document.getElementById('pendingCount').textContent = ordersData.pendingCount || 0;
+        document.getElementById('acceptedCount').textContent = ordersData.acceptedCount || 0;
+        document.getElementById('declinedCount').textContent = ordersData.declinedCount || 0;
+    }
+
+    function renderOrders() {
+        if (!ordersData) return;
+
+        // Render pending orders
+        renderOrderColumn('pendingOrders', ordersData.pendingOrders || [], 'PENDING');
+
+        // Render accepted orders
+        renderOrderColumn('acceptedOrders', ordersData.acceptedOrders || [], 'ACCEPTED');
+
+        // Render declined orders
+        renderOrderColumn('declinedOrders', ordersData.declinedOrders || [], 'DECLINED');
+    }
+
+    function renderOrderColumn(containerId, orders, status) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.innerHTML = orders.map(order => {
+            const customerName = `${order.userRes.firstName} ${order.userRes.lastName}`;
+            return `
+                    <div class="order-card ${status.toLowerCase()}" data-order-id="${order.id}" data-status="${status}">
+                        <div class="order-id">Order #${order.id}</div>
+                        <div class="order-name">${order.name}</div>
+                        <div class="order-customer">
+                            <i class="fas fa-user"></i> ${customerName}
                         </div>
-                    </td>
-                    <td>
-                        <span class="badge bg-info">${totalItems} items</span>
-                    </td>
-                    <td>
-                        <span class="status-badge status-${status}">
-                            ${order.status}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn btn-info btn-sm" onclick="viewOrderDetails(${order.id})" title="View Details">
-                                <i class="fas fa-eye"></i>
+                        <div class="order-phone">
+                            <i class="fas fa-phone"></i> ${order.userRes.phoneNumber}
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-view" onclick="viewOrder(${order.id}, '${status}')">
+                                <i class="fas fa-eye"></i> View
                             </button>
-                            ${status === 'pending' ? `
-                                <button class="btn btn-success btn-sm" onclick="acceptOrder(${order.id})" title="Accept Order">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="declineOrder(${order.id})" title="Decline Order">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : ''}
                         </div>
-                    </td>
+                    </div>
                 `;
-            tbody.appendChild(row);
+        }).join('');
+    }
+
+    function setupDragAndDrop() {
+        const pendingList = document.getElementById('pendingOrders');
+        const acceptedList = document.getElementById('acceptedOrders');
+        const declinedList = document.getElementById('declinedOrders');
+
+        // Setup sortable for pending orders
+        new Sortable(pendingList, {
+            group: 'orders',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function(evt) {
+                handleOrderMove(evt);
+            }
+        });
+
+        // Setup sortable for declined orders
+        new Sortable(declinedList, {
+            group: 'orders',
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function(evt) {
+                handleOrderMove(evt);
+            }
+        });
+
+        // Accepted orders cannot be moved (read-only)
+        new Sortable(acceptedList, {
+            group: {
+                name: 'orders',
+                put: false // Don't allow items to be put into this list
+            },
+            sort: false, // Disable sorting within the list
+            animation: 150
         });
     }
 
-    async function viewOrderDetails(orderId) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/order/${orderId}`);
+    async function handleOrderMove(evt) {
+        const orderId = evt.item.dataset.orderId;
+        const fromStatus = evt.item.dataset.status;
+        const toContainer = evt.to.id;
 
-            if (response.ok) {
-                const order = await response.json();
-                renderOrderDetailsModal(order);
-                new bootstrap.Modal(document.getElementById('orderDetailsModal')).show();
+        let toStatus;
+        if (toContainer === 'pendingOrders') {
+            toStatus = 'PENDING';
+        } else if (toContainer === 'acceptedOrders') {
+            toStatus = 'ACCEPTED';
+        } else if (toContainer === 'declinedOrders') {
+            toStatus = 'DECLINED';
+        }
+
+        // Don't allow moving from accepted status
+        if (fromStatus === 'ACCEPTED') {
+            showNotification('Accepted orders cannot be moved', 'warning');
+            loadOrders(); // Reload to reset the UI
+            return;
+        }
+
+        // Don't process if status hasn't changed
+        if (fromStatus === toStatus) {
+            return;
+        }
+
+        try {
+            // Update order status via API
+            await axiosInstance.patch(`/admin/order/${orderId}/status`, {
+                status: toStatus
+            });
+
+            // Update the order card's status
+            evt.item.dataset.status = toStatus;
+            evt.item.className = `order-card ${toStatus.toLowerCase()}`;
+
+            showNotification(`Order moved to ${toStatus.toLowerCase()}`, 'success');
+
+            // Reload orders to get updated counts
+            loadOrders();
+
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            showNotification('Error updating order status', 'error');
+
+            // Reload orders to reset the UI
+            loadOrders();
+        }
+    }
+
+    async function viewOrder(orderId, status) {
+        try {
+            currentOrderId = orderId;
+
+            let response;
+            if (status === 'ACCEPTED') {
+                response = await axiosInstance.get(`/admin/order/accepted/${orderId}`);
             } else {
-                showNotification('Order not found', 'error');
+                response = await axiosInstance.get(`/admin/order/${orderId}`);
             }
+
+            const order = response.data;
+
+            // Update modal title
+            document.getElementById('orderModalTitle').textContent = `Order #${order.id} Details`;
+
+            // Render order details
+            renderOrderDetails(order);
+
+            // Render order items
+            renderOrderItems(order, status);
+
+            // Show modal
+            new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
+
         } catch (error) {
             console.error('Error loading order details:', error);
             showNotification('Error loading order details', 'error');
         }
     }
 
-    function renderOrderDetailsModal(order) {
-        const content = document.getElementById('orderDetailsContent');
-        const totalItems = order.orderItemResList.reduce((sum, item) => sum + item.amount, 0);
+    function renderOrderDetails(order) {
+        const customerName = `${order.userRes.firstName} ${order.userRes.lastName}`;
 
-        content.innerHTML = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Order Information</h6>
-                        <p><strong>Order ID:</strong> #${order.id}</p>
-                        <p><strong>Order Name:</strong> ${order.name}</p>
-                        <p><strong>Status:</strong>
-                            <span class="status-badge status-${order.status.toLowerCase()}">
-                                ${order.status}
-                            </span>
-                        </p>
-                        <p><strong>Total Items:</strong> ${totalItems}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>Customer Information</h6>
-                        <p><strong>Name:</strong> ${order.userRes.firstName} ${order.userRes.lastName}</p>
-                        <p><strong>Phone:</strong> ${order.userRes.phoneNumber}</p>
-                        <p><strong>Customer ID:</strong> #${order.userRes.id}</p>
-                    </div>
+        document.getElementById('orderDetailsContent').innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Order ID:</span>
+                    <span class="detail-value">#${order.id}</span>
                 </div>
-                <hr>
-                <h6>Order Items</h6>
-                <div class="order-items">
-                    ${order.orderItemResList.map(item => `
-                        <div class="order-item">
-                            <div class="book-info">
-                                <div class="book-title">${item.adminBookRes.title}</div>
-                                <div class="book-category">
-                                    <span class="badge bg-secondary">${item.adminBookRes.categoryName}</span>
-                                    <span class="text-muted ms-2">${item.adminBookRes.totalPages} pages</span>
-                                </div>
-                                <div class="text-muted small">${item.adminBookRes.description}</div>
-                            </div>
-                            <div class="item-amount">
-                                <span class="badge bg-primary">×${item.amount}</span>
-                            </div>
+                <div class="detail-row">
+                    <span class="detail-label">Order Name:</span>
+                    <span class="detail-value">${order.name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="badge bg-${getStatusColor(order.status)}">${order.status}</span>
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Customer:</span>
+                    <span class="detail-value">${customerName}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">${order.userRes.phoneNumber}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Customer ID:</span>
+                    <span class="detail-value">${order.userRes.id}</span>
+                </div>
+            `;
+    }
+
+    function renderOrderItems(order, status) {
+        const itemsContainer = document.getElementById('orderItemsContent');
+
+        const items = status === 'ACCEPTED' ? order.orderItemList : order.orderItemResList;
+
+        itemsContainer.innerHTML = items.map(item => {
+            const book = item.adminBookRes;
+            const bookImageUrl = book.attachmentId ? `/api/v1/attachment/${book.attachmentId}` : '/placeholder.svg?height=80&width=60';
+
+            return `
+                    <div class="order-item-card">
+                        <img src="${bookImageUrl}" alt="${book.title}" class="book-image" onerror="this.src='/placeholder.svg?height=80&width=60'">
+                        <div class="book-info">
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-amount">Quantity: ${item.amount}</div>
+                            <div class="book-amount">Category: ${book.categoryName}</div>
+                            <div class="book-amount">Pages: ${book.totalPages}</div>
                         </div>
-                    `).join('')}
-                </div>
-            `;
+                        <div class="item-actions">
+                            ${status === 'ACCEPTED' && item.qrCodes ? `
+                                <button class="btn btn-qr" onclick="viewQRCodes(${JSON.stringify(item.qrCodes).replace(/"/g, '&quot;')}, ${JSON.stringify(book).replace(/"/g, '&quot;')})">
+                                    <i class="fas fa-qrcode"></i> QR Codes
+                                </button>
+                            ` : ''}
+                            ${status === 'PENDING' ? `
+                                <button class="btn btn-remove" onclick="removeOrderItem(${order.id}, ${item.id || 'null'})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+        }).join('');
     }
 
-    async function acceptOrder(orderId) {
-        currentOrderAction = { action: 'accept', orderId: orderId };
+    function viewQRCodes(qrCodes, book) {
+        currentQRCodes = qrCodes;
+        currentBookInfo = book;
 
-        document.getElementById('orderActionModalTitle').textContent = 'Accept Order';
-        document.getElementById('orderActionModalBody').innerHTML = `
-                <p>Are you sure you want to accept order #${orderId}?</p>
-                <p class="text-muted">This action will move the order to the accepted orders list.</p>
-            `;
+        // Update modal title
+        document.getElementById('qrModalTitle').textContent = `QR Codes - ${book.title}`;
 
-        new bootstrap.Modal(document.getElementById('orderActionModal')).show();
+        // Update book information
+        const bookImageUrl = book.attachmentId ? `/api/v1/attachment/${book.attachmentId}` : '/placeholder.svg?height=200&width=150';
+        document.getElementById('qrBookImage').src = bookImageUrl;
+        document.getElementById('qrBookTitle').textContent = book.title;
+
+        // Render QR codes
+        renderQRCodes(qrCodes);
+
+        // Hide order detail modal and show QR codes modal
+        bootstrap.Modal.getInstance(document.getElementById('orderDetailModal')).hide();
+        new bootstrap.Modal(document.getElementById('qrCodesModal')).show();
     }
 
-    async function declineOrder(orderId) {
-        currentOrderAction = { action: 'decline', orderId: orderId };
+    async function renderQRCodes(qrCodes) {
+        const container = document.getElementById('qrCodesGrid');
 
-        document.getElementById('orderActionModalTitle').textContent = 'Decline Order';
-        document.getElementById('orderActionModalBody').innerHTML = `
-                <p>Are you sure you want to decline order #${orderId}?</p>
-                <p class="text-danger">This action cannot be undone.</p>
-            `;
-
-        new bootstrap.Modal(document.getElementById('orderActionModal')).show();
-    }
-
-    // Handle order action confirmation
-    document.getElementById('confirmOrderAction').addEventListener('click', async function() {
-        if (!currentOrderAction) return;
-
-        const loading = document.getElementById('orderActionLoading');
-        loading.style.display = 'inline-block';
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/order/${currentOrderAction.orderId}`, {
-                method: 'PUT'
+        container.innerHTML = await Promise.all(qrCodes.map(async (qrCode, index) => {
+            // Generate QR code image
+            const qrCodeDataURL = await QRCode.toDataURL(qrCode, {
+                width: 100,
+                height: 100,
+                margin: 1
             });
 
-            if (response.ok) {
-                const updatedOrder = await response.json();
-                showNotification(`Order ${currentOrderAction.action}ed successfully!`, 'success');
-                bootstrap.Modal.getInstance(document.getElementById('orderActionModal')).hide();
+            return `
+                    <div class="qr-code-item">
+                        <img src="${qrCodeDataURL}" alt="QR Code ${index + 1}" class="qr-code-image">
+                        <div class="qr-actions">
+                            <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')">
+                                <i class="fas fa-ban"></i> Block
+                            </button>
+                            <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')">
+                                <i class="fas fa-check"></i> Activate
+                            </button>
+                        </div>
+                    </div>
+                `;
+        })).then(items => items.join(''));
+    }
 
-                // Reload fresh data from backend
-                await loadOrderDashboard();
-            } else {
-                const errorText = await response.text();
-                showNotification(`Error ${currentOrderAction.action}ing order: ${errorText}`, 'error');
+    async function downloadQRCodesPDF() {
+        if (!currentQRCodes || currentQRCodes.length === 0) {
+            showNotification('No QR codes to download', 'warning');
+            return;
+        }
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+
+            // Add title
+            pdf.setFontSize(16);
+            pdf.text(`QR Codes - ${currentBookInfo.title}`, 20, 20);
+
+            let yPosition = 40;
+            const qrSize = 50;
+            const margin = 20;
+            const itemsPerRow = 3;
+
+            for (let i = 0; i < currentQRCodes.length; i++) {
+                const qrCode = currentQRCodes[i];
+
+                // Generate QR code as data URL
+                const qrCodeDataURL = await QRCode.toDataURL(qrCode, {
+                    width: 200,
+                    height: 200,
+                    margin: 1
+                });
+
+                const col = i % itemsPerRow;
+                const row = Math.floor(i / itemsPerRow);
+
+                const xPosition = margin + (col * (qrSize + margin));
+                const currentYPosition = yPosition + (row * (qrSize + margin));
+
+                // Add QR code to PDF
+                pdf.addImage(qrCodeDataURL, 'PNG', xPosition, currentYPosition, qrSize, qrSize);
+
+                // Add QR code text below image
+                pdf.setFontSize(8);
+                pdf.text(qrCode.substring(0, 20) + '...', xPosition, currentYPosition + qrSize + 5);
+
+                // Add new page if needed
+                if ((i + 1) % (itemsPerRow * 6) === 0 && i < currentQRCodes.length - 1) {
+                    pdf.addPage();
+                    yPosition = 20;
+                }
             }
+
+            // Save PDF
+            pdf.save(`QR_Codes_${currentBookInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+
+            showNotification('QR codes PDF downloaded successfully', 'success');
+
         } catch (error) {
-            console.error(`Error ${currentOrderAction.action}ing order:`, error);
-            showNotification('Network error. Please try again.', 'error');
-        } finally {
-            loading.style.display = 'none';
-            currentOrderAction = null;
+            console.error('Error generating PDF:', error);
+            showNotification('Error generating PDF', 'error');
         }
-    });
-
-    function renderEmptyOrderState() {
-        document.getElementById('orderStats').innerHTML = `
-                <div class="col-12 text-center">
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Unable to load order data. Please check your connection and try again.
-                    </div>
-                </div>
-            `;
-
-        document.getElementById('pendingOrdersTableBody').innerHTML = `
-                <tr><td colspan="6" class="text-center text-muted py-4">No data available</td></tr>
-            `;
-
-        document.getElementById('acceptedOrdersTableBody').innerHTML = `
-                <tr><td colspan="6" class="text-center text-muted py-4">No data available</td></tr>
-            `;
     }
 
-    function showLoadingState() {
-        document.getElementById('orderStats').innerHTML = `
-                <div class="col-12 text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2">Loading orders...</p>
-                </div>
-            `;
+    function toggleQRStatus(qrCode, action) {
+        // This is a placeholder for future implementation
+        showNotification(`QR code ${action} functionality will be implemented soon`, 'info');
     }
 
-    function hideLoadingState() {
-        // Loading state will be replaced by actual content
+    async function removeOrderItem(orderId, itemId) {
+        // This is a placeholder for future implementation
+        showNotification('Remove order item functionality is being developed', 'info');
     }
 
-    async function refreshOrders() {
-        await loadOrderDashboard();
-        showNotification('Orders refreshed successfully!', 'success');
-    }
-
-    // Search functionality
-    function initializeSearch() {
-        document.getElementById('orderSearch')?.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            filterOrders(searchTerm, document.getElementById('orderStatusFilter').value);
-        });
-
-        document.getElementById('orderStatusFilter')?.addEventListener('change', function() {
-            const statusFilter = this.value;
-            filterOrders(document.getElementById('orderSearch').value.toLowerCase(), statusFilter);
-        });
-    }
-
-    function filterOrders(searchTerm, statusFilter) {
-        if (!orderDashboardData) return;
-
-        let filteredPending = orderDashboardData.pendingOrders || [];
-        let filteredAccepted = orderDashboardData.acceptedOrders || [];
-
-        // Apply search filter
-        if (searchTerm) {
-            filteredPending = filteredPending.filter(order =>
-                order.name.toLowerCase().includes(searchTerm) ||
-                `${order.userRes.firstName} ${order.userRes.lastName}`.toLowerCase().includes(searchTerm) ||
-                order.userRes.phoneNumber.includes(searchTerm)
-            );
-
-            filteredAccepted = filteredAccepted.filter(order =>
-                order.name.toLowerCase().includes(searchTerm) ||
-                `${order.userRes.firstName} ${order.userRes.lastName}`.toLowerCase().includes(searchTerm) ||
-                order.userRes.phoneNumber.includes(searchTerm)
-            );
+    function getStatusColor(status) {
+        switch (status) {
+            case 'PENDING': return 'warning';
+            case 'ACCEPTED': return 'success';
+            case 'DECLINED': return 'danger';
+            default: return 'secondary';
         }
-
-        // Apply status filter
-        if (statusFilter === 'pending') {
-            filteredAccepted = [];
-        } else if (statusFilter === 'accepted') {
-            filteredPending = [];
-        }
-
-        renderOrdersTable(filteredPending, 'pendingOrdersTableBody');
-        renderOrdersTable(filteredAccepted, 'acceptedOrdersTableBody');
     }
 
-    // Utility functions
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show`;
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info'} alert-dismissible fade show`;
         notification.style.position = 'fixed';
-        notification.style.top = '20px';
+        notification.style.top = '90px';
         notification.style.right = '20px';
         notification.style.zIndex = '9999';
         notification.style.minWidth = '300px';
@@ -833,8 +1135,16 @@
             if (notification.parentNode) {
                 notification.parentNode.removeChild(notification);
             }
-        }, 3000);
+        }, 5000);
     }
+
+    // Handle modal cleanup
+    document.getElementById('qrCodesModal').addEventListener('hidden.bs.modal', function () {
+        // Show order detail modal again if it was open
+        if (currentOrderId) {
+            new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
+        }
+    });
 </script>
 </body>
 </html>

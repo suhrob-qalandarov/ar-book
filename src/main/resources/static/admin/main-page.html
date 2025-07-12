@@ -554,7 +554,7 @@
             <i class="fas fa-book"></i>
             <span>Books</span>
         </a>
-        <a href="#" class="menu-item" data-section="orders">
+        <a href="orders.html" class="menu-item">
             <i class="fas fa-shopping-cart"></i>
             <span>Orders</span>
         </a>
@@ -713,17 +713,7 @@
         </div>
     </div>
 
-    <!-- Other sections (Orders, Statistics, etc.) -->
-    <div id="orders-section" class="content-section" style="display: none;">
-        <div class="content-header fade-in">
-            <h1 class="page-title">Orders</h1>
-            <p class="page-subtitle">Manage customer orders</p>
-        </div>
-        <div class="data-table fade-in">
-            <p class="text-center p-5">Orders management coming soon...</p>
-        </div>
-    </div>
-
+    <!-- Other sections (Statistics, etc.) -->
     <div id="statistics-section" class="content-section" style="display: none;">
         <div class="content-header fade-in">
             <h1 class="page-title">Statistics</h1>
@@ -942,10 +932,11 @@
             item.addEventListener('click', function(e) {
                 e.preventDefault();
                 const section = this.getAttribute('data-section');
-                showSection(section);
-
-                document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
-                this.classList.add('active');
+                if (section) {
+                    showSection(section);
+                    document.querySelectorAll('.menu-item').forEach(mi => mi.classList.remove('active'));
+                    this.classList.add('active');
+                }
             });
         });
 
