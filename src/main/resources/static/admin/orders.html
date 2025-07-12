@@ -783,7 +783,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+<!-- QRCode kutubxonasini yangilayman -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     // Global variables
@@ -1119,6 +1120,7 @@
         new bootstrap.Modal(document.getElementById('qrCodesModal')).show();
     }
 
+    // QR kodlarni ko'rsatish funksiyasini to'liq qayta yozaman
     async function renderQRCodes(qrCodes) {
         const container = document.getElementById('qrCodesGrid');
 
@@ -1127,57 +1129,94 @@
             return;
         }
 
+        // Loading holatini ko'rsatish
+        container.innerHTML = '<div class="text-center p-4"><i class="fas fa-spinner fa-spin"></i> Generating QR codes...</div>';
+
         try {
-            const qrCodeElements = await Promise.all(qrCodes.map(async (qrCode, index) => {
+            const qrCodeElements = [];
+
+            // Har bir QR kodni ketma-ket yaratish
+            for (let i = 0; i < qrCodes.length; i++) {
+                const qrCode = qrCodes[i];
+
                 try {
-                    // Generate QR code image
-                    const qrCodeDataURL = await QRCode.toDataURL(qrCode, {
-                        width: 100,
-                        height: 100,
-                        margin: 1,
-                        color: {
-                            dark: '#000000',
-                            light: '#FFFFFF'
-                        }
+                    // QR kod yaratish
+                    const qrCodeDataURL = await new Promise((resolve, reject) => {
+                        QRCode.toDataURL(qrCode, {
+                            width: 150,
+                            height: 150,
+                            margin: 2,
+                            color: {
+                                dark: '#000000',
+                                light: '#FFFFFF'
+                            },
+                            errorCorrectionLevel: 'M',
+                            type: 'image/png',
+                            quality: 1.0
+                        }, (err, url) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(url);
+                            }
+                        });
                     });
 
-                    return `
+                    qrCodeElements.push(`
                             <div class="qr-code-item">
-                                <img src="${qrCodeDataURL}" alt="QR Code ${index + 1}" class="qr-code-image">
+                                <img src="${qrCodeDataURL}" alt="QR Code ${i + 1}" class="qr-code-image" style="width: 100px; height: 100px; border: 1px solid #e2e8f0;">
+                                <div style="font-size: 10px; margin: 5px 0; word-break: break-all; color: #64748b;">QR ${i + 1}</div>
+                                <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(0, 20)}...</div>
                                 <div class="qr-actions">
-                                    <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')">
-                                        <i class="fas fa-ban"></i> Block
+                                    <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')" title="Block QR Code">
+                                        <i class="fas fa-ban"></i>
                                     </button>
-                                    <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')">
-                                        <i class="fas fa-check"></i> Activate
+                                    <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')" title="Activate QR Code">
+                                        <i class="fas fa-check"></i>
                                     </button>
                                 </div>
                             </div>
-                        `;
-                } catch (error) {
-                    console.error('Error generating QR code:', error);
-                    return `
-                            <div class="qr-code-item">
-                                <div class="qr-code-image" style="background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #64748b;">
-                                    QR Error
-                                </div>
-                                <div class="qr-actions">
-                                    <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')">
-                                        <i class="fas fa-ban"></i> Block
-                                    </button>
-                                    <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')">
-                                        <i class="fas fa-check"></i> Activate
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                }
-            }));
+                        `);
 
+                    // Progress ko'rsatish
+                    container.innerHTML = `
+                            <div class="text-center p-4">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Generating QR codes... ${i + 1}/${qrCodes.length}
+                            </div>
+                        `;
+
+                } catch (error) {
+                    console.error(`Error generating QR code ${i + 1}:`, error);
+                    qrCodeElements.push(`
+                            <div class="qr-code-item">
+                                <div class="qr-code-image" style="background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626; width: 100px; height: 100px; border: 1px solid #fecaca; font-size: 12px;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div style="font-size: 10px; margin: 5px 0; color: #dc2626;">Generation Failed</div>
+                                <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(0, 20)}...</div>
+                                <div class="qr-actions">
+                                    <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')" title="Block QR Code">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')" title="Activate QR Code">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `);
+                }
+            }
+
+            // Barcha QR kodlarni ko'rsatish
             container.innerHTML = qrCodeElements.join('');
+
+            showNotification(`Successfully generated ${qrCodeElements.length} QR codes`, 'success');
+
         } catch (error) {
             console.error('Error rendering QR codes:', error);
-            container.innerHTML = '<div class="text-center p-4 text-danger">Error loading QR codes</div>';
+            container.innerHTML = '<div class="text-center p-4 text-danger"><i class="fas fa-exclamation-triangle"></i> Error loading QR codes</div>';
+            showNotification('Error generating QR codes', 'error');
         }
     }
 
