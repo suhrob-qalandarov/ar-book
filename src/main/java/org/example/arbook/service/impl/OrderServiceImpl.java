@@ -4,14 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.example.arbook.exception.BookNotFoundException;
 import org.example.arbook.model.dto.request.OrderItemReq;
 import org.example.arbook.model.dto.request.OrderReq;
+import org.example.arbook.model.dto.response.*;
 import org.example.arbook.model.entity.Order;
 import org.example.arbook.model.entity.QrCode;
+import org.example.arbook.model.entity.User;
 import org.example.arbook.model.enums.OrderStatus;
-import org.example.arbook.model.enums.QrCodeStatus;
 import org.example.arbook.repository.BookRepository;
 import org.example.arbook.repository.OrderRepository;
 import org.example.arbook.repository.QrCodeRepository;
+import org.example.arbook.repository.UserRepository;
 import org.example.arbook.service.interfaces.OrderService;
+import org.example.arbook.service.interfaces.admin.AdminBookService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,54 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final QrCodeRepository qrCodeRepository;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
+    private final AdminBookService adminBookService;
+
+    @Transactional
+    @Override
+    public AdminOrderDashboardRes getOrders() {
+        List<OrderRes> pendingOrders = orderRepository.findAllByStatus(OrderStatus.PENDING).stream()
+                .map(this::convertToOrderRes)
+                .toList();
+        List<OrderRes> acceptedOrders = orderRepository.findAllByStatus(OrderStatus.ACCEPTED).stream()
+                .map(this::convertToOrderRes)
+                .toList();
+
+        return AdminOrderDashboardRes.builder()
+                .pendingCount((long) pendingOrders.size())
+                .acceptedCount((long) acceptedOrders.size())
+                .pendingOrders(pendingOrders)
+                .acceptedOrders(acceptedOrders)
+                .build();
+    }
+
+    @Transactional
+    @Override
+    public OrderRes getOrderRes(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        return convertToOrderRes(order);
+    }
+
+    @Transactional
+    @Override
+    public OrderRes getOrderResByName(String orderName) {
+        Order order = orderRepository.findByName(orderName);
+        return convertToOrderRes(order);
+    }
+
+    @Transactional
+    @Override
+    public OrderRes acceptOrder(Long orderId) {
+        Order order = orderRepository.acceptAndReturn(orderId);
+        return convertToOrderRes(order);
+    }
+
+    @Transactional
+    @Override
+    public OrderRes declineOrder(Long orderId) {
+        Order order = orderRepository.declineAndReturn(orderId);
+        return convertToOrderRes(order);
+    }
 
     @Transactional
     public List<QrCode> createOrderAndGetQrCodes(OrderReq orderReq) {
@@ -42,7 +93,6 @@ public class OrderServiceImpl implements OrderService {
             List<QrCode> qrCodes = createQrCode(item.bookId(), item.amount(), order.getId());
             allQrCodes.addAll(qrCodes);
         }
-
         return allQrCodes;
     }
 
@@ -57,15 +107,39 @@ public class OrderServiceImpl implements OrderService {
         }
         List<QrCode> savedQrCodes = qrCodeRepository.saveAll(qrCodes);
 
-        savedQrCodes.forEach(qrCode -> qrCode.setValue(shortUuid(qrCode.getId())));
+        //savedQrCodes.forEach(qrCode -> qrCode.setValue(shortUuid(qrCode.getId())));
 
-        return qrCodeRepository.saveAll(savedQrCodes);    }
+        return qrCodeRepository.saveAll(savedQrCodes);
+    }
 
     private Order convertToOrder(OrderReq orderReq) {
         return Order.builder()
                 .name(orderReq.name())
                 .userId(orderReq.userId())
                 .status(OrderStatus.PENDING)
+                .build();
+    }
+
+    @Transactional
+    public OrderRes convertToOrderRes(Order order) {
+        User user = userRepository.findById(order.getUserId()).orElseThrow();
+        return OrderRes.builder()
+                .id(order.getId())
+                .name(order.getName())
+                .status(order.getStatus().name())
+                .userRes(UserRes.builder()
+                        .id(user.getId())
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .phoneNumber(user.getPhoneNumber())
+                        .build())
+                .orderItemResList(order.getOrderItems().stream()
+                        .map(orderItem -> OrderItemRes.builder()
+                                .amount(orderItem.getAmount())
+                                .adminBookRes(adminBookService.getOneBook(orderItem.getBook().getId()))
+                                .build()
+                        ).toList()
+                )
                 .build();
     }
 
@@ -85,5 +159,4 @@ public class OrderServiceImpl implements OrderService {
         }
         return bytes;
     }
-
 }
