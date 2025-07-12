@@ -16,6 +16,7 @@
             --pending-color: #f59e0b;
             --accepted-color: #10b981;
             --declined-color: #ef4444;
+            --sidebar-width: 280px;
         }
 
         * {
@@ -85,7 +86,58 @@
             justify-content: center;
         }
 
+        .user-info h6 {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .user-info small {
+            opacity: 0.8;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - 70px);
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 999;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-menu {
+            padding: 2rem 0;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 1rem 2rem;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border-left-color: var(--primary-blue);
+            transform: translateX(5px);
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
         .main-content {
+            margin-left: var(--sidebar-width);
             margin-top: 70px;
             padding: 2rem;
             min-height: calc(100vh - 70px);
@@ -231,6 +283,7 @@
 
         .order-card.accepted {
             border-left: 4px solid var(--accepted-color);
+            cursor: default;
         }
 
         .order-id {
@@ -516,6 +569,18 @@
         }
 
         @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
             .orders-board {
                 grid-template-columns: 1fr;
             }
@@ -531,6 +596,14 @@
             .order-item-card {
                 flex-direction: column;
                 text-align: center;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .brand-name {
+                display: none;
             }
         }
     </style>
@@ -554,6 +627,40 @@
         </div>
     </div>
 </header>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-menu">
+        <a href="main-page.html" class="menu-item">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="main-page.html" class="menu-item">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+        </a>
+        <a href="main-page.html" class="menu-item">
+            <i class="fas fa-book"></i>
+            <span>Books</span>
+        </a>
+        <a href="#" class="menu-item active">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Orders</span>
+        </a>
+        <a href="main-page.html" class="menu-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>Statistics</span>
+        </a>
+        <a href="main-page.html" class="menu-item">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+        </a>
+        <a href="main-page.html" class="menu-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </div>
+</nav>
 
 <!-- Main Content -->
 <main class="main-content">
@@ -703,10 +810,11 @@
         (config) => {
             const token = localStorage.getItem('token');
             if (!token) {
-                window.location.href = '../auth/login.html';
+                window.location.href = 'auth/login.html';
                 return Promise.reject(new Error('No token found'));
             }
-            config.headers.Authorization = `${token}`;
+            // Token already contains 'Bearer ' prefix
+            config.headers.Authorization = token;
             return config;
         },
         (error) => Promise.reject(error)
@@ -718,7 +826,7 @@
         (error) => {
             if (error.response && (error.response.status === 401 || error.response.status === 403)) {
                 localStorage.removeItem('token');
-                window.location.href = '../auth/login.html';
+                window.location.href = 'auth/login.html';
             }
             return Promise.reject(error);
         }
@@ -727,7 +835,7 @@
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
         if (!localStorage.getItem('token')) {
-            window.location.href = '../auth/login.html';
+            window.location.href = 'auth/login.html';
             return;
         }
         initializeApp();
@@ -819,6 +927,21 @@
             }
         });
 
+        // Setup sortable for accepted orders - can receive but not give
+        new Sortable(acceptedList, {
+            group: {
+                name: 'orders',
+                pull: false, // Don't allow items to be pulled from this list
+                put: true    // Allow items to be put into this list
+            },
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function(evt) {
+                handleOrderMove(evt);
+            }
+        });
+
         // Setup sortable for declined orders
         new Sortable(declinedList, {
             group: 'orders',
@@ -828,16 +951,6 @@
             onEnd: function(evt) {
                 handleOrderMove(evt);
             }
-        });
-
-        // Accepted orders cannot be moved (read-only)
-        new Sortable(acceptedList, {
-            group: {
-                name: 'orders',
-                put: false // Don't allow items to be put into this list
-            },
-            sort: false, // Disable sorting within the list
-            animation: 150
         });
     }
 
@@ -855,23 +968,24 @@
             toStatus = 'DECLINED';
         }
 
-        // Don't allow moving from accepted status
-        if (fromStatus === 'ACCEPTED') {
-            showNotification('Accepted orders cannot be moved', 'warning');
-            loadOrders(); // Reload to reset the UI
-            return;
-        }
-
         // Don't process if status hasn't changed
         if (fromStatus === toStatus) {
             return;
         }
 
         try {
-            // Update order status via API
-            await axiosInstance.patch(`/admin/order/${orderId}/status`, {
-                status: toStatus
-            });
+            let response;
+            // Use specific endpoints for accept/decline
+            if (toStatus === 'ACCEPTED') {
+                response = await axiosInstance.put(`/admin/order/accept/${orderId}`);
+            } else if (toStatus === 'DECLINED') {
+                response = await axiosInstance.put(`/admin/order/decline/${orderId}`);
+            } else {
+                // For other status changes, use generic endpoint
+                response = await axiosInstance.patch(`/admin/order/${orderId}/status`, {
+                    status: toStatus
+                });
+            }
 
             // Update the order card's status
             evt.item.dataset.status = toStatus;
@@ -879,7 +993,7 @@
 
             showNotification(`Order moved to ${toStatus.toLowerCase()}`, 'success');
 
-            // Reload orders to get updated counts
+            // Reload orders to get updated counts and data
             loadOrders();
 
         } catch (error) {
@@ -1145,6 +1259,21 @@
             new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
         }
     });
+
+    // Mobile sidebar toggle
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('show');
+    }
+
+    if (window.innerWidth <= 768) {
+        const header = document.querySelector('.header');
+        const mobileMenuBtn = document.createElement('button');
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        mobileMenuBtn.className = 'btn btn-link text-white d-md-none';
+        mobileMenuBtn.onclick = toggleSidebar;
+        header.querySelector('.logo-section').appendChild(mobileMenuBtn);
+    }
 </script>
 </body>
 </html>
