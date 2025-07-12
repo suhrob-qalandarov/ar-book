@@ -22,14 +22,12 @@ public class AdminOrderController {
 
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderRes> getOrderRes(@PathVariable Long orderId) {
-        System.out.println("ishladi");
         OrderRes order = orderService.getOrderRes(orderId);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
     @GetMapping("/accepted/{orderId}")
     public ResponseEntity<AcceptedOrderRes> getAcceptedOrderRes(@PathVariable Long orderId) {
-        System.out.println("ishladi");
         AcceptedOrderRes order = orderService.getAcceptedOrderRes(orderId);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
