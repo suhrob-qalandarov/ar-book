@@ -563,6 +563,124 @@
             transform: rotate(5deg);
         }
 
+        /* QR Customization Modal Styles */
+        .qr-customization-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .background-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f9fafb;
+        }
+
+        .background-upload-area:hover {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .background-upload-area.has-image {
+            border-style: solid;
+            border-color: var(--accepted-color);
+            background: #f0fdf4;
+        }
+
+        .background-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .book-info-section {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .book-info-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .book-info-detail {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .generate-pdf-btn {
+            background: var(--accepted-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .generate-pdf-btn:hover {
+            background: #059669;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .generate-pdf-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -599,6 +717,10 @@
 
             .brand-name {
                 display: none;
+            }
+
+            .qr-customization-card {
+                padding: 1rem;
             }
         }
     </style>
@@ -758,7 +880,7 @@
                     <!-- Book Information -->
                     <div class="col-md-4">
                         <div class="text-center">
-                            <img id="qrBookImage" src="/placeholder.svg" alt="Book Cover" class="img-fluid mb-3" style="max-height: 200px;">
+                            <img id="qrBookImage" src="/" alt="Book Cover" class="img-fluid mb-3" style="max-height: 200px;">
                             <h6 id="qrBookTitle"></h6>
                         </div>
                     </div>
@@ -766,12 +888,98 @@
                     <div class="col-md-8">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">QR Codes</h6>
-                            <button class="btn btn-download" onclick="downloadQRCodesPDF()">
-                                <i class="fas fa-download"></i> Download PDF
+                            <button class="btn btn-download" onclick="openQRCustomizationModal()">
+                                <i class="fas fa-download"></i> Download QR
                             </button>
                         </div>
                         <div class="qr-codes-grid" id="qrCodesGrid">
                             <!-- QR codes will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- QR Customization Modal -->
+<div class="modal fade" id="qrCustomizationModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-palette"></i> Customize QR Codes
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Left Side - Book Information -->
+                    <div class="col-md-4">
+                        <div class="book-info-section">
+                            <div class="book-info-title" id="customizeBookTitle">Book Title</div>
+                            <div class="book-info-detail">
+                                <i class="fas fa-qrcode"></i>
+                                <span id="customizeQRCount">0</span> QR Codes
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side - Customization Options -->
+                    <div class="col-md-8">
+                        <div class="qr-customization-card">
+                            <div class="row">
+                                <!-- Background Image Upload -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="fas fa-image"></i> Background Image
+                                        </label>
+                                        <div class="background-upload-area" id="backgroundUploadArea" onclick="document.getElementById('backgroundImageInput').click()">
+                                            <div id="uploadContent">
+                                                <div class="upload-icon">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                </div>
+                                                <div class="upload-text">
+                                                    Click to upload background image<br>
+                                                    <small>Recommended: 210x297mm (A4 size)</small>
+                                                </div>
+                                            </div>
+                                            <div id="imagePreview" style="display: none;">
+                                                <img id="backgroundPreview" class="background-preview" alt="Background Preview">
+                                                <div class="upload-text">Click to change image</div>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="backgroundImageInput" accept="image/*" style="display: none;" onchange="handleBackgroundImageUpload(event)">
+                                    </div>
+                                </div>
+
+                                <!-- Text Customization -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="qrTitle">
+                                            <i class="fas fa-heading"></i> Title (Above QR Code)
+                                        </label>
+                                        <input type="text" id="qrTitle" class="form-control" placeholder="Enter title text..." value="AR Book QR Code">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="qrDescription">
+                                            <i class="fas fa-align-left"></i> Description (Below QR Code)
+                                        </label>
+                                        <textarea id="qrDescription" class="form-control" rows="3" placeholder="Enter description text...">Scan this QR code to access your digital content</textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Generate PDF Button -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <button class="generate-pdf-btn" onclick="generateCustomizedPDF()">
+                                        <i class="fas fa-file-pdf"></i> Generate PDF
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -787,12 +995,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.js" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-    const domain = window.location.origin;
     // Global variables
     let ordersData = null;
     let currentOrderId = null;
     let currentQRCodes = [];
     let currentBookInfo = null;
+    let backgroundImageDataURL = null;
 
     // API Base URL
     const API_BASE_URL = '/api/v1';
@@ -1221,54 +1429,119 @@
         }
     }
 
-    async function downloadQRCodesPDF() {
+    // QR Customization Modal Functions
+    function openQRCustomizationModal() {
         if (!currentQRCodes || currentQRCodes.length === 0) {
-            showNotification('No QR codes to download', 'warning');
+            showNotification('No QR codes available', 'warning');
+            return;
+        }
+
+        // Update book information in customization modal
+        document.getElementById('customizeBookTitle').textContent = currentBookInfo.title;
+        document.getElementById('customizeQRCount').textContent = currentQRCodes.length;
+
+        // Reset form
+        document.getElementById('qrTitle').value = 'AR Book QR Code';
+        document.getElementById('qrDescription').value = 'Scan this QR code to access your digital content';
+        resetBackgroundUpload();
+
+        // Hide QR codes modal and show customization modal
+        bootstrap.Modal.getInstance(document.getElementById('qrCodesModal')).hide();
+        new bootstrap.Modal(document.getElementById('qrCustomizationModal')).show();
+    }
+
+    function handleBackgroundImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+            showNotification('Please select a valid image file', 'error');
+            return;
+        }
+
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('Image file size should be less than 5MB', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            backgroundImageDataURL = e.target.result;
+
+            // Show preview
+            document.getElementById('backgroundPreview').src = backgroundImageDataURL;
+            document.getElementById('uploadContent').style.display = 'none';
+            document.getElementById('imagePreview').style.display = 'block';
+            document.getElementById('backgroundUploadArea').classList.add('has-image');
+
+            showNotification('Background image uploaded successfully', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function resetBackgroundUpload() {
+        backgroundImageDataURL = null;
+        document.getElementById('backgroundImageInput').value = '';
+        document.getElementById('uploadContent').style.display = 'block';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('backgroundUploadArea').classList.remove('has-image');
+    }
+
+    async function generateCustomizedPDF() {
+        if (!currentQRCodes || currentQRCodes.length === 0) {
+            showNotification('No QR codes to generate', 'warning');
+            return;
+        }
+
+        const title = document.getElementById('qrTitle').value.trim();
+        const description = document.getElementById('qrDescription').value.trim();
+
+        if (!title) {
+            showNotification('Please enter a title', 'warning');
             return;
         }
 
         try {
+            // Disable button during generation
+            const generateBtn = document.querySelector('.generate-pdf-btn');
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
-
-            // Background image URL (placeholder yoki haqiqiy rasm)
-            const backgroundImageUrl = '/placeholder.svg?height=297&width=210'; // A4 size in mm
 
             for (let i = 0; i < currentQRCodes.length; i++) {
                 const qrCode = currentQRCodes[i];
 
-                // Agar birinchi sahifa bo'lmasa, yangi sahifa qo'shish
+                // Add new page for each QR code (except first)
                 if (i > 0) {
                     pdf.addPage();
                 }
 
                 try {
-                    // Background image qo'shish
-                    try {
-                        // Background image ni canvas orqali yuklash va qo'shish
+                    // Add background image if uploaded
+                    if (backgroundImageDataURL) {
+                        pdf.addImage(backgroundImageDataURL, 'JPEG', 0, 0, 210, 297);
+                    } else {
+                        // Default background
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        canvas.width = 210 * 4; // A4 width in pixels (210mm * 4)
-                        canvas.height = 297 * 4; // A4 height in pixels (297mm * 4)
+                        canvas.width = 210 * 4;
+                        canvas.height = 297 * 4;
 
-                        // Background color
-                        ctx.fillStyle = '#f8fafc';
-                        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                        // Background pattern yoki gradient
                         const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                        gradient.addColorStop(0, '#dbeafe');
+                        gradient.addColorStop(0, '#f8fafc');
                         gradient.addColorStop(1, '#e2e8f0');
                         ctx.fillStyle = gradient;
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                         const backgroundDataURL = canvas.toDataURL('image/png');
                         pdf.addImage(backgroundDataURL, 'PNG', 0, 0, 210, 297);
-                    } catch (bgError) {
-                        console.log('Background image not added:', bgError);
                     }
 
-                    // QR kod yaratish
+                    // Generate QR code
                     const qrCodeDataURL = await new Promise((resolve, reject) => {
                         QRCode.toDataURL(qrCode, {
                             width: 400,
@@ -1282,87 +1555,80 @@
                             type: 'image/png',
                             quality: 1.0
                         }, (err, url) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                resolve(url);
-                            }
+                            if (err) reject(err);
+                            else resolve(url);
                         });
                     });
 
-                    // Sahifa markazida QR kod joylashish
-                    const qrSize = 80; // mm
-                    const pageWidth = 210; // A4 width in mm
-                    const pageHeight = 297; // A4 height in mm
+                    // Page dimensions
+                    const pageWidth = 210;
+                    const pageHeight = 297;
+                    const qrSize = 80;
                     const qrX = (pageWidth - qrSize) / 2;
                     const qrY = (pageHeight - qrSize) / 2;
 
-                    // Tepada matn
+                    /*// Title above QR code
                     pdf.setFontSize(20);
                     pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(30, 64, 175); // Dark blue color
-                    const topText = `${currentBookInfo.title}`;
-                    const topTextWidth = pdf.getTextWidth(topText);
-                    pdf.text(topText, (pageWidth - topTextWidth) / 2, qrY - 30);
+                    pdf.setTextColor(30, 64, 175);
+                    const titleWidth = pdf.getTextWidth(title);
+                    pdf.text(title, (pageWidth - titleWidth) / 2, qrY - 30);*/
 
-                    // QR kod haqida ma'lumot
-                    pdf.setFontSize(14);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(100, 116, 139); // Gray color
-                    const infoText = `QR Code ${i + 1} of ${currentQRCodes.length}`;
-                    const infoTextWidth = pdf.getTextWidth(infoText);
-                    pdf.text(infoText, (pageWidth - infoTextWidth) / 2, qrY - 15);
-
-                    // QR kodni qo'shish
+                    // QR code
                     pdf.addImage(qrCodeDataURL, 'PNG', qrX, qrY, qrSize, qrSize);
 
-                    // Pastda matn
-                    pdf.setFontSize(12);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.setTextColor(71, 85, 105); // Darker gray
-                    const bottomText1 = `Category: ${currentBookInfo.categoryName}`;
-                    const bottomText1Width = pdf.getTextWidth(bottomText1);
-                    pdf.text(bottomText1, (pageWidth - bottomText1Width) / 2, qrY + qrSize + 15);
+                    /*
+                    // Description below QR code
+                    if (description) {
+                        pdf.setFontSize(14);
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.setTextColor(71, 85, 105);
+                        const descWidth = pdf.getTextWidth(description);
+                        pdf.text(description, (pageWidth - descWidth) / 2, qrY + qrSize + 20);
+                    }
 
-                    const bottomText2 = `Pages: ${currentBookInfo.totalPages}`;
-                    const bottomText2Width = pdf.getTextWidth(bottomText2);
-                    pdf.text(bottomText2, (pageWidth - bottomText2Width) / 2, qrY + qrSize + 25);
+                    // Book name
+                    pdf.setFontSize(16);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(30, 64, 175);
+                    const bookNameWidth = pdf.getTextWidth(currentBookInfo.title);
+                    pdf.text(currentBookInfo.title, (pageWidth - bookNameWidth) / 2, qrY + qrSize + 40);
 
-                    // QR kod qiymati (qisqartirilgan)
-                    pdf.setFontSize(8);
-                    pdf.setTextColor(156, 163, 175); // Light gray
-                    const qrValue = qrCode.length > 50 ? qrCode.substring(0, 50) + '...' : qrCode;
-                    const qrValueWidth = pdf.getTextWidth(qrValue);
-                    pdf.text(qrValue, (pageWidth - qrValueWidth) / 2, qrY + qrSize + 40);
-
-                    // Sahifa raqami
+                    // QR code value
                     pdf.setFontSize(10);
                     pdf.setTextColor(156, 163, 175);
-                    const pageNumber = `Page ${i + 1}`;
+                    const qrValue = qrCode.length > 60 ? qrCode.substring(0, 60) + '...' : qrCode;
+                    const qrValueWidth = pdf.getTextWidth(qrValue);
+                    pdf.text(qrValue, (pageWidth - qrValueWidth) / 2, qrY + qrSize + 55);
+
+                    // Page number
+                    pdf.setFontSize(10);
+                    const pageNumber = `${i + 1} / ${currentQRCodes.length}`;
                     const pageNumberWidth = pdf.getTextWidth(pageNumber);
                     pdf.text(pageNumber, (pageWidth - pageNumberWidth) / 2, pageHeight - 10);
-
+*/
                 } catch (error) {
                     console.error(`Error adding QR code ${i + 1} to PDF:`, error);
-
-                    // Xato bo'lsa, xato sahifasini qo'shish
-                    pdf.setFontSize(16);
-                    pdf.setTextColor(220, 38, 38); // Red color
-                    const errorText = `Error generating QR Code ${i + 1}`;
-                    const errorTextWidth = pdf.getTextWidth(errorText);
-                    pdf.text(errorText, (pageWidth - errorTextWidth) / 2, pageHeight / 2);
                 }
             }
 
-            // PDF ni saqlash
+            // Save PDF
             const fileName = `QR_Codes_${currentBookInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
             pdf.save(fileName);
 
-            showNotification(`PDF with ${currentQRCodes.length} QR codes downloaded successfully`, 'success');
+            showNotification(`PDF with ${currentQRCodes.length} customized QR codes downloaded successfully`, 'success');
+
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('qrCustomizationModal')).hide();
 
         } catch (error) {
-            console.error('Error generating PDF:', error);
+            console.error('Error generating customized PDF:', error);
             showNotification('Error generating PDF', 'error');
+        } finally {
+            // Re-enable button
+            const generateBtn = document.querySelector('.generate-pdf-btn');
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Generate PDF';
         }
     }
 
@@ -1413,6 +1679,11 @@
         if (currentOrderId) {
             new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
         }
+    });
+
+    document.getElementById('qrCustomizationModal').addEventListener('hidden.bs.modal', function () {
+        // Show QR codes modal again
+        new bootstrap.Modal(document.getElementById('qrCodesModal')).show();
     });
 
     // Mobile sidebar toggle
