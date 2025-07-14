@@ -783,8 +783,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<!-- QRCode kutubxonasini yangilayman -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<!-- QRCode kutubxonasini avvalgi, to'g'ri ishlaydigan manziliga qaytaraman -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.js" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     // Global variables
@@ -1150,9 +1150,9 @@
                                 dark: '#000000',
                                 light: '#FFFFFF'
                             },
-                            errorCorrectionLevel: 'M',
-                            type: 'image/png',
-                            quality: 1.0
+                            errorCorrectionLevel: 'M', // Add error correction level
+                            type: 'image/png', // Specify image type
+                            quality: 1.0 // Specify quality
                         }, (err, url) => {
                             if (err) {
                                 reject(err);
@@ -1244,14 +1244,25 @@
 
                 try {
                     // Generate QR code as data URL
-                    const qrCodeDataURL = await QRCode.toDataURL(qrCode, {
-                        width: 200,
-                        height: 200,
-                        margin: 1,
-                        color: {
-                            dark: '#000000',
-                            light: '#FFFFFF'
-                        }
+                    const qrCodeDataURL = await new Promise((resolve, reject) => {
+                        QRCode.toDataURL(qrCode, {
+                            width: 200,
+                            height: 200,
+                            margin: 1,
+                            color: {
+                                dark: '#000000',
+                                light: '#FFFFFF'
+                            },
+                            errorCorrectionLevel: 'M', // Add error correction level
+                            type: 'image/png', // Specify image type
+                            quality: 1.0 // Specify quality
+                        }, (err, url) => {
+                            if (err) {
+                                reject(err);
+                            } else {
+                                resolve(url);
+                            }
+                        });
                     });
 
                     const col = i % itemsPerRow;
