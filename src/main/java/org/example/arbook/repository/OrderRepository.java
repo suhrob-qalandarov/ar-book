@@ -34,4 +34,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         SELECT * FROM updated
         """, nativeQuery = true)
     Order declineAndReturn(@Param("orderId") Long orderId);
+
+    @Query(value = """
+        WITH updated AS (
+            UPDATE orders
+            SET status = 'PENDING'
+            WHERE id = :orderId
+            RETURNING *
+        )
+        SELECT * FROM updated
+        """, nativeQuery = true)
+    Order pendAndReturn(@Param("orderId") Long orderId);
 }

@@ -805,6 +805,16 @@
 
     <!-- Orders Board -->
     <div class="orders-board fade-in">
+        <!-- Declined Orders -->
+        <div class="order-column">
+            <div class="column-header declined">
+                <i class="fas fa-times"></i> Declined Orders
+            </div>
+            <div class="orders-list" id="declinedOrders">
+                <!-- Declined orders will be loaded here -->
+            </div>
+        </div>
+
         <!-- Pending Orders -->
         <div class="order-column">
             <div class="column-header pending">
@@ -822,16 +832,6 @@
             </div>
             <div class="orders-list" id="acceptedOrders">
                 <!-- Accepted orders will be loaded here -->
-            </div>
-        </div>
-
-        <!-- Declined Orders -->
-        <div class="order-column">
-            <div class="column-header declined">
-                <i class="fas fa-times"></i> Declined Orders
-            </div>
-            <div class="orders-list" id="declinedOrders">
-                <!-- Declined orders will be loaded here -->
             </div>
         </div>
     </div>
@@ -1001,10 +1001,10 @@
     let currentQRCodes = [];
     let currentBookInfo = null;
     let backgroundImageDataURL = null;
-    let currentOrderData = null; // Add this line
+    let currentOrderData = null;
 
     // Website URL for QR codes
-    const WEBSITE_URL = 'https://ar-book/qrcode/'; // Add this line
+    const WEBSITE_URL = 'https://ar-book.uz/qrcode/';
 
     // API Base URL
     const API_BASE_URL = '/api/v1';
@@ -1084,14 +1084,14 @@
     function renderOrders() {
         if (!ordersData) return;
 
+        // Render declined orders
+        renderOrderColumn('declinedOrders', ordersData.declinedOrders || [], 'DECLINED');
+
         // Render pending orders
         renderOrderColumn('pendingOrders', ordersData.pendingOrders || [], 'PENDING');
 
         // Render accepted orders
         renderOrderColumn('acceptedOrders', ordersData.acceptedOrders || [], 'ACCEPTED');
-
-        // Render declined orders
-        renderOrderColumn('declinedOrders', ordersData.declinedOrders || [], 'DECLINED');
     }
 
     function renderOrderColumn(containerId, orders, status) {
@@ -1125,7 +1125,25 @@
         const acceptedList = document.getElementById('acceptedOrders');
         const declinedList = document.getElementById('declinedOrders');
 
-        // Setup sortable for pending orders
+        // Setup sortable for declined orders - can only go to pending
+        new Sortable(declinedList, {
+            group: {
+                name: 'orders',
+                pull: true,
+                put: function(to, from) {
+                    // Only allow from pending
+                    return from.el.id === 'pendingOrders';
+                }
+            },
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function(evt) {
+                handleOrderMove(evt);
+            }
+        });
+
+        // Setup sortable for pending orders - can go to both declined and accepted
         new Sortable(pendingList, {
             group: 'orders',
             animation: 150,
@@ -1141,19 +1159,11 @@
             group: {
                 name: 'orders',
                 pull: false, // Don't allow items to be pulled from this list
-                put: true    // Allow items to be put into this list
+                put: function(to, from) {
+                    // Only allow from pending, not from declined
+                    return from.el.id === 'pendingOrders';
+                }
             },
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            chosenClass: 'sortable-chosen',
-            onEnd: function(evt) {
-                handleOrderMove(evt);
-            }
-        });
-
-        // Setup sortable for declined orders
-        new Sortable(declinedList, {
-            group: 'orders',
             animation: 150,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
@@ -1169,12 +1179,12 @@
         const toContainer = evt.to.id;
 
         let toStatus;
-        if (toContainer === 'pendingOrders') {
+        if (toContainer === 'declinedOrders') {
+            toStatus = 'DECLINED';
+        } else if (toContainer === 'pendingOrders') {
             toStatus = 'PENDING';
         } else if (toContainer === 'acceptedOrders') {
             toStatus = 'ACCEPTED';
-        } else if (toContainer === 'declinedOrders') {
-            toStatus = 'DECLINED';
         }
 
         // Don't process if status hasn't changed
@@ -1182,18 +1192,24 @@
             return;
         }
 
+        // Prevent DECLINED -> ACCEPTED direct move
+        if (fromStatus === 'DECLINED' && toStatus === 'ACCEPTED') {
+            showNotification('Cannot move directly from Declined to Accepted. Move to Pending first.', 'warning');
+            loadOrders(); // Reset the UI
+            return;
+        }
+
         try {
             let response;
-            // Use specific endpoints for accept/decline
+            // Use specific endpoints for accept/decline/pend
             if (toStatus === 'ACCEPTED') {
                 response = await axiosInstance.put(`/admin/order/accept/${orderId}`);
             } else if (toStatus === 'DECLINED') {
                 response = await axiosInstance.put(`/admin/order/decline/${orderId}`);
+            } else if (toStatus === 'PENDING') {
+                response = await axiosInstance.put(`/admin/order/pend/${orderId}`);
             } else {
-                // For other status changes, use generic endpoint
-                response = await axiosInstance.patch(`/admin/order/${orderId}/status`, {
-                    status: toStatus
-                });
+                console.log("bad status " + toStatus)
             }
 
             // Update the order card's status
@@ -1288,28 +1304,34 @@
             const bookImageUrl = book.attachmentId ? `/api/v1/attachment/${book.attachmentId}` : '/placeholder.svg?height=80&width=60';
 
             return `
-                    <div class="order-item-card">
-                        <img src="${bookImageUrl}" alt="${book.title}" class="book-image" onerror="this.src='/placeholder.svg?height=80&width=60'">
-                        <div class="book-info">
-                            <div class="book-title">${book.title}</div>
-                            <div class="book-amount">Quantity: ${item.amount}</div>
-                            <div class="book-amount">Category: ${book.categoryName}</div>
-                            <div class="book-amount">Pages: ${book.totalPages}</div>
-                        </div>
-                        <div class="item-actions">
-                            ${status === 'ACCEPTED' && item.qrCodes ? `
-                                <button class="btn btn-qr" onclick="viewQRCodes(${JSON.stringify(item.qrCodes).replace(/"/g, '&quot;')}, ${JSON.stringify(book).replace(/"/g, '&quot;')})">
-                                    <i class="fas fa-qrcode"></i> QR Codes
-                                </button>
-                            ` : ''}
-                            ${status === 'PENDING' ? `
-                                <button class="btn btn-remove" onclick="removeOrderItem(${order.id}, ${item.id || 'null'})">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : ''}
-                        </div>
+            <div class="order-item-card">
+                <img src="${bookImageUrl}" alt="${book.title}" class="book-image" onerror="this.src='/placeholder.svg?height=80&width=60'">
+                <div class="book-info">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-amount">Category: ${book.categoryName}</div>
+                    <div class="book-amount">Pages: ${book.totalPages}</div>
+                </div>
+                ${status === 'PENDING' ? `
+                    <div class="quantity-controls" style="display: flex; align-items: center; gap: 0.5rem; margin: 0 1rem;">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${order.id}, ${item.id}, ${item.amount}, -1)" style="width: 30px; height: 30px; padding: 0;">-</button>
+                        <span style="width: 60px; text-align: center; font-weight: bold; font-size: 1rem;">${item.amount}</span>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${order.id}, ${item.id}, ${item.amount}, 1)" style="width: 30px; height: 30px; padding: 0;">+</button>
                     </div>
-                `;
+                ` : ''}
+                <div class="item-actions">
+                    ${status === 'ACCEPTED' && item.qrCodes ? `
+                        <button class="btn btn-qr" onclick="viewQRCodes(${JSON.stringify(item.qrCodes).replace(/"/g, '&quot;')}, ${JSON.stringify(book).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-qrcode"></i> QR Codes
+                        </button>
+                    ` : ''}
+                    ${status === 'PENDING' ? `
+                        <button class="btn btn-remove" onclick="removeOrderItem(${order.id}, ${item.id || 'null'})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
         }).join('');
     }
 
@@ -1384,48 +1406,32 @@
                     });
 
                     qrCodeElements.push(`
-                            <div class="qr-code-item">
-                                <img src="${qrCodeDataURL}" alt="QR Code ${i + 1}" class="qr-code-image" style="width: 100px; height: 100px; border: 1px solid #e2e8f0;">
-                                <div style="font-size: 10px; margin: 5px 0; word-break: break-all; color: #64748b;">QR ${i + 1}</div>
-                                <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(0, 20)}...</div>
-                                <div class="qr-actions">
-                                    <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')" title="Block QR Code">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
-                                    <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')" title="Activate QR Code">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `);
+                        <div class="qr-code-item">
+                            <img src="${qrCodeDataURL}" alt="QR Code ${i + 1}" class="qr-code-image" style="width: 100px; height: 100px; border: 1px solid #e2e8f0;">
+                            <div style="font-size: 10px; margin: 5px 0; word-break: break-all; color: #64748b;">QR ${i + 1}</div>
+                            <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(qrCode.lastIndexOf('/') + 1)}</div>
+                        </div>
+                    `);
 
                     // Progress ko'rsatish
                     container.innerHTML = `
-                            <div class="text-center p-4">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                Generating QR codes... ${i + 1}/${qrCodes.length}
-                            </div>
-                        `;
+                        <div class="text-center p-4">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Generating QR codes... ${i + 1}/${qrCodes.length}
+                        </div>
+                    `;
 
                 } catch (error) {
                     console.error(`Error generating QR code ${i + 1}:`, error);
                     qrCodeElements.push(`
-                            <div class="qr-code-item">
-                                <div class="qr-code-image" style="background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626; width: 100px; height: 100px; border: 1px solid #fecaca; font-size: 12px;">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div style="font-size: 10px; margin: 5px 0; color: #dc2626;">Generation Failed</div>
-                                <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(0, 20)}...</div>
-                                <div class="qr-actions">
-                                    <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')" title="Block QR Code">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
-                                    <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')" title="Activate QR Code">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </div>
+                        <div class="qr-code-item">
+                            <div class="qr-code-image" style="background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626; width: 100px; height: 100px; border: 1px solid #fecaca; font-size: 12px;">
+                                <i class="fas fa-exclamation-triangle"></i>
                             </div>
-                        `);
+                            <div style="font-size: 10px; margin: 5px 0; color: #dc2626;">Generation Failed</div>
+                            <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(qrCode.lastIndexOf('/') + 1)}</div>
+                        </div>
+                    `);
                 }
             }
 
@@ -1438,6 +1444,35 @@
             console.error('Error rendering QR codes:', error);
             container.innerHTML = '<div class="text-center p-4 text-danger"><i class="fas fa-exclamation-triangle"></i> Error loading QR codes</div>';
             showNotification('Error generating QR codes', 'error');
+        }
+    }
+
+    async function updateQuantity(orderId, itemId, currentAmount, change) {
+        const newAmount = currentAmount + change;
+        if (newAmount < 1) {
+            showNotification('Quantity cannot be less than 1', 'warning');
+            return;
+        }
+        if (newAmount > 100) {
+            showNotification('Quantity cannot be more than 100', 'warning');
+            return;
+        }
+
+        try {
+            await axiosInstance.patch(`/admin/order-item/quantity/${itemId}?amount=${newAmount}`);
+
+            showNotification('Quantity updated successfully', 'success');
+
+            // Refresh the order details
+            const status = 'PENDING'; // Since only pending orders can be edited
+            viewOrder(orderId, status);
+
+            // Also refresh the orders list
+            loadOrders();
+
+        } catch (error) {
+            console.error('Error updating quantity:', error);
+            showNotification('Error updating quantity', 'error');
         }
     }
 
@@ -1516,27 +1551,7 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
 
-            // First page - Order Information
-            if (backgroundImageDataURL) {
-                pdf.addImage(backgroundImageDataURL, 'JPEG', 0, 0, 210, 297);
-            } else {
-                // Default background for first page
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 210 * 4;
-                canvas.height = 297 * 4;
-
-                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-                gradient.addColorStop(0, '#f8fafc');
-                gradient.addColorStop(1, '#e2e8f0');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                const backgroundDataURL = canvas.toDataURL('image/png');
-                pdf.addImage(backgroundDataURL, 'PNG', 0, 0, 210, 297);
-            }
-
-            // Add order information to first page
+            // First page - Order Information (NO BACKGROUND IMAGE)
             if (currentOrderData) {
                 const customerName = `${currentOrderData.userRes.firstName} ${currentOrderData.userRes.lastName}`;
 
@@ -1573,7 +1588,7 @@
                 pdf.text(`Total QR Codes: ${currentQRCodes.length}`, 20, yPos);
             }
 
-            // Generate QR code pages
+            // Generate QR code pages (starting from page 2 with background)
             const prefixedQRCodes = currentQRCodes.map(qrCode => WEBSITE_URL + qrCode);
 
             for (let i = 0; i < prefixedQRCodes.length; i++) {
@@ -1583,7 +1598,7 @@
                 pdf.addPage();
 
                 try {
-                    // Add background image if uploaded
+                    // Add background image if uploaded (only from page 2 onwards)
                     if (backgroundImageDataURL) {
                         pdf.addImage(backgroundImageDataURL, 'JPEG', 0, 0, 210, 297);
                     } else {
@@ -1663,8 +1678,26 @@
     }
 
     async function removeOrderItem(orderId, itemId) {
-        // This is a placeholder for future implementation
-        showNotification('Remove order item functionality is being developed', 'info');
+        if (!confirm('Are you sure you want to remove this item from the order?')) {
+            return;
+        }
+
+        try {
+            await axiosInstance.delete(`/admin/order-item/${itemId}`);
+
+            showNotification('Order item removed successfully', 'success');
+
+            // Refresh the order details
+            const status = 'PENDING'; // Since only pending orders can be edited
+            viewOrder(orderId, status);
+
+            // Also refresh the orders list
+            loadOrders();
+
+        } catch (error) {
+            console.error('Error removing order item:', error);
+            showNotification('Error removing order item', 'error');
+        }
     }
 
     function getStatusColor(status) {
@@ -1685,9 +1718,9 @@
         notification.style.zIndex = '9999';
         notification.style.minWidth = '300px';
         notification.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
 
         document.body.appendChild(notification);
 
