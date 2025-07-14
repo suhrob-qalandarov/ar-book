@@ -783,10 +783,11 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<!-- QRCode kutubxonasini avvalgi, to'g'ri ishlaydigan manziliga qaytaraman -->
+<!-- QRCode kutubxonasini yangi manzilga o'zgartirish -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.js" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+    const domain = window.location.origin;
     // Global variables
     let ordersData = null;
     let currentOrderId = null;
@@ -1230,32 +1231,56 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
 
-            // Add title
-            pdf.setFontSize(16);
-            pdf.text(`QR Codes - ${currentBookInfo.title}`, 20, 20);
-
-            let yPosition = 40;
-            const qrSize = 50;
-            const margin = 20;
-            const itemsPerRow = 3;
+            // Background image URL (placeholder yoki haqiqiy rasm)
+            const backgroundImageUrl = '/placeholder.svg?height=297&width=210'; // A4 size in mm
 
             for (let i = 0; i < currentQRCodes.length; i++) {
                 const qrCode = currentQRCodes[i];
 
+                // Agar birinchi sahifa bo'lmasa, yangi sahifa qo'shish
+                if (i > 0) {
+                    pdf.addPage();
+                }
+
                 try {
-                    // Generate QR code as data URL
+                    // Background image qo'shish
+                    try {
+                        // Background image ni canvas orqali yuklash va qo'shish
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = 210 * 4; // A4 width in pixels (210mm * 4)
+                        canvas.height = 297 * 4; // A4 height in pixels (297mm * 4)
+
+                        // Background color
+                        ctx.fillStyle = '#f8fafc';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                        // Background pattern yoki gradient
+                        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                        gradient.addColorStop(0, '#dbeafe');
+                        gradient.addColorStop(1, '#e2e8f0');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                        const backgroundDataURL = canvas.toDataURL('image/png');
+                        pdf.addImage(backgroundDataURL, 'PNG', 0, 0, 210, 297);
+                    } catch (bgError) {
+                        console.log('Background image not added:', bgError);
+                    }
+
+                    // QR kod yaratish
                     const qrCodeDataURL = await new Promise((resolve, reject) => {
                         QRCode.toDataURL(qrCode, {
-                            width: 200,
-                            height: 200,
-                            margin: 1,
+                            width: 400,
+                            height: 400,
+                            margin: 2,
                             color: {
                                 dark: '#000000',
                                 light: '#FFFFFF'
                             },
-                            errorCorrectionLevel: 'M', // Add error correction level
-                            type: 'image/png', // Specify image type
-                            quality: 1.0 // Specify quality
+                            errorCorrectionLevel: 'M',
+                            type: 'image/png',
+                            quality: 1.0
                         }, (err, url) => {
                             if (err) {
                                 reject(err);
@@ -1265,33 +1290,75 @@
                         });
                     });
 
-                    const col = i % itemsPerRow;
-                    const row = Math.floor(i / itemsPerRow);
+                    // Sahifa markazida QR kod joylashish
+                    const qrSize = 80; // mm
+                    const pageWidth = 210; // A4 width in mm
+                    const pageHeight = 297; // A4 height in mm
+                    const qrX = (pageWidth - qrSize) / 2;
+                    const qrY = (pageHeight - qrSize) / 2;
 
-                    const xPosition = margin + (col * (qrSize + margin));
-                    const currentYPosition = yPosition + (row * (qrSize + margin));
+                    // Tepada matn
+                    pdf.setFontSize(20);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setTextColor(30, 64, 175); // Dark blue color
+                    const topText = `${currentBookInfo.title}`;
+                    const topTextWidth = pdf.getTextWidth(topText);
+                    pdf.text(topText, (pageWidth - topTextWidth) / 2, qrY - 30);
 
-                    // Add QR code to PDF
-                    pdf.addImage(qrCodeDataURL, 'PNG', xPosition, currentYPosition, qrSize, qrSize);
+                    // QR kod haqida ma'lumot
+                    pdf.setFontSize(14);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setTextColor(100, 116, 139); // Gray color
+                    const infoText = `QR Code ${i + 1} of ${currentQRCodes.length}`;
+                    const infoTextWidth = pdf.getTextWidth(infoText);
+                    pdf.text(infoText, (pageWidth - infoTextWidth) / 2, qrY - 15);
 
-                    // Add QR code text below image
+                    // QR kodni qo'shish
+                    pdf.addImage(qrCodeDataURL, 'PNG', qrX, qrY, qrSize, qrSize);
+
+                    // Pastda matn
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.setTextColor(71, 85, 105); // Darker gray
+                    const bottomText1 = `Category: ${currentBookInfo.categoryName}`;
+                    const bottomText1Width = pdf.getTextWidth(bottomText1);
+                    pdf.text(bottomText1, (pageWidth - bottomText1Width) / 2, qrY + qrSize + 15);
+
+                    const bottomText2 = `Pages: ${currentBookInfo.totalPages}`;
+                    const bottomText2Width = pdf.getTextWidth(bottomText2);
+                    pdf.text(bottomText2, (pageWidth - bottomText2Width) / 2, qrY + qrSize + 25);
+
+                    // QR kod qiymati (qisqartirilgan)
                     pdf.setFontSize(8);
-                    pdf.text(qrCode.substring(0, 20) + '...', xPosition, currentYPosition + qrSize + 5);
+                    pdf.setTextColor(156, 163, 175); // Light gray
+                    const qrValue = qrCode.length > 50 ? qrCode.substring(0, 50) + '...' : qrCode;
+                    const qrValueWidth = pdf.getTextWidth(qrValue);
+                    pdf.text(qrValue, (pageWidth - qrValueWidth) / 2, qrY + qrSize + 40);
 
-                    // Add new page if needed
-                    if ((i + 1) % (itemsPerRow * 6) === 0 && i < currentQRCodes.length - 1) {
-                        pdf.addPage();
-                        yPosition = 20;
-                    }
+                    // Sahifa raqami
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(156, 163, 175);
+                    const pageNumber = `Page ${i + 1}`;
+                    const pageNumberWidth = pdf.getTextWidth(pageNumber);
+                    pdf.text(pageNumber, (pageWidth - pageNumberWidth) / 2, pageHeight - 10);
+
                 } catch (error) {
-                    console.error('Error adding QR code to PDF:', error);
+                    console.error(`Error adding QR code ${i + 1} to PDF:`, error);
+
+                    // Xato bo'lsa, xato sahifasini qo'shish
+                    pdf.setFontSize(16);
+                    pdf.setTextColor(220, 38, 38); // Red color
+                    const errorText = `Error generating QR Code ${i + 1}`;
+                    const errorTextWidth = pdf.getTextWidth(errorText);
+                    pdf.text(errorText, (pageWidth - errorTextWidth) / 2, pageHeight / 2);
                 }
             }
 
-            // Save PDF
-            pdf.save(`QR_Codes_${currentBookInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+            // PDF ni saqlash
+            const fileName = `QR_Codes_${currentBookInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            pdf.save(fileName);
 
-            showNotification('QR codes PDF downloaded successfully', 'success');
+            showNotification(`PDF with ${currentQRCodes.length} QR codes downloaded successfully`, 'success');
 
         } catch (error) {
             console.error('Error generating PDF:', error);
