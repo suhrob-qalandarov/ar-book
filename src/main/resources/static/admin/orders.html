@@ -880,7 +880,7 @@
                     <!-- Book Information -->
                     <div class="col-md-4">
                         <div class="text-center">
-                            <img id="qrBookImage" src="/" alt="Book Cover" class="img-fluid mb-3" style="max-height: 200px;">
+                            <img id="qrBookImage" src="/placeholder.svg" alt="Book Cover" class="img-fluid mb-3" style="max-height: 200px;">
                             <h6 id="qrBookTitle"></h6>
                         </div>
                     </div>
@@ -1001,6 +1001,10 @@
     let currentQRCodes = [];
     let currentBookInfo = null;
     let backgroundImageDataURL = null;
+    let currentOrderData = null; // Add this line
+
+    // Website URL for QR codes
+    const WEBSITE_URL = 'https://ar-book/qrcode/'; // Add this line
 
     // API Base URL
     const API_BASE_URL = '/api/v1';
@@ -1313,6 +1317,13 @@
         currentQRCodes = qrCodes;
         currentBookInfo = book;
 
+        // Store current order data for PDF generation
+        currentOrderData = ordersData.acceptedOrders.find(order =>
+                order.orderItemList && order.orderItemList.some(item =>
+                    item.adminBookRes.id === book.id
+                )
+        );
+
         // Update modal title
         document.getElementById('qrModalTitle').textContent = `QR Codes - ${book.title}`;
 
@@ -1321,8 +1332,9 @@
         document.getElementById('qrBookImage').src = bookImageUrl;
         document.getElementById('qrBookTitle').textContent = book.title;
 
-        // Render QR codes
-        renderQRCodes(qrCodes);
+        // Render QR codes with website URL prefix
+        const prefixedQRCodes = qrCodes.map(qrCode => WEBSITE_URL + qrCode);
+        renderQRCodes(prefixedQRCodes);
 
         // Hide order detail modal and show QR codes modal
         bootstrap.Modal.getInstance(document.getElementById('orderDetailModal')).hide();
@@ -1495,14 +1507,6 @@
             return;
         }
 
-        const title = document.getElementById('qrTitle').value.trim();
-        const description = document.getElementById('qrDescription').value.trim();
-
-        if (!title) {
-            showNotification('Please enter a title', 'warning');
-            return;
-        }
-
         try {
             // Disable button during generation
             const generateBtn = document.querySelector('.generate-pdf-btn');
@@ -1512,13 +1516,71 @@
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
 
-            for (let i = 0; i < currentQRCodes.length; i++) {
-                const qrCode = currentQRCodes[i];
+            // First page - Order Information
+            if (backgroundImageDataURL) {
+                pdf.addImage(backgroundImageDataURL, 'JPEG', 0, 0, 210, 297);
+            } else {
+                // Default background for first page
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 210 * 4;
+                canvas.height = 297 * 4;
 
-                // Add new page for each QR code (except first)
-                if (i > 0) {
-                    pdf.addPage();
-                }
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, '#f8fafc');
+                gradient.addColorStop(1, '#e2e8f0');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const backgroundDataURL = canvas.toDataURL('image/png');
+                pdf.addImage(backgroundDataURL, 'PNG', 0, 0, 210, 297);
+            }
+
+            // Add order information to first page
+            if (currentOrderData) {
+                const customerName = `${currentOrderData.userRes.firstName} ${currentOrderData.userRes.lastName}`;
+
+                pdf.setFontSize(24);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(30, 64, 175);
+                pdf.text('Order Information', 105, 40, { align: 'center' });
+
+                pdf.setFontSize(16);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(71, 85, 105);
+
+                let yPos = 70;
+                const lineHeight = 12;
+
+                pdf.text(`Order ID: #${currentOrderData.id}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Order Name: ${currentOrderData.name}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Customer: ${customerName}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Phone: ${currentOrderData.userRes.phoneNumber}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Status: ${currentOrderData.status}`, 20, yPos);
+                yPos += lineHeight * 2;
+
+                pdf.text(`Book: ${currentBookInfo.title}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Category: ${currentBookInfo.categoryName}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Total Pages: ${currentBookInfo.totalPages}`, 20, yPos);
+                yPos += lineHeight * 2;
+
+                pdf.text(`Total QR Codes: ${currentQRCodes.length}`, 20, yPos);
+            }
+
+            // Generate QR code pages
+            const prefixedQRCodes = currentQRCodes.map(qrCode => WEBSITE_URL + qrCode);
+
+            for (let i = 0; i < prefixedQRCodes.length; i++) {
+                const qrCodeWithURL = prefixedQRCodes[i];
+
+                // Add new page for each QR code
+                pdf.addPage();
 
                 try {
                     // Add background image if uploaded
@@ -1541,9 +1603,9 @@
                         pdf.addImage(backgroundDataURL, 'PNG', 0, 0, 210, 297);
                     }
 
-                    // Generate QR code
+                    // Generate QR code with website URL
                     const qrCodeDataURL = await new Promise((resolve, reject) => {
-                        QRCode.toDataURL(qrCode, {
+                        QRCode.toDataURL(qrCodeWithURL, {
                             width: 400,
                             height: 400,
                             margin: 2,
@@ -1567,46 +1629,9 @@
                     const qrX = (pageWidth - qrSize) / 2;
                     const qrY = (pageHeight - qrSize) / 2;
 
-                    /*// Title above QR code
-                    pdf.setFontSize(20);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(30, 64, 175);
-                    const titleWidth = pdf.getTextWidth(title);
-                    pdf.text(title, (pageWidth - titleWidth) / 2, qrY - 30);*/
-
-                    // QR code
+                    // Add QR code to center of page
                     pdf.addImage(qrCodeDataURL, 'PNG', qrX, qrY, qrSize, qrSize);
 
-                    /*
-                    // Description below QR code
-                    if (description) {
-                        pdf.setFontSize(14);
-                        pdf.setFont('helvetica', 'normal');
-                        pdf.setTextColor(71, 85, 105);
-                        const descWidth = pdf.getTextWidth(description);
-                        pdf.text(description, (pageWidth - descWidth) / 2, qrY + qrSize + 20);
-                    }
-
-                    // Book name
-                    pdf.setFontSize(16);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.setTextColor(30, 64, 175);
-                    const bookNameWidth = pdf.getTextWidth(currentBookInfo.title);
-                    pdf.text(currentBookInfo.title, (pageWidth - bookNameWidth) / 2, qrY + qrSize + 40);
-
-                    // QR code value
-                    pdf.setFontSize(10);
-                    pdf.setTextColor(156, 163, 175);
-                    const qrValue = qrCode.length > 60 ? qrCode.substring(0, 60) + '...' : qrCode;
-                    const qrValueWidth = pdf.getTextWidth(qrValue);
-                    pdf.text(qrValue, (pageWidth - qrValueWidth) / 2, qrY + qrSize + 55);
-
-                    // Page number
-                    pdf.setFontSize(10);
-                    const pageNumber = `${i + 1} / ${currentQRCodes.length}`;
-                    const pageNumberWidth = pdf.getTextWidth(pageNumber);
-                    pdf.text(pageNumber, (pageWidth - pageNumberWidth) / 2, pageHeight - 10);
-*/
                 } catch (error) {
                     console.error(`Error adding QR code ${i + 1} to PDF:`, error);
                 }
@@ -1616,7 +1641,7 @@
             const fileName = `QR_Codes_${currentBookInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
             pdf.save(fileName);
 
-            showNotification(`PDF with ${currentQRCodes.length} customized QR codes downloaded successfully`, 'success');
+            showNotification(`PDF with order info and ${currentQRCodes.length} QR codes downloaded successfully`, 'success');
 
             // Close modal
             bootstrap.Modal.getInstance(document.getElementById('qrCustomizationModal')).hide();
