@@ -23,7 +23,7 @@ public class AdminOrderItemController {
         return ResponseEntity.ok(updatedAmount);
     }
 
-    @DeleteMapping("/${itemId}")
+    @DeleteMapping("/{itemId}")
     public ResponseEntity<?> updateOrderItemQuantity(@PathVariable Long itemId) {
         orderItemService.deactivateOrderItem(itemId);
         return ResponseEntity.ok().build();
