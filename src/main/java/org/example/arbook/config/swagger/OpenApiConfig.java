@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+
 @Configuration
 @OpenAPIDefinition(
         info = @Info(title = "AR BOOK", version = "v1", description = "AR BOOK PROJECT"),
@@ -31,28 +32,6 @@ public class OpenApiConfig {
     }
 
 
-//
-//    @Bean
-//    public OpenApiCustomizer dynamicFilter(CategoryRepository categoryRepository) {
-//        return openApi -> {
-//            List<Category> categories = categoryRepository.findAll();
-//            List<String> categoryNames = categories.stream().map(item -> item.getName()).toList();
-//            openApi.getPaths().forEach((path, pathltem) -> {
-//                pathltem.readOperations().forEach(operation -> {
-//                    List<Parameter> parameters = operation.getParameters();
-//                    if (parameters != null) {
-//                        parameters.forEach(parameter -> {
-//                            if ("categoryName".equals(parameter.getName())) {
-//                                Schema<String> schema = parameter.getSchema();
-//                                if (schema != null) {
-//                                    schema.setEnum(categoryNames);
-//                                }
-//                            }
-//                        });
-//                    }
-//                });
-//            });
-//        };
-//    }
+
 
 }

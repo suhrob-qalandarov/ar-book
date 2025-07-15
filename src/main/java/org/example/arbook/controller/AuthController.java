@@ -23,8 +23,9 @@ import static org.example.arbook.util.ApiConstants.*;
  */
 @RestController
 @RequiredArgsConstructor
+
 @RequestMapping(API + V1 + AUTH)
-@Tag(name = "Authorization Controller", description = "Login//Logout/Register/Verify phone number endpoints for all")
+@Tag(name = "Authorization Controller", description = "Login//Logout/Register/Verify phone number endpoints for all actions accordingly")
 public class AuthController {
 
     private final AuthService authService;

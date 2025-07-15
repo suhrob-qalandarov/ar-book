@@ -13,7 +13,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 @Configuration
 //@Profile("prod")
 public class S3Config {
-    @Value("${aws...s3.region}")
+    @Value("${aws.s3.region}")
     private String region;
 
     @Value("${aws.s3.access-key}")

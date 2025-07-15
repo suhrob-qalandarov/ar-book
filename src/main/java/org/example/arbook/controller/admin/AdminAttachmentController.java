@@ -23,7 +23,7 @@ public class AdminAttachmentController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Long> uploadFile(@RequestParam("file") MultipartFile file) {
-        log.debug("Uploading single file: {}", file.getOriginalFilename());
+          log.debug("Uploading single file: {}", file.getOriginalFilename());
         Long savedAttachmentId = attachmentService.uploadOne(file);
         return ResponseEntity.ok(savedAttachmentId);
     }

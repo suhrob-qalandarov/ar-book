@@ -19,15 +19,15 @@ public class BookPage extends BaseEntity {
 
     @OneToOne
     private Attachment markerPhoto;
-    @OneToOne
-    private Attachment markerPattern;
+        @OneToOne
+        private Attachment markerPattern;
 
-    @OneToOne
-    private Attachment file3D;
+        @OneToOne
+        private Attachment file3D;
 
-    @ManyToOne
-    private Book book;
+        @ManyToOne
+        private Book book;
 
-    @OneToMany(mappedBy = "bookPage"  ,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    private List<PageContent> pageContents;
+        @OneToMany(mappedBy = "bookPage"  ,cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+        private List<PageContent> pageContents;
 }

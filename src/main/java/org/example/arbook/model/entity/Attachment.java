@@ -12,13 +12,14 @@ import lombok.experimental.SuperBuilder;
 import org.example.arbook.model.base.BaseEntity;
 import org.example.arbook.model.enums.ContentType;
 
+@Entity
+@Table(name = "attachments")
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "attachments")
+
 public class Attachment extends BaseEntity {
 
     private String fileUrl;
