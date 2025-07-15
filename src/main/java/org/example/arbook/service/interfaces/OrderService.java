@@ -22,4 +22,6 @@ public interface OrderService {
     OrderRes declineOrder(Long orderId);
 
     AcceptedOrderRes getAcceptedOrderRes(Long orderId);
+
+    OrderRes pendOrder(Long orderId);
 }

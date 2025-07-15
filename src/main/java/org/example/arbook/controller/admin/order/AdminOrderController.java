@@ -49,4 +49,10 @@ public class AdminOrderController {
         OrderRes order = orderService.declineOrder(orderId);
         return new ResponseEntity<>(order, HttpStatus.ACCEPTED);
     }
+
+    @PutMapping("/pend/{orderId}")
+    public ResponseEntity<OrderRes> pendOrder(@PathVariable Long orderId) {
+        OrderRes order = orderService.pendOrder(orderId);
+        return new ResponseEntity<>(order, HttpStatus.ACCEPTED);
+    }
 }

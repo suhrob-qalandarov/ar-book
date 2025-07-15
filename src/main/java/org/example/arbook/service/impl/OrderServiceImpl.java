@@ -105,6 +105,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
+    public OrderRes pendOrder(Long orderId) {
+        Order order = orderRepository.pendAndReturn(orderId);
+        return convertToOrderRes(order);
+    }
+
+    @Transactional
+    @Override
     public OrderRes createOrder(OrderReq orderReq) {
         // Validate input
         if (orderReq.userId() == null || orderReq.name() == null || orderReq.orderItemReqList() == null) {

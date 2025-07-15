@@ -563,6 +563,124 @@
             transform: rotate(5deg);
         }
 
+        /* QR Customization Modal Styles */
+        .qr-customization-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .background-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f9fafb;
+        }
+
+        .background-upload-area:hover {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .background-upload-area.has-image {
+            border-style: solid;
+            border-color: var(--accepted-color);
+            background: #f0fdf4;
+        }
+
+        .background-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .book-info-section {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .book-info-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .book-info-detail {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .generate-pdf-btn {
+            background: var(--accepted-color);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .generate-pdf-btn:hover {
+            background: #059669;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .generate-pdf-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -599,6 +717,10 @@
 
             .brand-name {
                 display: none;
+            }
+
+            .qr-customization-card {
+                padding: 1rem;
             }
         }
     </style>
@@ -683,6 +805,16 @@
 
     <!-- Orders Board -->
     <div class="orders-board fade-in">
+        <!-- Declined Orders -->
+        <div class="order-column">
+            <div class="column-header declined">
+                <i class="fas fa-times"></i> Declined Orders
+            </div>
+            <div class="orders-list" id="declinedOrders">
+                <!-- Declined orders will be loaded here -->
+            </div>
+        </div>
+
         <!-- Pending Orders -->
         <div class="order-column">
             <div class="column-header pending">
@@ -700,16 +832,6 @@
             </div>
             <div class="orders-list" id="acceptedOrders">
                 <!-- Accepted orders will be loaded here -->
-            </div>
-        </div>
-
-        <!-- Declined Orders -->
-        <div class="order-column">
-            <div class="column-header declined">
-                <i class="fas fa-times"></i> Declined Orders
-            </div>
-            <div class="orders-list" id="declinedOrders">
-                <!-- Declined orders will be loaded here -->
             </div>
         </div>
     </div>
@@ -766,8 +888,8 @@
                     <div class="col-md-8">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">QR Codes</h6>
-                            <button class="btn btn-download" onclick="downloadQRCodesPDF()">
-                                <i class="fas fa-download"></i> Download PDF
+                            <button class="btn btn-download" onclick="openQRCustomizationModal()">
+                                <i class="fas fa-download"></i> Download QR
                             </button>
                         </div>
                         <div class="qr-codes-grid" id="qrCodesGrid">
@@ -780,11 +902,97 @@
     </div>
 </div>
 
+<!-- QR Customization Modal -->
+<div class="modal fade" id="qrCustomizationModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-palette"></i> Customize QR Codes
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Left Side - Book Information -->
+                    <div class="col-md-4">
+                        <div class="book-info-section">
+                            <div class="book-info-title" id="customizeBookTitle">Book Title</div>
+                            <div class="book-info-detail">
+                                <i class="fas fa-qrcode"></i>
+                                <span id="customizeQRCount">0</span> QR Codes
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side - Customization Options -->
+                    <div class="col-md-8">
+                        <div class="qr-customization-card">
+                            <div class="row">
+                                <!-- Background Image Upload -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <i class="fas fa-image"></i> Background Image
+                                        </label>
+                                        <div class="background-upload-area" id="backgroundUploadArea" onclick="document.getElementById('backgroundImageInput').click()">
+                                            <div id="uploadContent">
+                                                <div class="upload-icon">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                </div>
+                                                <div class="upload-text">
+                                                    Click to upload background image<br>
+                                                    <small>Recommended: 210x297mm (A4 size)</small>
+                                                </div>
+                                            </div>
+                                            <div id="imagePreview" style="display: none;">
+                                                <img id="backgroundPreview" class="background-preview" alt="Background Preview">
+                                                <div class="upload-text">Click to change image</div>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="backgroundImageInput" accept="image/*" style="display: none;" onchange="handleBackgroundImageUpload(event)">
+                                    </div>
+                                </div>
+
+                                <!-- Text Customization -->
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label" for="qrTitle">
+                                            <i class="fas fa-heading"></i> Title (Above QR Code)
+                                        </label>
+                                        <input type="text" id="qrTitle" class="form-control" placeholder="Enter title text..." value="AR Book QR Code">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label" for="qrDescription">
+                                            <i class="fas fa-align-left"></i> Description (Below QR Code)
+                                        </label>
+                                        <textarea id="qrDescription" class="form-control" rows="3" placeholder="Enter description text...">Scan this QR code to access your digital content</textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Generate PDF Button -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <button class="generate-pdf-btn" onclick="generateCustomizedPDF()">
+                                        <i class="fas fa-file-pdf"></i> Generate PDF
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<!-- QRCode kutubxonasini yangilayman -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<!-- QRCode kutubxonasini yangi manzilga o'zgartirish -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.1/qrcode.js" referrerpolicy="no-referrer"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     // Global variables
@@ -792,6 +1000,11 @@
     let currentOrderId = null;
     let currentQRCodes = [];
     let currentBookInfo = null;
+    let backgroundImageDataURL = null;
+    let currentOrderData = null;
+
+    // Website URL for QR codes
+    const WEBSITE_URL = 'https://ar-book.uz/qrcode/';
 
     // API Base URL
     const API_BASE_URL = '/api/v1';
@@ -871,14 +1084,14 @@
     function renderOrders() {
         if (!ordersData) return;
 
+        // Render declined orders
+        renderOrderColumn('declinedOrders', ordersData.declinedOrders || [], 'DECLINED');
+
         // Render pending orders
         renderOrderColumn('pendingOrders', ordersData.pendingOrders || [], 'PENDING');
 
         // Render accepted orders
         renderOrderColumn('acceptedOrders', ordersData.acceptedOrders || [], 'ACCEPTED');
-
-        // Render declined orders
-        renderOrderColumn('declinedOrders', ordersData.declinedOrders || [], 'DECLINED');
     }
 
     function renderOrderColumn(containerId, orders, status) {
@@ -912,7 +1125,25 @@
         const acceptedList = document.getElementById('acceptedOrders');
         const declinedList = document.getElementById('declinedOrders');
 
-        // Setup sortable for pending orders
+        // Setup sortable for declined orders - can only go to pending
+        new Sortable(declinedList, {
+            group: {
+                name: 'orders',
+                pull: true,
+                put: function(to, from) {
+                    // Only allow from pending
+                    return from.el.id === 'pendingOrders';
+                }
+            },
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            chosenClass: 'sortable-chosen',
+            onEnd: function(evt) {
+                handleOrderMove(evt);
+            }
+        });
+
+        // Setup sortable for pending orders - can go to both declined and accepted
         new Sortable(pendingList, {
             group: 'orders',
             animation: 150,
@@ -928,19 +1159,11 @@
             group: {
                 name: 'orders',
                 pull: false, // Don't allow items to be pulled from this list
-                put: true    // Allow items to be put into this list
+                put: function(to, from) {
+                    // Only allow from pending, not from declined
+                    return from.el.id === 'pendingOrders';
+                }
             },
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            chosenClass: 'sortable-chosen',
-            onEnd: function(evt) {
-                handleOrderMove(evt);
-            }
-        });
-
-        // Setup sortable for declined orders
-        new Sortable(declinedList, {
-            group: 'orders',
             animation: 150,
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
@@ -956,12 +1179,12 @@
         const toContainer = evt.to.id;
 
         let toStatus;
-        if (toContainer === 'pendingOrders') {
+        if (toContainer === 'declinedOrders') {
+            toStatus = 'DECLINED';
+        } else if (toContainer === 'pendingOrders') {
             toStatus = 'PENDING';
         } else if (toContainer === 'acceptedOrders') {
             toStatus = 'ACCEPTED';
-        } else if (toContainer === 'declinedOrders') {
-            toStatus = 'DECLINED';
         }
 
         // Don't process if status hasn't changed
@@ -969,18 +1192,24 @@
             return;
         }
 
+        // Prevent DECLINED -> ACCEPTED direct move
+        if (fromStatus === 'DECLINED' && toStatus === 'ACCEPTED') {
+            showNotification('Cannot move directly from Declined to Accepted. Move to Pending first.', 'warning');
+            loadOrders(); // Reset the UI
+            return;
+        }
+
         try {
             let response;
-            // Use specific endpoints for accept/decline
+            // Use specific endpoints for accept/decline/pend
             if (toStatus === 'ACCEPTED') {
                 response = await axiosInstance.put(`/admin/order/accept/${orderId}`);
             } else if (toStatus === 'DECLINED') {
                 response = await axiosInstance.put(`/admin/order/decline/${orderId}`);
+            } else if (toStatus === 'PENDING') {
+                response = await axiosInstance.put(`/admin/order/pend/${orderId}`);
             } else {
-                // For other status changes, use generic endpoint
-                response = await axiosInstance.patch(`/admin/order/${orderId}/status`, {
-                    status: toStatus
-                });
+                console.log("bad status " + toStatus)
             }
 
             // Update the order card's status
@@ -1075,34 +1304,47 @@
             const bookImageUrl = book.attachmentId ? `/api/v1/attachment/${book.attachmentId}` : '/placeholder.svg?height=80&width=60';
 
             return `
-                    <div class="order-item-card">
-                        <img src="${bookImageUrl}" alt="${book.title}" class="book-image" onerror="this.src='/placeholder.svg?height=80&width=60'">
-                        <div class="book-info">
-                            <div class="book-title">${book.title}</div>
-                            <div class="book-amount">Quantity: ${item.amount}</div>
-                            <div class="book-amount">Category: ${book.categoryName}</div>
-                            <div class="book-amount">Pages: ${book.totalPages}</div>
-                        </div>
-                        <div class="item-actions">
-                            ${status === 'ACCEPTED' && item.qrCodes ? `
-                                <button class="btn btn-qr" onclick="viewQRCodes(${JSON.stringify(item.qrCodes).replace(/"/g, '&quot;')}, ${JSON.stringify(book).replace(/"/g, '&quot;')})">
-                                    <i class="fas fa-qrcode"></i> QR Codes
-                                </button>
-                            ` : ''}
-                            ${status === 'PENDING' ? `
-                                <button class="btn btn-remove" onclick="removeOrderItem(${order.id}, ${item.id || 'null'})">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : ''}
-                        </div>
+            <div class="order-item-card">
+                <img src="${bookImageUrl}" alt="${book.title}" class="book-image" onerror="this.src='/placeholder.svg?height=80&width=60'">
+                <div class="book-info">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-amount">Category: ${book.categoryName}</div>
+                    <div class="book-amount">Pages: ${book.totalPages}</div>
+                </div>
+                ${status === 'PENDING' ? `
+                    <div class="quantity-controls" style="display: flex; align-items: center; gap: 0.5rem; margin: 0 1rem;">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${order.id}, ${item.id}, ${item.amount}, -1)" style="width: 30px; height: 30px; padding: 0;">-</button>
+                        <span style="width: 60px; text-align: center; font-weight: bold; font-size: 1rem;">${item.amount}</span>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${order.id}, ${item.id}, ${item.amount}, 1)" style="width: 30px; height: 30px; padding: 0;">+</button>
                     </div>
-                `;
+                ` : ''}
+                <div class="item-actions">
+                    ${status === 'ACCEPTED' && item.qrCodes ? `
+                        <button class="btn btn-qr" onclick="viewQRCodes(${JSON.stringify(item.qrCodes).replace(/"/g, '&quot;')}, ${JSON.stringify(book).replace(/"/g, '&quot;')})">
+                            <i class="fas fa-qrcode"></i> QR Codes
+                        </button>
+                    ` : ''}
+                    ${status === 'PENDING' ? `
+                        <button class="btn btn-remove" onclick="removeOrderItem(${order.id}, ${item.id || 'null'})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
         }).join('');
     }
 
     function viewQRCodes(qrCodes, book) {
         currentQRCodes = qrCodes;
         currentBookInfo = book;
+
+        // Store current order data for PDF generation
+        currentOrderData = ordersData.acceptedOrders.find(order =>
+                order.orderItemList && order.orderItemList.some(item =>
+                    item.adminBookRes.id === book.id
+                )
+        );
 
         // Update modal title
         document.getElementById('qrModalTitle').textContent = `QR Codes - ${book.title}`;
@@ -1112,8 +1354,9 @@
         document.getElementById('qrBookImage').src = bookImageUrl;
         document.getElementById('qrBookTitle').textContent = book.title;
 
-        // Render QR codes
-        renderQRCodes(qrCodes);
+        // Render QR codes with website URL prefix
+        const prefixedQRCodes = qrCodes.map(qrCode => WEBSITE_URL + qrCode);
+        renderQRCodes(prefixedQRCodes);
 
         // Hide order detail modal and show QR codes modal
         bootstrap.Modal.getInstance(document.getElementById('orderDetailModal')).hide();
@@ -1150,9 +1393,9 @@
                                 dark: '#000000',
                                 light: '#FFFFFF'
                             },
-                            errorCorrectionLevel: 'M',
-                            type: 'image/png',
-                            quality: 1.0
+                            errorCorrectionLevel: 'M', // Add error correction level
+                            type: 'image/png', // Specify image type
+                            quality: 1.0 // Specify quality
                         }, (err, url) => {
                             if (err) {
                                 reject(err);
@@ -1163,48 +1406,32 @@
                     });
 
                     qrCodeElements.push(`
-                            <div class="qr-code-item">
-                                <img src="${qrCodeDataURL}" alt="QR Code ${i + 1}" class="qr-code-image" style="width: 100px; height: 100px; border: 1px solid #e2e8f0;">
-                                <div style="font-size: 10px; margin: 5px 0; word-break: break-all; color: #64748b;">QR ${i + 1}</div>
-                                <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(0, 20)}...</div>
-                                <div class="qr-actions">
-                                    <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')" title="Block QR Code">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
-                                    <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')" title="Activate QR Code">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `);
+                        <div class="qr-code-item">
+                            <img src="${qrCodeDataURL}" alt="QR Code ${i + 1}" class="qr-code-image" style="width: 100px; height: 100px; border: 1px solid #e2e8f0;">
+                            <div style="font-size: 10px; margin: 5px 0; word-break: break-all; color: #64748b;">QR ${i + 1}</div>
+                            <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(qrCode.lastIndexOf('/') + 1)}</div>
+                        </div>
+                    `);
 
                     // Progress ko'rsatish
                     container.innerHTML = `
-                            <div class="text-center p-4">
-                                <i class="fas fa-spinner fa-spin"></i>
-                                Generating QR codes... ${i + 1}/${qrCodes.length}
-                            </div>
-                        `;
+                        <div class="text-center p-4">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            Generating QR codes... ${i + 1}/${qrCodes.length}
+                        </div>
+                    `;
 
                 } catch (error) {
                     console.error(`Error generating QR code ${i + 1}:`, error);
                     qrCodeElements.push(`
-                            <div class="qr-code-item">
-                                <div class="qr-code-image" style="background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626; width: 100px; height: 100px; border: 1px solid #fecaca; font-size: 12px;">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div style="font-size: 10px; margin: 5px 0; color: #dc2626;">Generation Failed</div>
-                                <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(0, 20)}...</div>
-                                <div class="qr-actions">
-                                    <button class="btn btn-block" onclick="toggleQRStatus('${qrCode}', 'block')" title="Block QR Code">
-                                        <i class="fas fa-ban"></i>
-                                    </button>
-                                    <button class="btn btn-activate" onclick="toggleQRStatus('${qrCode}', 'activate')" title="Activate QR Code">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </div>
+                        <div class="qr-code-item">
+                            <div class="qr-code-image" style="background: #fee2e2; display: flex; align-items: center; justify-content: center; color: #dc2626; width: 100px; height: 100px; border: 1px solid #fecaca; font-size: 12px;">
+                                <i class="fas fa-exclamation-triangle"></i>
                             </div>
-                        `);
+                            <div style="font-size: 10px; margin: 5px 0; color: #dc2626;">Generation Failed</div>
+                            <div style="font-size: 8px; margin: 2px 0; word-break: break-all; color: #9ca3af;">${qrCode.substring(qrCode.lastIndexOf('/') + 1)}</div>
+                        </div>
+                    `);
                 }
             }
 
@@ -1220,71 +1447,228 @@
         }
     }
 
-    async function downloadQRCodesPDF() {
-        if (!currentQRCodes || currentQRCodes.length === 0) {
-            showNotification('No QR codes to download', 'warning');
+    async function updateQuantity(orderId, itemId, currentAmount, change) {
+        const newAmount = currentAmount + change;
+        if (newAmount < 1) {
+            showNotification('Quantity cannot be less than 1', 'warning');
+            return;
+        }
+        if (newAmount > 100) {
+            showNotification('Quantity cannot be more than 100', 'warning');
             return;
         }
 
         try {
+            await axiosInstance.patch(`/admin/order-item/quantity/${itemId}?amount=${newAmount}`);
+
+            showNotification('Quantity updated successfully', 'success');
+
+            // Refresh the order details
+            const status = 'PENDING'; // Since only pending orders can be edited
+            viewOrder(orderId, status);
+
+            // Also refresh the orders list
+            loadOrders();
+
+        } catch (error) {
+            console.error('Error updating quantity:', error);
+            showNotification('Error updating quantity', 'error');
+        }
+    }
+
+    // QR Customization Modal Functions
+    function openQRCustomizationModal() {
+        if (!currentQRCodes || currentQRCodes.length === 0) {
+            showNotification('No QR codes available', 'warning');
+            return;
+        }
+
+        // Update book information in customization modal
+        document.getElementById('customizeBookTitle').textContent = currentBookInfo.title;
+        document.getElementById('customizeQRCount').textContent = currentQRCodes.length;
+
+        // Reset form
+        document.getElementById('qrTitle').value = 'AR Book QR Code';
+        document.getElementById('qrDescription').value = 'Scan this QR code to access your digital content';
+        resetBackgroundUpload();
+
+        // Hide QR codes modal and show customization modal
+        bootstrap.Modal.getInstance(document.getElementById('qrCodesModal')).hide();
+        new bootstrap.Modal(document.getElementById('qrCustomizationModal')).show();
+    }
+
+    function handleBackgroundImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Check file type
+        if (!file.type.startsWith('image/')) {
+            showNotification('Please select a valid image file', 'error');
+            return;
+        }
+
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('Image file size should be less than 5MB', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            backgroundImageDataURL = e.target.result;
+
+            // Show preview
+            document.getElementById('backgroundPreview').src = backgroundImageDataURL;
+            document.getElementById('uploadContent').style.display = 'none';
+            document.getElementById('imagePreview').style.display = 'block';
+            document.getElementById('backgroundUploadArea').classList.add('has-image');
+
+            showNotification('Background image uploaded successfully', 'success');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function resetBackgroundUpload() {
+        backgroundImageDataURL = null;
+        document.getElementById('backgroundImageInput').value = '';
+        document.getElementById('uploadContent').style.display = 'block';
+        document.getElementById('imagePreview').style.display = 'none';
+        document.getElementById('backgroundUploadArea').classList.remove('has-image');
+    }
+
+    async function generateCustomizedPDF() {
+        if (!currentQRCodes || currentQRCodes.length === 0) {
+            showNotification('No QR codes to generate', 'warning');
+            return;
+        }
+
+        try {
+            // Disable button during generation
+            const generateBtn = document.querySelector('.generate-pdf-btn');
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF();
 
-            // Add title
-            pdf.setFontSize(16);
-            pdf.text(`QR Codes - ${currentBookInfo.title}`, 20, 20);
+            // First page - Order Information (NO BACKGROUND IMAGE)
+            if (currentOrderData) {
+                const customerName = `${currentOrderData.userRes.firstName} ${currentOrderData.userRes.lastName}`;
 
-            let yPosition = 40;
-            const qrSize = 50;
-            const margin = 20;
-            const itemsPerRow = 3;
+                pdf.setFontSize(24);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(30, 64, 175);
+                pdf.text('Order Information', 105, 40, { align: 'center' });
 
-            for (let i = 0; i < currentQRCodes.length; i++) {
-                const qrCode = currentQRCodes[i];
+                pdf.setFontSize(16);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(71, 85, 105);
+
+                let yPos = 70;
+                const lineHeight = 12;
+
+                pdf.text(`Order ID: #${currentOrderData.id}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Order Name: ${currentOrderData.name}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Customer: ${customerName}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Phone: ${currentOrderData.userRes.phoneNumber}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Status: ${currentOrderData.status}`, 20, yPos);
+                yPos += lineHeight * 2;
+
+                pdf.text(`Book: ${currentBookInfo.title}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Category: ${currentBookInfo.categoryName}`, 20, yPos);
+                yPos += lineHeight;
+                pdf.text(`Total Pages: ${currentBookInfo.totalPages}`, 20, yPos);
+                yPos += lineHeight * 2;
+
+                pdf.text(`Total QR Codes: ${currentQRCodes.length}`, 20, yPos);
+            }
+
+            // Generate QR code pages (starting from page 2 with background)
+            const prefixedQRCodes = currentQRCodes.map(qrCode => WEBSITE_URL + qrCode);
+
+            for (let i = 0; i < prefixedQRCodes.length; i++) {
+                const qrCodeWithURL = prefixedQRCodes[i];
+
+                // Add new page for each QR code
+                pdf.addPage();
 
                 try {
-                    // Generate QR code as data URL
-                    const qrCodeDataURL = await QRCode.toDataURL(qrCode, {
-                        width: 200,
-                        height: 200,
-                        margin: 1,
-                        color: {
-                            dark: '#000000',
-                            light: '#FFFFFF'
-                        }
+                    // Add background image if uploaded (only from page 2 onwards)
+                    if (backgroundImageDataURL) {
+                        pdf.addImage(backgroundImageDataURL, 'JPEG', 0, 0, 210, 297);
+                    } else {
+                        // Default background
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = 210 * 4;
+                        canvas.height = 297 * 4;
+
+                        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                        gradient.addColorStop(0, '#f8fafc');
+                        gradient.addColorStop(1, '#e2e8f0');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                        const backgroundDataURL = canvas.toDataURL('image/png');
+                        pdf.addImage(backgroundDataURL, 'PNG', 0, 0, 210, 297);
+                    }
+
+                    // Generate QR code with website URL
+                    const qrCodeDataURL = await new Promise((resolve, reject) => {
+                        QRCode.toDataURL(qrCodeWithURL, {
+                            width: 400,
+                            height: 400,
+                            margin: 2,
+                            color: {
+                                dark: '#000000',
+                                light: '#FFFFFF'
+                            },
+                            errorCorrectionLevel: 'M',
+                            type: 'image/png',
+                            quality: 1.0
+                        }, (err, url) => {
+                            if (err) reject(err);
+                            else resolve(url);
+                        });
                     });
 
-                    const col = i % itemsPerRow;
-                    const row = Math.floor(i / itemsPerRow);
+                    // Page dimensions
+                    const pageWidth = 210;
+                    const pageHeight = 297;
+                    const qrSize = 80;
+                    const qrX = (pageWidth - qrSize) / 2;
+                    const qrY = (pageHeight - qrSize) / 2;
 
-                    const xPosition = margin + (col * (qrSize + margin));
-                    const currentYPosition = yPosition + (row * (qrSize + margin));
+                    // Add QR code to center of page
+                    pdf.addImage(qrCodeDataURL, 'PNG', qrX, qrY, qrSize, qrSize);
 
-                    // Add QR code to PDF
-                    pdf.addImage(qrCodeDataURL, 'PNG', xPosition, currentYPosition, qrSize, qrSize);
-
-                    // Add QR code text below image
-                    pdf.setFontSize(8);
-                    pdf.text(qrCode.substring(0, 20) + '...', xPosition, currentYPosition + qrSize + 5);
-
-                    // Add new page if needed
-                    if ((i + 1) % (itemsPerRow * 6) === 0 && i < currentQRCodes.length - 1) {
-                        pdf.addPage();
-                        yPosition = 20;
-                    }
                 } catch (error) {
-                    console.error('Error adding QR code to PDF:', error);
+                    console.error(`Error adding QR code ${i + 1} to PDF:`, error);
                 }
             }
 
             // Save PDF
-            pdf.save(`QR_Codes_${currentBookInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+            const fileName = `QR_Codes_${currentBookInfo.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            pdf.save(fileName);
 
-            showNotification('QR codes PDF downloaded successfully', 'success');
+            showNotification(`PDF with order info and ${currentQRCodes.length} QR codes downloaded successfully`, 'success');
+
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('qrCustomizationModal')).hide();
 
         } catch (error) {
-            console.error('Error generating PDF:', error);
+            console.error('Error generating customized PDF:', error);
             showNotification('Error generating PDF', 'error');
+        } finally {
+            // Re-enable button
+            const generateBtn = document.querySelector('.generate-pdf-btn');
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Generate PDF';
         }
     }
 
@@ -1294,8 +1678,26 @@
     }
 
     async function removeOrderItem(orderId, itemId) {
-        // This is a placeholder for future implementation
-        showNotification('Remove order item functionality is being developed', 'info');
+        if (!confirm('Are you sure you want to remove this item from the order?')) {
+            return;
+        }
+
+        try {
+            await axiosInstance.delete(`/admin/order-item/${itemId}`);
+
+            showNotification('Order item removed successfully', 'success');
+
+            // Refresh the order details
+            const status = 'PENDING'; // Since only pending orders can be edited
+            viewOrder(orderId, status);
+
+            // Also refresh the orders list
+            loadOrders();
+
+        } catch (error) {
+            console.error('Error removing order item:', error);
+            showNotification('Error removing order item', 'error');
+        }
     }
 
     function getStatusColor(status) {
@@ -1316,9 +1718,9 @@
         notification.style.zIndex = '9999';
         notification.style.minWidth = '300px';
         notification.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
 
         document.body.appendChild(notification);
 
@@ -1335,6 +1737,11 @@
         if (currentOrderId) {
             new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
         }
+    });
+
+    document.getElementById('qrCustomizationModal').addEventListener('hidden.bs.modal', function () {
+        // Show QR codes modal again
+        new bootstrap.Modal(document.getElementById('qrCodesModal')).show();
     });
 
     // Mobile sidebar toggle

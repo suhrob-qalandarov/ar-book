@@ -33,5 +33,6 @@ public interface ApiConstants {
     String ORDER = "/order";
     String ORDERS = "/orders";
 
+    String ORDER_ITEM = "/order-item";
 }
 
