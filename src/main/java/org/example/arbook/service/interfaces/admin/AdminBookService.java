@@ -8,19 +8,20 @@ import org.example.arbook.model.dto.response.EntireBookRes;
 import org.example.arbook.model.enums.BookStatus;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface AdminBookService {
     List<AdminBookRes   > getAllBooks();
 
-    AdminBookRes updateBook(Long bookId, BookReq bookReq);
+    AdminBookRes updateBook(UUID bookId, BookReq bookReq);
 
     AdminBookRes createBook(@Valid BookReq bookReq);
 
-    AdminBookRes getOneBook(Long bookId);
+    AdminBookRes getOneBook(UUID bookId);
 
-    String activateOrDeactivateBook(Long bookId);
+    String activateOrDeactivateBook(UUID bookId);
 
-    BookStatus changeBookStatus(Long bookId, @Valid BookPageStatusChangeReq bookStatusChangeReq);
+    BookStatus changeBookStatus(UUID bookId, @Valid BookPageStatusChangeReq bookStatusChangeReq);
 
-    EntireBookRes getEntireBook(Long bookId);
+    EntireBookRes getEntireBook(UUID bookId);
 }

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +48,7 @@ public class AdminBookPageServiceImpl implements AdminBookPageService {
 
     @Override
     @Transactional
-    public String enableOrDisableBookPage(Long bookPageId) {
+    public String enableOrDisableBookPage(UUID bookPageId) {
         BookPage bookPage = bookPageRepository.findById(bookPageId).orElseThrow(() ->
                 new BookPageNotFoundException("BookPage not found with ID : " + bookPageId));
 
@@ -58,7 +59,7 @@ public class AdminBookPageServiceImpl implements AdminBookPageService {
 
     @Override
     @Transactional
-    public BookPageRes updateBookPageWithNoContent(Long bookPageId, BookPageWithNoContentReq bookPageWithNoContentReq) {
+    public BookPageRes updateBookPageWithNoContent(UUID bookPageId, BookPageWithNoContentReq bookPageWithNoContentReq) {
         BookPage bookPage = bookPageRepository.findById(bookPageId).orElseThrow(() ->
                 new BookPageNotFoundException("BookPage not found with ID : " + bookPageId)
         );
@@ -77,7 +78,7 @@ public class AdminBookPageServiceImpl implements AdminBookPageService {
 
 
     @Override
-    public BookPageRes getOneBookPageWithContents(Long bookPageId) {
+    public BookPageRes getOneBookPageWithContents(UUID bookPageId) {
         BookPage bookPage = bookPageRepository.findById(bookPageId).orElseThrow(() ->
                 new BookPageNotFoundException("BookPage not found with ID : " + bookPageId));
 

@@ -37,7 +37,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookRes> getActiveOnSaleBooksByCategoryId(Long categoryId) {
+    public List<BookRes> getActiveOnSaleBooksByCategoryId(UUID categoryId) {
         List<Book> books = bookRepository.findByIsActiveTrueAndStatusAndCategoryId(BookStatus.ON_SALE, categoryId);
         return books.stream()
                 .map(bookMapper::toBookResponse)

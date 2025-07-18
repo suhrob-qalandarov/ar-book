@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 
+import java.util.UUID;
+
 @Builder
 @Schema(description = "Request DTO for creating a book")
 public record BookReq(
@@ -31,11 +33,11 @@ public record BookReq(
         @NotNull(message = "Category ID cannot be null")
         @Positive(message = "Category ID must be positive and greater than 0")
         @Schema(description = "ID of the book's category", example = "1")
-        Long categoryId,
+        UUID categoryId,
 
         @NotNull(message = "Attachment ID cannot be null")
         @Positive(message = "Attachment ID must be positive and greater than 0")
         @Schema(description = "ID of the book's attachment (e.g., cover image)", example = "1")
-        Long attachmentId
+        UUID attachmentId
 ) {
 }

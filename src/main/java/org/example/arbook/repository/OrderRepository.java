@@ -7,8 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, UUID> {
     List<Order> findAllByStatus(OrderStatus status);
 
     Order findByName(String name);
@@ -22,7 +23,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         )
         SELECT * FROM updated
         """, nativeQuery = true)
-    Order acceptAndReturn(@Param("orderId") Long orderId);
+    Order acceptAndReturn(@Param("orderId") UUID orderId);
 
     @Query(value = """
         WITH updated AS (
@@ -33,7 +34,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         )
         SELECT * FROM updated
         """, nativeQuery = true)
-    Order declineAndReturn(@Param("orderId") Long orderId);
+    Order declineAndReturn(@Param("orderId") UUID orderId);
 
     @Query(value = """
         WITH updated AS (
@@ -44,5 +45,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         )
         SELECT * FROM updated
         """, nativeQuery = true)
-    Order pendAndReturn(@Param("orderId") Long orderId);
+    Order pendAndReturn(@Param("orderId") UUID orderId);
 }

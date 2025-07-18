@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.example.arbook.util.ApiConstants.*;
 
@@ -44,32 +45,32 @@ public class AdminBookController {
 
     @Operation(summary = "Retrieve a particular book without its pages", description = "Returns a book(without its page contents) by given Id")
     @GetMapping("/{bookId}")
-    public ResponseEntity<AdminBookRes> getOneBook(@PathVariable @Positive Long bookId) {
+    public ResponseEntity<AdminBookRes> getOneBook(@PathVariable @Positive UUID bookId) {
         AdminBookRes book = adminBookService.getOneBook(bookId);
         return ResponseEntity.ok(book);
     }
 
     @GetMapping(ENTIRE + "/{bookId}")
-    public ResponseEntity<EntireBookRes> getEntireBook(@PathVariable Long bookId) {
+    public ResponseEntity<EntireBookRes> getEntireBook(@PathVariable UUID bookId) {
         EntireBookRes entireBookRes = adminBookService.getEntireBook(bookId);
         return ResponseEntity.ok(entireBookRes);
     }
 
     @Operation(summary = "Update a book by ID", description = "Updates and Returns book details for the given book ID.")
     @PutMapping("/{bookId}")
-    public ResponseEntity<AdminBookRes> updateBook(@PathVariable @Positive Long bookId, @Valid @RequestBody BookReq bookReq) {
+    public ResponseEntity<AdminBookRes> updateBook(@PathVariable @Positive UUID bookId, @Valid @RequestBody BookReq bookReq) {
         AdminBookRes updatedBook = adminBookService.updateBook(bookId, bookReq);
         return ResponseEntity.ok(updatedBook);
     }
 
     @PatchMapping("/{bookId}")
-    public ResponseEntity<?> activateOrDeactivateBook(@PathVariable Long bookId) {
+    public ResponseEntity<?> activateOrDeactivateBook(@PathVariable UUID bookId) {
         String message = adminBookService.activateOrDeactivateBook(bookId);
         return ResponseEntity.ok("Book " + message);
     }
 
     @PatchMapping("/{bookId}" + STATUS)
-    public ResponseEntity<?> changeBookStatus(@PathVariable Long bookId, @Valid @RequestBody BookPageStatusChangeReq bookStatusChangeReq) {
+    public ResponseEntity<?> changeBookStatus(@PathVariable UUID bookId, @Valid @RequestBody BookPageStatusChangeReq bookStatusChangeReq) {
         BookStatus bookStatus = adminBookService.changeBookStatus(bookId, bookStatusChangeReq);
         return ResponseEntity.ok("Book status changed to " + bookStatus.name());
     }

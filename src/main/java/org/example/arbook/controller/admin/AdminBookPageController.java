@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 import static org.example.arbook.util.ApiConstants.*;
 
 @Validated
@@ -30,13 +32,13 @@ public class AdminBookPageController {
     }
 
     @GetMapping("/{bookPageId}")
-    public ResponseEntity<BookPageRes> getOneBookPageWithContents(@PathVariable @Positive Long bookPageId) {
+    public ResponseEntity<BookPageRes> getOneBookPageWithContents(@PathVariable @Positive UUID bookPageId) {
         BookPageRes bookPageRes = adminBookPageService.getOneBookPageWithContents(bookPageId);
         return ResponseEntity.ok(bookPageRes);
     }
 
     @PutMapping("/{bookPageId}")
-    public ResponseEntity<BookPageRes> updateBookPageWithNoContent(@PathVariable @Positive Long bookPageId, @Valid @RequestBody BookPageWithNoContentReq bookPageWithNoContentReq) {
+    public ResponseEntity<BookPageRes> updateBookPageWithNoContent(@PathVariable @Positive UUID bookPageId, @Valid @RequestBody BookPageWithNoContentReq bookPageWithNoContentReq) {
         BookPageRes updatedBookPageRes = adminBookPageService.updateBookPageWithNoContent(bookPageId, bookPageWithNoContentReq);
         return ResponseEntity.ok(updatedBookPageRes);
     }
@@ -44,7 +46,7 @@ public class AdminBookPageController {
 
 
     @PatchMapping("/{bookPageId}")
-    public ResponseEntity<String> enableOrDisableBookPage(@PathVariable @Positive Long bookPageId) {
+    public ResponseEntity<String> enableOrDisableBookPage(@PathVariable @Positive UUID bookPageId) {
         String message = adminBookPageService.enableOrDisableBookPage(bookPageId);
         return ResponseEntity.ok("BookPage " + message);
     }

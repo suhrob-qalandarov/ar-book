@@ -42,7 +42,7 @@ public class BookController {
     @Operation(summary = "Get active and On Sale books by category", description = "Retrieves a list of active and On Sale books for a given category ID")
     @GetMapping("/{categoryId}")
     public ResponseEntity<List<BookRes>> getActiveOnSaleBooksByCategoryId(
-            @Parameter(description = "ID of the category") @PathVariable @Positive Long categoryId) {
+            @Parameter(description = "ID of the category") @PathVariable @Positive UUID categoryId) {
         List<BookRes> books = bookService.getActiveOnSaleBooksByCategoryId(categoryId);
         return books.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(books);
     }

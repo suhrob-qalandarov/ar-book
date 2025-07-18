@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.example.arbook.util.ApiConstants.*;
 
@@ -22,9 +23,9 @@ public class AdminAttachmentController {
     private final AttachmentService attachmentService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Long> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<UUID> uploadFile(@RequestParam("file") MultipartFile file) {
           log.debug("Uploading single file: {}", file.getOriginalFilename());
-        Long savedAttachmentId = attachmentService.uploadOne(file);
+        UUID savedAttachmentId = attachmentService.uploadOne(file);
         return ResponseEntity.ok(savedAttachmentId);
     }
 
@@ -39,7 +40,7 @@ public class AdminAttachmentController {
 
 
     @PutMapping("/{attachmentId}")
-    public ResponseEntity<Void> updateFile(@PathVariable Long attachmentId, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Void> updateFile(@PathVariable UUID attachmentId, @RequestParam("file") MultipartFile file) {
         log.debug("Updating attachment ID: {}", attachmentId);
         attachmentService.update(attachmentId, file);
         return ResponseEntity.ok().build();

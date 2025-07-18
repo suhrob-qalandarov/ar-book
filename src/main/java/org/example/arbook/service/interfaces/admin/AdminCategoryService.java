@@ -5,17 +5,18 @@ import org.example.arbook.model.entity.Category;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public interface AdminCategoryService {
 
-    Category getCategory(Long id);
+    Category getCategory(UUID id);
 
     List<Category> getCategories();
 
     Category addCategory(CategoryReq categoryReq);
 
-    void updateCategory(Long categoryId, CategoryReq categoryUpdateReq);
+    void updateCategory(UUID categoryId, CategoryReq categoryUpdateReq);
 
-    String activateOrDeactivateCategory(Long id);
+    String activateOrDeactivateCategory(UUID id);
 }

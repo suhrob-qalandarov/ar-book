@@ -10,6 +10,7 @@ import org.example.arbook.model.base.BaseEntity;
 import org.example.arbook.model.enums.OrderStatus;
 
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -25,7 +26,7 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    private Long userId;
+    private UUID userId;
 
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems;

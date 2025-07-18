@@ -5,18 +5,19 @@ import org.example.arbook.model.enums.BookStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 public record EntireBookRes(
 
-        Long bookId,
+        UUID bookId,
         String title,
         String description,
         Integer totalPages,
         Integer totalLanguages,
         String categoryName,
         BookStatus bookStatus,
-        Long bookCoverId,
+        UUID bookCoverId,
 
         List<BookPageRes> bookPages,
 

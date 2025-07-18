@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public class AdminBookServiceImpl implements AdminBookService {
 
     @Override
     @Transactional
-    public EntireBookRes getEntireBook(Long bookId) {
+    public EntireBookRes getEntireBook(UUID bookId) {
         Book book = bookRepository.findById(bookId).orElseThrow(() ->
                 new BookNotFoundException("Book not found with ID: " + bookId)
         );
@@ -47,7 +48,7 @@ public class AdminBookServiceImpl implements AdminBookService {
     }
 
     @Override
-    public AdminBookRes getOneBook(Long bookId) {
+    public AdminBookRes getOneBook(UUID bookId) {
         Book book = bookRepository.findById(bookId).orElseThrow(() ->
                 new BookNotFoundException("Book not found with ID " + bookId));
         return bookMapper.toAdminBookResponse(book);
@@ -55,7 +56,7 @@ public class AdminBookServiceImpl implements AdminBookService {
 
     @Transactional
     @Override
-    public String activateOrDeactivateBook(Long bookId) {
+    public String activateOrDeactivateBook(UUID bookId) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new NoSuchElementException("not found with id: " + bookId));
 
@@ -68,7 +69,7 @@ public class AdminBookServiceImpl implements AdminBookService {
 
     @Override
     @Transactional
-    public BookStatus changeBookStatus(Long bookId, BookPageStatusChangeReq bookStatusChangeReq) {
+    public BookStatus changeBookStatus(UUID bookId, BookPageStatusChangeReq bookStatusChangeReq) {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new NoSuchElementException("not found with id: " + bookId));
         book.setStatus(bookStatusChangeReq.status());
@@ -78,7 +79,7 @@ public class AdminBookServiceImpl implements AdminBookService {
 
     @Transactional
     @Override
-    public AdminBookRes updateBook(Long bookId, BookReq bookReq) {
+    public AdminBookRes updateBook(UUID bookId, BookReq bookReq) {
         Book book = bookMapper.toBook(bookReq);
         book.setId(bookId);
 

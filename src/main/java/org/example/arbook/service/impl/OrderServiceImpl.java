@@ -56,13 +56,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public OrderRes getOrderRes(Long orderId) {
+    public OrderRes getOrderRes(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow();
         return convertToOrderRes(order);
     }
 
     @Override
-    public AcceptedOrderRes getAcceptedOrderRes(Long orderId) {
+    public AcceptedOrderRes getAcceptedOrderRes(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow();
         return convertToAcceptedOrderRes(order);
     }
@@ -76,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public AcceptedOrderRes acceptOrderAndGetQrCodes(Long orderId) {
+    public AcceptedOrderRes acceptOrderAndGetQrCodes(UUID orderId) {
         Order order = orderRepository.acceptAndReturn(orderId);
         List<AcceptedOrderItemRes> acceptedOrderItemRes = new ArrayList<>();
 
@@ -98,14 +98,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public OrderRes declineOrder(Long orderId) {
+    public OrderRes declineOrder(UUID orderId) {
         Order order = orderRepository.declineAndReturn(orderId);
         return convertToOrderRes(order);
     }
 
     @Transactional
     @Override
-    public OrderRes pendOrder(Long orderId) {
+    public OrderRes pendOrder(UUID orderId) {
         Order order = orderRepository.pendAndReturn(orderId);
         return convertToOrderRes(order);
     }
@@ -124,7 +124,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public List<String> createQrCode(Long bookId, int amount, long orderId) {
+    public List<String> createQrCode(UUID bookId, int amount, UUID orderId) {
         List<QrCode> qrCodes = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
             qrCodes.add(QrCode.builder()

@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.example.arbook.util.ApiConstants.*;
 import static org.example.arbook.util.ExceptionCodes.*;
@@ -43,7 +44,7 @@ public class AdminCategoryController {
             @ApiResponse(responseCode = CODE_404, description = CATEGORY_NOT_FOUND)
     })
     @GetMapping("/{categoryId}")
-    public ResponseEntity<Category> getCategory(@PathVariable Long categoryId){
+    public ResponseEntity<Category> getCategory(@PathVariable UUID categoryId){
         Category category = adminCategoryService.getCategory(categoryId);
         return ResponseEntity.ok(category);
     }
@@ -65,14 +66,14 @@ public class AdminCategoryController {
     })
     @PutMapping("/{categoryId}")
     public ResponseEntity<Void> updateCategory(
-            @PathVariable Long categoryId,
+            @PathVariable UUID categoryId,
             @Valid @RequestBody CategoryReq categoryReq) {
         adminCategoryService.updateCategory(categoryId, categoryReq);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{categoryId}")
-    public ResponseEntity<?> activateOrDeactivateCategory(@PathVariable Long categoryId) {
+    public ResponseEntity<?> activateOrDeactivateCategory(@PathVariable UUID categoryId) {
         String message = adminCategoryService.activateOrDeactivateCategory(categoryId);
         return ResponseEntity.ok("Category " + message);
     }

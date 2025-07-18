@@ -6,6 +6,8 @@ import org.example.arbook.model.dto.response.AdminOrderDashboardRes;
 import org.example.arbook.model.dto.response.order.OrderRes;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public interface OrderService {
 
@@ -13,15 +15,15 @@ public interface OrderService {
 
     AdminOrderDashboardRes getOrders();
 
-    OrderRes getOrderRes(Long orderId);
+    OrderRes getOrderRes(UUID orderId);
 
     OrderRes getOrderResByName(String orderName);
 
-    AcceptedOrderRes acceptOrderAndGetQrCodes(Long orderId);
+    AcceptedOrderRes acceptOrderAndGetQrCodes(UUID orderId);
 
-    OrderRes declineOrder(Long orderId);
+    OrderRes declineOrder(UUID orderId);
 
-    AcceptedOrderRes getAcceptedOrderRes(Long orderId);
+    AcceptedOrderRes getAcceptedOrderRes(UUID orderId);
 
-    OrderRes pendOrder(Long orderId);
+    OrderRes pendOrder(UUID orderId);
 }

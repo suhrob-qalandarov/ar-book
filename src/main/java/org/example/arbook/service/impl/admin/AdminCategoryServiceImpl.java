@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +19,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Category getCategory(Long id) {
+    public Category getCategory(UUID id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Category not found with id: " + id));
     }
@@ -40,7 +41,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
 
     @Override
     @Transactional
-    public void updateCategory(Long id, CategoryReq categoryReq) {
+    public void updateCategory(UUID id, CategoryReq categoryReq) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Category not found with id: " + id));
 
@@ -55,7 +56,7 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
     }
 
     @Override
-    public String activateOrDeactivateCategory(Long id) {
+    public String activateOrDeactivateCategory(UUID id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("not found with id: " + id));
 

@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 import static org.example.arbook.util.ApiConstants.*;
 
 /**
@@ -21,13 +23,13 @@ public class AdminOrderController {
     private final OrderService orderService;
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderRes> getOrderRes(@PathVariable Long orderId) {
+    public ResponseEntity<OrderRes> getOrderRes(@PathVariable UUID orderId) {
         OrderRes order = orderService.getOrderRes(orderId);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
     @GetMapping("/accepted/{orderId}")
-    public ResponseEntity<AcceptedOrderRes> getAcceptedOrderRes(@PathVariable Long orderId) {
+    public ResponseEntity<AcceptedOrderRes> getAcceptedOrderRes(@PathVariable UUID orderId) {
         AcceptedOrderRes order = orderService.getAcceptedOrderRes(orderId);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
@@ -39,19 +41,19 @@ public class AdminOrderController {
     }
 
     @PutMapping("/accept/{orderId}")
-    public ResponseEntity<AcceptedOrderRes> acceptOrder(@PathVariable Long orderId) {
+    public ResponseEntity<AcceptedOrderRes> acceptOrder(@PathVariable UUID orderId) {
         AcceptedOrderRes acceptOrder = orderService.acceptOrderAndGetQrCodes(orderId);
         return new ResponseEntity<>(acceptOrder, HttpStatus.ACCEPTED);
     }
 
     @PutMapping("/decline/{orderId}")
-    public ResponseEntity<OrderRes> declineOrder(@PathVariable Long orderId) {
+    public ResponseEntity<OrderRes> declineOrder(@PathVariable UUID orderId) {
         OrderRes order = orderService.declineOrder(orderId);
         return new ResponseEntity<>(order, HttpStatus.ACCEPTED);
     }
 
     @PutMapping("/pend/{orderId}")
-    public ResponseEntity<OrderRes> pendOrder(@PathVariable Long orderId) {
+    public ResponseEntity<OrderRes> pendOrder(@PathVariable UUID orderId) {
         OrderRes order = orderService.pendOrder(orderId);
         return new ResponseEntity<>(order, HttpStatus.ACCEPTED);
     }

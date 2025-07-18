@@ -5,11 +5,12 @@ import org.example.arbook.model.enums.BookStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface BookRepository extends JpaRepository<Book, Long> {
+public interface BookRepository extends JpaRepository<Book, UUID> {
   List<Book> findByIsActiveTrueAndStatus(BookStatus status);
 
-  List<Book> findByIsActiveTrueAndStatusAndCategoryId(BookStatus status, Long categoryId);
+  List<Book> findByIsActiveTrueAndStatusAndCategoryId(BookStatus status, UUID categoryId);
 
-    boolean existsBookByIdIs(Long id);
+    boolean existsBookByIdIs(UUID id);
 }

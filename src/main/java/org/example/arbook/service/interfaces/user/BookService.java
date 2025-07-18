@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface BookService {
     List<BookRes> getActiveOnSaleBooks();
 
-    List<BookRes> getActiveOnSaleBooksByCategoryId(Long categoryId);
+    List<BookRes> getActiveOnSaleBooksByCategoryId(UUID categoryId);
 
     UserBookRes getUserBookByQrCodeUUID(User user, UUID qrCodeUUID);
 }

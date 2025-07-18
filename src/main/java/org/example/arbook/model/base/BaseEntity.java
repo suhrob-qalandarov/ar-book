@@ -7,6 +7,8 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @SuperBuilder
@@ -15,8 +17,8 @@ import lombok.experimental.SuperBuilder;
 @MappedSuperclass
 public abstract class BaseEntity extends Auditable{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Builder.Default
     private Boolean isActive = true;

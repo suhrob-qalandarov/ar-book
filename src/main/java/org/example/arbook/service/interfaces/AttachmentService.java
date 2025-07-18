@@ -8,21 +8,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public interface AttachmentService {
 
-    Long uploadOne(MultipartFile file);
+    UUID uploadOne(MultipartFile file);
 
-    List<Long> uploadMultiple(List<MultipartFile> files);
+    List<UUID> uploadMultiple(List<MultipartFile> files);
 
-    void update(Long attachmentId, MultipartFile file);
+    void update(UUID attachmentId, MultipartFile file);
 
-    void get(Long attachmentId, HttpServletResponse response) throws IOException;
+    void get(UUID attachmentId, HttpServletResponse response) throws IOException;
 
-    Attachment getAttachment(Long attachmentId);
+    Attachment getAttachment(UUID attachmentId);
 
-    void validateAttachmentId(Long attachmentId);
+    void validateAttachmentId(UUID attachmentId);
 
     List<AttachmentRes> convertToAttachmentResList(List<Attachment> attachments);
 

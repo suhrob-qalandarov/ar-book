@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,7 +29,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     private final S3Service s3Service;
 
     @Override
-    public void get(Long attachmentId, HttpServletResponse response) throws IOException {
+    public void get(UUID attachmentId, HttpServletResponse response) throws IOException {
         try {
             var attachment = getAttachment(attachmentId);
             byte[] fileContent = getFileContent(attachment.getFileUrl());
@@ -54,7 +55,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     private byte[] getFileContent(String fileUrl) throws IOException, S3Exception {
-        if (fileUrl == null || fileUrl.isBlank()) {
+        if (fileUrl == null) {
             throw new IllegalArgumentException("File URL cannot be null or empty");
         }
         return s3Service.getFile(fileUrl);
@@ -70,7 +71,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public Long uploadOne(MultipartFile file) {
+    public UUID uploadOne(MultipartFile file) {
         validateFile(file);
         String key;
         try {
@@ -83,7 +84,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public List<Long> uploadMultiple(List<MultipartFile> files) {
+    public List<UUID> uploadMultiple(List<MultipartFile> files) {
         if (files == null || files.isEmpty()) {
             throw new IllegalArgumentException("No files provided for upload");
         }
@@ -92,7 +93,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void update(Long attachmentId, MultipartFile file) {
+    public void update(UUID attachmentId, MultipartFile file) {
         validateAttachmentId(attachmentId);
         validateFile(file);
         var existingAttachment = getAttachment(attachmentId);
@@ -119,7 +120,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
-    private Long saveAttachment(MultipartFile file, String key) {
+    private UUID saveAttachment(MultipartFile file, String key) {
         Attachment newAttachment = Attachment.builder()
                 .fileUrl(key)
                 .contentType(determineContentType(file))
@@ -168,15 +169,15 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public Attachment getAttachment(Long attachmentId) {
+    public Attachment getAttachment(UUID attachmentId) {
         validateAttachmentId(attachmentId);
         return attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new EntityNotFoundException("Active attachment not found with ID: " + attachmentId));
     }
 
     @Override
-    public void validateAttachmentId(Long attachmentId) {
-        if (attachmentId == null || attachmentId <= 0) {
+    public void validateAttachmentId(UUID attachmentId) {
+        if (attachmentId == null) {
             throw new IllegalArgumentException("Invalid attachment ID: " + attachmentId);
         }
     }

@@ -2,12 +2,14 @@ package org.example.arbook.model.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 public record BookPageWithNoContentReq(
         @NotNull(message = "MarkerPhoto ID cannot be null")
-        Long markerPhotoId,
+        UUID markerPhotoId,
         @NotNull(message = "File3D ID cannot be null")
-        Long file3DId,
+        UUID file3DId,
         @NotNull(message = "Book ID cannot be null")
-        Long bookId
+        UUID bookId
 ) {
 }

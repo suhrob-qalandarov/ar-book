@@ -1,9 +1,11 @@
 package org.example.arbook.model.dto.response;
 
+import java.util.UUID;
+
 public record UserPageContentRes(
-        Long id,
+        UUID id,
         String text,
-        Long audioId,
-        Long languageId
+        UUID audioId,
+        UUID languageId
 ) {
 }

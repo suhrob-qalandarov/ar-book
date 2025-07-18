@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 import static org.example.arbook.util.ApiConstants.*;
 
 @Validated
@@ -21,14 +23,14 @@ public class AdminPageContentController {
 
 
     @PutMapping("/{pageContentId}")
-    public ResponseEntity<PageContentRes> updatePageContent(@PathVariable @Positive Long pageContentId,
+    public ResponseEntity<PageContentRes> updatePageContent(@PathVariable @Positive UUID pageContentId,
                                                             @RequestBody PageContentReq pageContentReq) {
         PageContentRes updatedPageContentRes = adminPageContentService.updatePageContent(pageContentId, pageContentReq);
         return ResponseEntity.ok(updatedPageContentRes);
     }
 
     @GetMapping("/{pageContentId}")
-    public ResponseEntity<PageContentRes> getOnePageContent(@PathVariable @Positive Long pageContentId) {
+    public ResponseEntity<PageContentRes> getOnePageContent(@PathVariable @Positive UUID pageContentId) {
         PageContentRes pageContentRes = adminPageContentService.getOnePageContent(pageContentId);
         return ResponseEntity.ok(pageContentRes);
     }
