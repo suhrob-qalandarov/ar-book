@@ -27,6 +27,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,7 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
-
+/// 👇👇👇👇👇⬇️⬇️⬇️⬇️⬇️⬇️ Shu erdan Boshlab LOGIN & LOGOUT & VERIFY CODE lar yangilani yaratilgan !!
     @Transactional
     @Override
     public String sendLoginVerificationCode(PhoneVerificationReq phoneVerificationReq) {
@@ -125,20 +126,38 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse verifyAndLogin(
             CodeVerificationReq codeVerificationReq,
-            HttpServletResponse response) {
+            HttpServletResponse response
+    ) {
 
         User user = findUserFromDB(codeVerificationReq.phoneNumber());
 
-        if (user.getVerificationCode() == null) {
-            throw new IllegalArgumentException(""" 
-                    No Verification code has been sent!
-                    Please Login again !""");
-        } else if (!codeVerificationReq.code().equals(user.getVerificationCode())) {
-            throw new IllegalArgumentException("Invalid verification code");
-        }
-        user.setVerificationCode(null);
+        validateVerificationCode(codeVerificationReq, user);
 
+        authenticateUser(user);
 
+        generateTokenAndSetToCookie(user.getPhoneNumber(), response);
+
+        return mapToAuthResponse(user,"We are happy to see you back😁, ");
+    }
+
+    @Override
+    public String logOut(HttpServletResponse response) {
+        // Clear the JWT cookie
+        ResponseCookie cookie = ResponseCookie.from("token", "")
+                .httpOnly(true)
+                .secure(false) // Match the setting used in generateTokenAndSetToCookie
+                .path("/") // Match the path used in generateTokenAndSetToCookie
+                .maxAge(0) // Expire the cookie immediately
+                .sameSite("Lax") // Match the sameSite setting
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        // Optionally clear the SecurityContext
+        SecurityContextHolder.clearContext();
+        return "You have been logged out successfully.";
+    }
+
+    private void authenticateUser(User user) {
         try {
             // Perform authentication
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -150,14 +169,20 @@ public class AuthServiceImpl implements AuthService {
         } catch (DisabledException e) {
             throw new DisabledException("User account is disabled");
         }
-
-        generateTokenAndSetToCookie(user.getPhoneNumber(), response);
-
-        return mapToAuthResponse(user);
-
     }
 
-    private AuthResponse mapToAuthResponse(User user) {
+    private static void validateVerificationCode(CodeVerificationReq codeVerificationReq, User user) {
+        if (user.getVerificationCode() == null) {
+            throw new IllegalArgumentException(""" 
+                    No Verification code has been sent!
+                    Please Login again !""");
+        } else if (!codeVerificationReq.code().equals(user.getVerificationCode())) {
+            throw new IllegalArgumentException("Invalid verification code");
+        }
+        user.setVerificationCode(null);
+    }
+
+    private AuthResponse mapToAuthResponse(User user,String message ) {
         List<UUID> qrCodeUUIDs = qrCodeRepository
                 .findAllByIsActiveTrueAndStatusAndUserId(QrCodeStatus.ACTIVE, user.getId())
                 .stream()
@@ -172,7 +197,9 @@ public class AuthServiceImpl implements AuthService {
                 user.getRoles().stream().map(role -> role.getRoleName().name()).toList(),
                 qrCodeUUIDs
         );
-        return new AuthResponse("We are happy to see you back😁, " + user.getFirstName(), userRes);
+
+        /// ‼️‼️Response message FORMATiga doim ISM  Koshib yuboriladi : MISOL uchun : "We are happy to see you back😁, "'
+        return new AuthResponse(message + user.getFirstName(), userRes);
     }
 
     private void generateTokenAndSetToCookie(String phoneNumber, HttpServletResponse response) {

@@ -1,5 +1,6 @@
 package org.example.arbook.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -45,10 +46,23 @@ public class AuthController {
     public ResponseEntity<AuthResponse> verifyAndLogin(
             @Valid @RequestBody CodeVerificationReq codeVerificationReq,
             HttpServletResponse response
-            ) {
+    ) {
         AuthResponse authResponse = authService.verifyAndLogin(codeVerificationReq, response);
         return ResponseEntity.ok(authResponse);
     }
+
+    @PostMapping(LOGOUT)
+    @Operation(summary = "Logout", description = "Logs out the authenticated user by clearing the JWT cookie and invalidating the session.")
+    public ResponseEntity<?> logOut(
+            HttpServletResponse response
+    ) {
+        String message =authService.logOut(response);
+        return ResponseEntity.ok(message);
+    }
+
+
+
+
 
 
 
