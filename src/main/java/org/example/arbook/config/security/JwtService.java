@@ -61,7 +61,7 @@ public class JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        UUID id =  claims.get("id",UUID.class);
+        UUID id = UUID.fromString(claims.get("id", String.class));
         Boolean isActive =  claims.get("isActive",Boolean.class);
         String strRoles = (String) claims.get("roles");
 
