@@ -34,8 +34,8 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("http://localhost:5173/",
-                                        "http://localhost:5173/**")
+                                .requestMatchers("http://localhost:3000/",
+                                        "http://localhost:3000/**")
                                 .permitAll()
                                 .requestMatchers(
                                         "/admin/main-page.html",
@@ -59,6 +59,7 @@ public class SecurityConfig {
                                         "/v3/api-docs/**").permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers(API + V1 + AUTH + LOGIN).permitAll()
+                                .requestMatchers(API + V1 + AUTH + LOGIN+VERIFY).permitAll()
                                 .requestMatchers(API + V1 + AUTH + REGISTER).permitAll()
                                 .requestMatchers(API + V1 + AUTH + VERIFY).permitAll()
 

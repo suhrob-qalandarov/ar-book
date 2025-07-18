@@ -1,11 +1,17 @@
 package org.example.arbook.service.impl;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.arbook.config.security.JwtService;
 import org.example.arbook.model.dto.request.LoginReq;
 import org.example.arbook.model.dto.request.RegisterReq;
+import org.example.arbook.model.dto.request.auth.CodeVerificationReq;
+import org.example.arbook.model.dto.request.auth.PhoneVerificationReq;
 import org.example.arbook.model.dto.response.LoginRes;
+import org.example.arbook.model.dto.response.auth.AuthResponse;
+import org.example.arbook.model.dto.response.auth.UserRes;
 import org.example.arbook.model.entity.QrCode;
 import org.example.arbook.model.entity.Role;
 import org.example.arbook.model.entity.User;
@@ -14,6 +20,9 @@ import org.example.arbook.repository.QrCodeRepository;
 import org.example.arbook.repository.RoleRepository;
 import org.example.arbook.repository.UserRepository;
 import org.example.arbook.service.interfaces.AuthService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -23,14 +32,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+    @Value("${jwt.expiration}")
+    private Integer expirationTimeInMills;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -39,39 +49,7 @@ public class AuthServiceImpl implements AuthService {
     private final QrCodeRepository qrCodeRepository;
 
 
-    @Override
-    @Transactional
-    public LoginRes logIn(LoginReq loginReq) {
-        // Verify user exists
-        User user = userRepository.findByPhoneNumberOptional(loginReq.phoneNumber())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + loginReq.phoneNumber()));
 
-        // Check if user is active
-        if (!user.isEnabled()) {
-            throw new DisabledException("User account is disabled");
-        }
-
-        try {
-            // Perform authentication
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    loginReq.phoneNumber(), loginReq.password()
-            );
-            authenticationManager.authenticate(authToken);
-        } catch (BadCredentialsException e) {
-            throw new IllegalArgumentException("Invalid phone number or password");
-        } catch (DisabledException e) {
-            throw new DisabledException("User account is disabled");
-        }
-
-        // Generate JWT token
-        String token = jwtService.generateToken(loginReq.phoneNumber());
-        List<UUID> qrCodeUUIDs = qrCodeRepository
-                .findAllByIsActiveTrueAndStatusAndUserId(QrCodeStatus.ACTIVE, user.getId())
-                .stream()
-                .map(QrCode::getId)
-                .toList();
-        return new LoginRes(token, qrCodeUUIDs, "Logged In Successfully");
-    }
 
     /**
      * Registers a new user based on the provided request.
@@ -114,8 +92,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public void verifyPhoneNumber(String phoneNumber, String code) {
-        User user = userRepository.findByPhoneNumberOptional(phoneNumber)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = findUserFromDB(phoneNumber);
         if (user.getIsActive()) {
             throw new IllegalArgumentException("Phone number already verified");
         }
@@ -125,6 +102,94 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationCode(null);
         user.setIsActive(true);
         userRepository.save(user);
+    }
+
+
+    @Transactional
+    @Override
+    public String sendLoginVerificationCode(PhoneVerificationReq phoneVerificationReq) {
+        User userFromDB = findUserFromDB(phoneVerificationReq.phoneNumber());
+
+        if (!userFromDB.isEnabled()) {
+            throw new DisabledException("User account is disabled");
+        }
+
+        String verificationCode = generateVerificationCode();
+        log.warn("Generated SMS code: " + verificationCode);
+
+        userFromDB.setVerificationCode(verificationCode);
+        return "Verification Code has been sent : " + verificationCode;
+    }
+
+    @Transactional
+    @Override
+    public AuthResponse verifyAndLogin(
+            CodeVerificationReq codeVerificationReq,
+            HttpServletResponse response) {
+
+        User user = findUserFromDB(codeVerificationReq.phoneNumber());
+
+        if (user.getVerificationCode() == null) {
+            throw new IllegalArgumentException(""" 
+                    No Verification code has been sent!
+                    Please Login again !""");
+        } else if (!codeVerificationReq.code().equals(user.getVerificationCode())) {
+            throw new IllegalArgumentException("Invalid verification code");
+        }
+        user.setVerificationCode(null);
+
+
+        try {
+            // Perform authentication
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    user.getPhoneNumber(), user.getId()
+            );
+            authenticationManager.authenticate(authToken);
+        } catch (BadCredentialsException e) {
+            throw new IllegalArgumentException("Invalid phone number or password");
+        } catch (DisabledException e) {
+            throw new DisabledException("User account is disabled");
+        }
+
+        generateTokenAndSetToCookie(user.getPhoneNumber(), response);
+
+        return mapToAuthResponse(user);
+
+    }
+
+    private AuthResponse mapToAuthResponse(User user) {
+        List<UUID> qrCodeUUIDs = qrCodeRepository
+                .findAllByIsActiveTrueAndStatusAndUserId(QrCodeStatus.ACTIVE, user.getId())
+                .stream()
+                .map(QrCode::getId)
+                .toList();
+
+        UserRes userRes = new UserRes(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getPhoneNumber(),
+                user.getRoles().stream().map(role -> role.getRoleName().name()).toList(),
+                qrCodeUUIDs
+        );
+        return new AuthResponse("We are happy to see you back😁, " + user.getFirstName(), userRes);
+    }
+
+    private void generateTokenAndSetToCookie(String phoneNumber, HttpServletResponse response) {
+        String token = jwtService.generateToken(phoneNumber);
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(false) // Only if using HTTPS
+                .path("/") // Available across the app
+                .maxAge(expirationTimeInMills / 1000) //Time given in seconds
+                .sameSite("Lax")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
+    private User findUserFromDB(String phoneNumber) {
+        return userRepository.findByPhoneNumberOptional(phoneNumber)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with phone number: " + phoneNumber));
     }
 
     private String generateVerificationCode() {
