@@ -2,6 +2,7 @@ package org.example.arbook.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,22 +26,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
+        Cookie[] cookies = request.getCookies();
+        String jwt = null;
 
-            try {
-                if (jwtService.validateToken(token)) {
-                    User user = jwtService.getUserObject(token);
-                    var auth = new UsernamePasswordAuthenticationToken(
-                            user, null, user.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    jwt = cookie.getValue();
+                    break;
                 }
-            } catch (Exception e) {
-                log.warn("🔴🔴JWT validation failed: {}", e.getMessage());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("⚠️⚠️Invalid or expired token⚠️⚠️");
-                return;
+            }
+        }
+
+        if (jwt != null) {
+            if (jwtService.validateToken(jwt)) {
+                User user = jwtService.getUserObject(jwt);
+                var auth = new UsernamePasswordAuthenticationToken(
+                        user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
         filterChain.doFilter(request, response);

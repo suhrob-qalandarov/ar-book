@@ -32,7 +32,7 @@ public class JwtService {
 
     public String generateToken(String phoneNumber) {
         User user = userRepository.findByPhoneNumber(phoneNumber);
-        return "Bearer " + Jwts.builder()
+        return  Jwts.builder()
                 .subject(phoneNumber)
                 .claim("id", user.getId())
                 .claim("isActive", user.getIsActive())

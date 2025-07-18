@@ -11,6 +11,8 @@ public interface ApiConstants {
     String LOGIN = "/login";
     String REGISTER = "/register";
     String VERIFY = "/verify";
+    String LOGOUT = "/logout";
+
 
     String BOOK = "/book";
     String BOOKS = "/books";
