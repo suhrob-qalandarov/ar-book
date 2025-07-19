@@ -37,9 +37,6 @@ public class SecurityConfig {
                                 .requestMatchers("http://localhost:3000/",
                                         "http://localhost:3000/**")
                                 .permitAll()
-                                .requestMatchers("http://localhost:3000/",
-                                        "http://localhost:3000/**")
-                                .permitAll()
                                 .requestMatchers(
                                         "/admin/main-page.html",
                                         "/admin/book-page.html",
@@ -105,9 +102,7 @@ public class SecurityConfig {
 
         // ✅ Allow only your trusted frontend origins (NO slash)
         configuration.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://localhost:3000",
-                "http://13.60.252.171"
+                "http://localhost:3000"
         ));
 
         // ✅ Explicitly allow HTTP methods
