@@ -37,17 +37,17 @@ public class Runner implements CommandLineRunner {
                             new Role(Roles.ROLE_ADMIN)
                     ));
             if (userRepository.count() == 0) {
-                userRepository.save(
-                        User.builder()
-                                .firstName("Nick")
-                                .lastName("Holden")
-                                .phoneNumber("+998901234567")
-                                .email("nick@gmail.com")
-                                .password(passwordEncoder.encode("1"))
-                                .isActive(true)
-                                .roles(roles)
-                                .build()
-                );
+                User user = User.builder()
+                        .firstName("Nick")
+                        .lastName("Holden")
+                        .phoneNumber("+998901234567")
+                        .email("nick@gmail.com")
+                        .password(passwordEncoder.encode("1"))
+                        .isActive(true)
+                        .roles(roles)
+                        .build();
+                User savedUser = userRepository.save(user);
+                savedUser.setPassword(passwordEncoder.encode(user.getId().toString()));
             }
         }
 
