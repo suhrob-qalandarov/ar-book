@@ -5,21 +5,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.arbook.model.dto.request.LoginReq;
 import org.example.arbook.model.dto.request.RegisterReq;
-import org.example.arbook.model.dto.request.VerifyPhoneReq;
 import org.example.arbook.model.dto.request.auth.CodeVerificationReq;
 import org.example.arbook.model.dto.request.auth.PhoneVerificationReq;
-import org.example.arbook.model.dto.response.LoginRes;
+import org.example.arbook.model.dto.response.auth.UserRes;
 import org.example.arbook.model.dto.response.auth.AuthResponse;
+import org.example.arbook.model.entity.User;
 import org.example.arbook.service.interfaces.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import static org.example.arbook.util.ApiConstants.*;
 
@@ -35,6 +30,11 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @GetMapping("/me")
+    public ResponseEntity<UserRes> getUserData(@AuthenticationPrincipal User user) {
+        UserRes userRes = authService.getUserData(user);
+        return ResponseEntity.ok(userRes);
+    }
 
     @PostMapping(LOGIN)
     public ResponseEntity<String> sendLoginVerificationCode(@Valid @RequestBody PhoneVerificationReq phoneVerificationReq) {
@@ -42,13 +42,19 @@ public class AuthController {
         return ResponseEntity.ok(message);
     }
 
+    @PostMapping(REGISTER)
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterReq registerReq) {
+        String code = authService.register(registerReq);
+        return ResponseEntity.ok(code);
+    }
+
     @PostMapping(VERIFY)
-    public ResponseEntity<AuthResponse> verifyBothRegisterAndLogin(
+    public ResponseEntity<UserRes> verifyBothRegisterAndLogin(
             @Valid @RequestBody CodeVerificationReq codeVerificationReq,
             HttpServletResponse response
     ) {
-        AuthResponse authResponse = authService.verifyBothRegisterAndLogin(codeVerificationReq, response);
-        return ResponseEntity.ok(authResponse);
+        UserRes userRes = authService.verifyBothRegisterAndLogin(codeVerificationReq, response);
+        return ResponseEntity.ok(userRes);
     }
 
     @PostMapping(LOGOUT)
@@ -59,16 +65,4 @@ public class AuthController {
         String message =authService.logOut(response);
         return ResponseEntity.ok(message);
     }
-
-
-
-
-
-    @PostMapping(REGISTER)
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterReq registerReq) {
-        authService.register(registerReq);
-        return ResponseEntity.ok(Map.of("message", "Successfully sent code"));
-    }
-
-
 }

@@ -5,12 +5,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.arbook.config.security.JwtService;
-import org.example.arbook.model.dto.request.LoginReq;
 import org.example.arbook.model.dto.request.RegisterReq;
 import org.example.arbook.model.dto.request.auth.CodeVerificationReq;
 import org.example.arbook.model.dto.request.auth.PhoneVerificationReq;
-import org.example.arbook.model.dto.response.LoginRes;
-import org.example.arbook.model.dto.response.auth.AuthResponse;
 import org.example.arbook.model.dto.response.auth.UserRes;
 import org.example.arbook.model.entity.QrCode;
 import org.example.arbook.model.entity.Role;
@@ -34,12 +31,14 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
     @Value("${jwt.expiration}")
     private Integer expirationTimeInMills;
     private final UserRepository userRepository;
@@ -49,7 +48,6 @@ public class AuthServiceImpl implements AuthService {
     private final RoleRepository roleRepository;
     private final QrCodeRepository qrCodeRepository;
 
-
     /**
      * Registers a new user based on the provided request.
      * @param registerReq The registration request containing user details.
@@ -57,38 +55,42 @@ public class AuthServiceImpl implements AuthService {
      */
     @Transactional
     @Override
-    public void register(RegisterReq registerReq) {
-
-        if (!registerReq.password().equals(registerReq.confirmPassword())) {
-            throw new IllegalArgumentException("Passwords do not match");
-        }
-
-        // Check for duplicate phone number
-        if (userRepository.existsByPhoneNumber((registerReq.phoneNumber()))) {
-            throw new IllegalArgumentException("Phone number already registered");
-        }
-
+    public String register(RegisterReq registerReq) {
         String verificationCode = generateVerificationCode();
         System.err.println("Generated SMS code: " + verificationCode);
+        Optional<User> optionalUser = userRepository.findByPhoneNumberOptional(registerReq.phoneNumber());
 
-        List<Role> roles = roleRepository.findAll();
+        // Check for duplicate phone number
+        if (optionalUser.isPresent()) {
+            User dbUser = optionalUser.get();
+            if (registerReq.phoneNumber().equals(dbUser.getPhoneNumber()) && dbUser.isEnabled()) {
+                throw new IllegalArgumentException("Phone number already registered");
+
+            } else if (dbUser.getPhoneNumber().equals(registerReq.phoneNumber())) {
+                dbUser.setVerificationCode(verificationCode);
+                return verificationCode;
+            }
+        }
+
+        List<Role> roleUser = roleRepository.findALlByRoleNameIn(List.of("ROLE_USER"));
 
         // Map DTO to entity
         User user = User.builder()
                 .firstName(registerReq.firstName())
                 .lastName(registerReq.lastName())
                 .phoneNumber(registerReq.phoneNumber())
-                .password(passwordEncoder.encode(registerReq.password()))
                 .verificationCode(verificationCode)
-                .roles(roles.stream().findFirst().stream().toList())
+                .password("1")
+                .roles(roleUser)
                 .isActive(false)
                 .build();
 
         // Save user
-        userRepository.save(user);
+        User saved = userRepository.save(user);
+        saved.setPassword(passwordEncoder.encode(saved.getId().toString()));
+
+        return verificationCode;
     }
-
-
 
     /// 👇👇👇👇👇⬇️⬇️⬇️⬇️⬇️⬇️ Shu erdan Boshlab LOGIN & LOGOUT & VERIFY CODE lar yangilani yaratilgan !!
     @Transactional
@@ -104,12 +106,12 @@ public class AuthServiceImpl implements AuthService {
         log.warn("Generated SMS code: " + verificationCode);
 
         userFromDB.setVerificationCode(verificationCode);
-        return "Verification Code has been sent : " + verificationCode;
+        return verificationCode;
     }
 
     @Transactional
     @Override
-    public AuthResponse verifyBothRegisterAndLogin(
+    public UserRes verifyBothRegisterAndLogin(
             CodeVerificationReq codeVerificationReq,
             HttpServletResponse response
     ) {
@@ -122,9 +124,7 @@ public class AuthServiceImpl implements AuthService {
 
         generateTokenAndSetToCookie(user.getPhoneNumber(), response);
 
-        return mapToAuthResponse(user, """
-                Verified Successfully.
-                Welcome, """);
+        return mapToUserResponse(user);
     }
 
     @Override
@@ -144,6 +144,13 @@ public class AuthServiceImpl implements AuthService {
         return "You have been logged out successfully.";
     }
 
+    @Transactional
+    @Override
+    public UserRes getUserData(User user) {
+        User dbUser = userRepository.findByPhoneNumber(user.getPhoneNumber());
+        return mapToUserResponse(dbUser);
+    }
+
     private void authenticateUser(User user) {
         try {
             // Perform authentication
@@ -151,6 +158,7 @@ public class AuthServiceImpl implements AuthService {
                     user.getPhoneNumber(), user.getId()
             );
             authenticationManager.authenticate(authToken);
+
         } catch (BadCredentialsException e) {
             throw new IllegalArgumentException("Invalid phone number or password");
         } catch (DisabledException e) {
@@ -159,24 +167,29 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private static void validateVerificationCode(CodeVerificationReq codeVerificationReq, User user) {
-        if (user.getVerificationCode() == null) {
+        if (user.getIsActive() && user.getVerificationCode() == null) {
             throw new IllegalArgumentException(""" 
                     No Verification code has been sent!
                     Please Login again !""");
+
+        } else if (!user.getIsActive() && user.getVerificationCode() != null) {
+            user.setIsActive(true);
+
         } else if (!codeVerificationReq.code().equals(user.getVerificationCode())) {
             throw new IllegalArgumentException("Invalid verification code");
         }
         user.setVerificationCode(null);
     }
 
-    private AuthResponse mapToAuthResponse(User user, String message) {
+    @Transactional
+    public UserRes mapToUserResponse(User user) {
         List<UUID> qrCodeUUIDs = qrCodeRepository
                 .findAllByIsActiveTrueAndStatusAndUserId(QrCodeStatus.ACTIVE, user.getId())
                 .stream()
                 .map(QrCode::getId)
                 .toList();
 
-        UserRes userRes = new UserRes(
+        return new UserRes(
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
@@ -184,9 +197,6 @@ public class AuthServiceImpl implements AuthService {
                 user.getRoles().stream().map(role -> role.getRoleName().name()).toList(),
                 qrCodeUUIDs
         );
-
-        /// ‼️‼️Response message FORMATiga doim ISM  Koshib yuboriladi : MISOL uchun : "We are happy to see you back😁, "'
-        return new AuthResponse(message + user.getFirstName(), userRes);
     }
 
     private void generateTokenAndSetToCookie(String phoneNumber, HttpServletResponse response) {
