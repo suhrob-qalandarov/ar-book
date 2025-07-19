@@ -97,19 +97,7 @@ public class SecurityConfig {
         return new ProviderManager(authenticationProvider());
     }
 
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(
-//                List.of("http://localhost:5173", "http://13.60.252.171")
-//        );       configuration.addAllowedMethod("*");
-//        configuration.addAllowedOriginPattern("*");
-//        configuration.addAllowedHeader("*");
-//        configuration.setAllowCredentials(true); // Disable credentials for local testing
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

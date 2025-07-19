@@ -64,19 +64,10 @@ public class AuthController {
 
 
 
-
-
-
     @PostMapping(REGISTER)
     public ResponseEntity<?> register(@Valid @RequestBody RegisterReq registerReq) {
         authService.register(registerReq);
         return ResponseEntity.ok(Map.of("message", "Successfully sent code"));
-    }
-
-    @PostMapping(VERIFY)
-    public ResponseEntity<?> verifyPhoneNumber(@Valid @RequestBody VerifyPhoneReq verifyPhoneReq) {
-        authService.verifyPhoneNumber(verifyPhoneReq.phoneNumber(), verifyPhoneReq.code());
-        return ResponseEntity.ok(Map.of("message", "Phone number verified successfully"));
     }
 
 

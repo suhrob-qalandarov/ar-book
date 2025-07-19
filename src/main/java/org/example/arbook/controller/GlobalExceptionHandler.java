@@ -185,6 +185,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(HttpServletRequest request, Exception ex) {
+        ex.printStackTrace();
         // If it's a CORS preflight request — allow it
         if (HttpMethod.OPTIONS.matches(request.getMethod())) {
             return ResponseEntity.ok()

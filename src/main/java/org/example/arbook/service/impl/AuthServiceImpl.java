@@ -88,20 +88,7 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
-    @Transactional
-    @Override
-    public void verifyPhoneNumber(String phoneNumber, String code) {
-        User user = findUserFromDB(phoneNumber);
-        if (user.getIsActive()) {
-            throw new IllegalArgumentException("Phone number already verified");
-        }
-        if (!code.equals(user.getVerificationCode())) {
-            throw new IllegalArgumentException("Invalid verification code");
-        }
-        user.setVerificationCode(null);
-        user.setIsActive(true);
-        userRepository.save(user);
-    }
+
 
     /// 👇👇👇👇👇⬇️⬇️⬇️⬇️⬇️⬇️ Shu erdan Boshlab LOGIN & LOGOUT & VERIFY CODE lar yangilani yaratilgan !!
     @Transactional

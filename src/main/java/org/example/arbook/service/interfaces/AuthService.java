@@ -13,7 +13,6 @@ public interface AuthService {
 
     void register(@Valid RegisterReq registerReq);
 
-    void verifyPhoneNumber(String phoneNumber, String code);
 
     String sendLoginVerificationCode(@Valid PhoneVerificationReq phoneVerificationReq);
 
