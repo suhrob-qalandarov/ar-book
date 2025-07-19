@@ -50,8 +50,6 @@ public class AuthServiceImpl implements AuthService {
     private final QrCodeRepository qrCodeRepository;
 
 
-
-
     /**
      * Registers a new user based on the provided request.
      * @param registerReq The registration request containing user details.
@@ -105,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
-/// 👇👇👇👇👇⬇️⬇️⬇️⬇️⬇️⬇️ Shu erdan Boshlab LOGIN & LOGOUT & VERIFY CODE lar yangilani yaratilgan !!
+    /// 👇👇👇👇👇⬇️⬇️⬇️⬇️⬇️⬇️ Shu erdan Boshlab LOGIN & LOGOUT & VERIFY CODE lar yangilani yaratilgan !!
     @Transactional
     @Override
     public String sendLoginVerificationCode(PhoneVerificationReq phoneVerificationReq) {
@@ -124,7 +122,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public AuthResponse verifyAndLogin(
+    public AuthResponse verifyBothRegisterAndLogin(
             CodeVerificationReq codeVerificationReq,
             HttpServletResponse response
     ) {
@@ -137,13 +135,15 @@ public class AuthServiceImpl implements AuthService {
 
         generateTokenAndSetToCookie(user.getPhoneNumber(), response);
 
-        return mapToAuthResponse(user,"We are happy to see you back😁, ");
+        return mapToAuthResponse(user, """
+                Verified Successfully.
+                Welcome, """);
     }
 
     @Override
     public String logOut(HttpServletResponse response) {
         // Clear the JWT cookie
-        ResponseCookie cookie = ResponseCookie.from("token", "")
+        ResponseCookie cookie = ResponseCookie.from("ar-book-token", "")
                 .httpOnly(true)
                 .secure(false) // Match the setting used in generateTokenAndSetToCookie
                 .path("/") // Match the path used in generateTokenAndSetToCookie
@@ -182,7 +182,7 @@ public class AuthServiceImpl implements AuthService {
         user.setVerificationCode(null);
     }
 
-    private AuthResponse mapToAuthResponse(User user,String message ) {
+    private AuthResponse mapToAuthResponse(User user, String message) {
         List<UUID> qrCodeUUIDs = qrCodeRepository
                 .findAllByIsActiveTrueAndStatusAndUserId(QrCodeStatus.ACTIVE, user.getId())
                 .stream()
@@ -204,7 +204,7 @@ public class AuthServiceImpl implements AuthService {
 
     private void generateTokenAndSetToCookie(String phoneNumber, HttpServletResponse response) {
         String token = jwtService.generateToken(phoneNumber);
-        ResponseCookie cookie = ResponseCookie.from("token", token)
+        ResponseCookie cookie = ResponseCookie.from("ar-book-token", token)
                 .httpOnly(true)
                 .secure(false) // Only if using HTTPS
                 .path("/") // Available across the app

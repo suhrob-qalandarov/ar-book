@@ -42,12 +42,12 @@ public class AuthController {
         return ResponseEntity.ok(message);
     }
 
-    @PostMapping(LOGIN + VERIFY)
-    public ResponseEntity<AuthResponse> verifyAndLogin(
+    @PostMapping(VERIFY)
+    public ResponseEntity<AuthResponse> verifyBothRegisterAndLogin(
             @Valid @RequestBody CodeVerificationReq codeVerificationReq,
             HttpServletResponse response
     ) {
-        AuthResponse authResponse = authService.verifyAndLogin(codeVerificationReq, response);
+        AuthResponse authResponse = authService.verifyBothRegisterAndLogin(codeVerificationReq, response);
         return ResponseEntity.ok(authResponse);
     }
 

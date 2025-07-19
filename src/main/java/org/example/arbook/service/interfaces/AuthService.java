@@ -17,7 +17,7 @@ public interface AuthService {
 
     String sendLoginVerificationCode(@Valid PhoneVerificationReq phoneVerificationReq);
 
-    AuthResponse verifyAndLogin(@Valid CodeVerificationReq codeVerificationReq, HttpServletResponse response);
+    AuthResponse verifyBothRegisterAndLogin(@Valid CodeVerificationReq codeVerificationReq, HttpServletResponse response);
 
     String logOut(HttpServletResponse response);
 }
