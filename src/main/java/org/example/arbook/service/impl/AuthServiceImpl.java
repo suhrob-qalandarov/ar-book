@@ -98,7 +98,10 @@ public class AuthServiceImpl implements AuthService {
     public String sendLoginVerificationCode(PhoneVerificationReq phoneVerificationReq) {
         User userFromDB = findUserFromDB(phoneVerificationReq.phoneNumber());
 
-        if (!userFromDB.isEnabled()) {
+        if (userFromDB.getVerificationCode() != null && !userFromDB.isEnabled()) {
+            throw new DisabledException("Your account has not been verified yet . Please Sign Up again!");
+        }
+        else if (!userFromDB.isEnabled()) {
             throw new DisabledException("User account is disabled");
         }
 
