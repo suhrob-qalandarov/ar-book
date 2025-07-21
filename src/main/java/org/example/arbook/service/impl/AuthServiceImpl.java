@@ -8,6 +8,7 @@ import org.example.arbook.config.security.JwtService;
 import org.example.arbook.model.dto.request.RegisterReq;
 import org.example.arbook.model.dto.request.auth.CodeVerificationReq;
 import org.example.arbook.model.dto.request.auth.PhoneVerificationReq;
+import org.example.arbook.model.dto.response.LoginRes;
 import org.example.arbook.model.dto.response.auth.UserRes;
 import org.example.arbook.model.entity.QrCode;
 import org.example.arbook.model.entity.Role;
@@ -111,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public UserRes verifyBothRegisterAndLogin(
+    public LoginRes verifyBothRegisterAndLogin(
             CodeVerificationReq codeVerificationReq,
             HttpServletResponse response
     ) {
@@ -122,9 +123,14 @@ public class AuthServiceImpl implements AuthService {
 
         authenticateUser(user);
 
-        generateTokenAndSetToCookie(user.getPhoneNumber(), response);
+        //generateTokenAndSetToCookie(user.getPhoneNumber(), response);
 
-        return mapToUserResponse(user);
+        String token = jwtService.generateToken(codeVerificationReq.phoneNumber());
+
+        return new LoginRes(
+                token,
+                mapToUserResponse(user)
+        );
     }
 
     @Override
