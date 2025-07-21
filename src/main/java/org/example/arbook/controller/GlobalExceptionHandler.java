@@ -130,11 +130,11 @@ public class GlobalExceptionHandler {
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.FORBIDDEN.value());
         response.put("error", "Forbidden");
-        response.put("message", "User account is disabled");
+        response.put("message", ex.getMessage());
         response.put("timestamp", LocalDateTime.now().format(formatter));
 
         Map<String, String> fieldErrors = new HashMap<>();
-        fieldErrors.put("account", "User account is disabled");
+        fieldErrors.put("account", ex.getMessage());
         response.put("fieldErrors", fieldErrors);
 
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);

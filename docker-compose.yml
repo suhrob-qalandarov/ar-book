@@ -3,7 +3,7 @@ services:
   app:
     build: .
     ports:
-      - "80:8080"
+      - "8080:8080"
     environment:
       - DB_URL
       - DB_USER
@@ -12,6 +12,7 @@ services:
       - BUCKET_REGION
       - S3_ACCESS_KEY
       - S3_SECRET_KEY
+      - JWT_EXPIRATION
     depends_on:
       - postgres
     restart: unless-stopped
