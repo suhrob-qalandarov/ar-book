@@ -45,7 +45,7 @@ public class AdminBookController {
 
     @Operation(summary = "Retrieve a particular book without its pages", description = "Returns a book(without its page contents) by given Id")
     @GetMapping("/{bookId}")
-    public ResponseEntity<AdminBookRes> getOneBook(@PathVariable @Positive UUID bookId) {
+    public ResponseEntity<AdminBookRes> getOneBook(@PathVariable UUID bookId) {
         AdminBookRes book = adminBookService.getOneBook(bookId);
         return ResponseEntity.ok(book);
     }
@@ -58,7 +58,7 @@ public class AdminBookController {
 
     @Operation(summary = "Update a book by ID", description = "Updates and Returns book details for the given book ID.")
     @PutMapping("/{bookId}")
-    public ResponseEntity<AdminBookRes> updateBook(@PathVariable @Positive UUID bookId, @Valid @RequestBody BookReq bookReq) {
+    public ResponseEntity<AdminBookRes> updateBook(@PathVariable UUID bookId, @Valid @RequestBody BookReq bookReq) {
         AdminBookRes updatedBook = adminBookService.updateBook(bookId, bookReq);
         return ResponseEntity.ok(updatedBook);
     }

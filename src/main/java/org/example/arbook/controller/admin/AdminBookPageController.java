@@ -46,7 +46,7 @@ public class AdminBookPageController {
 
 
     @PatchMapping("/{bookPageId}")
-    public ResponseEntity<String> enableOrDisableBookPage(@PathVariable @Positive UUID bookPageId) {
+    public ResponseEntity<String> enableOrDisableBookPage(@PathVariable  UUID bookPageId) {
         String message = adminBookPageService.enableOrDisableBookPage(bookPageId);
         return ResponseEntity.ok("BookPage " + message);
     }
