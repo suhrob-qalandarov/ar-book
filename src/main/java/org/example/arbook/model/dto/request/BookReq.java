@@ -31,12 +31,10 @@ public record BookReq(
         Integer totalLanguages,
 
         @NotNull(message = "Category ID cannot be null")
-        @Positive(message = "Category ID must be positive and greater than 0")
         @Schema(description = "ID of the book's category", example = "1")
         UUID categoryId,
 
         @NotNull(message = "Attachment ID cannot be null")
-        @Positive(message = "Attachment ID must be positive and greater than 0")
         @Schema(description = "ID of the book's attachment (e.g., cover image)", example = "1")
         UUID attachmentId
 ) {
