@@ -7,6 +7,7 @@ import org.example.arbook.model.entity.Role;
 import org.example.arbook.model.entity.User;
 import org.example.arbook.model.enums.Roles;
 import org.example.arbook.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
 @Service
 public class JwtService {
 
+    @Value("${jwt.expiration}")
+    private Integer expirationTimeInMills;
     private final UserRepository userRepository;
 
     public JwtService(UserRepository userRepository) {
@@ -32,7 +35,7 @@ public class JwtService {
 
     public String generateToken(String phoneNumber) {
         User user = userRepository.findByPhoneNumber(phoneNumber);
-        return  Jwts.builder()
+        return Jwts.builder()
                 .subject(phoneNumber)
                 .claim("id", user.getId())
                 .claim("isActive", user.getIsActive())
@@ -40,7 +43,7 @@ public class JwtService {
                         role.getRoleName().name()).collect(Collectors.joining(","))
                 )
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                .expiration(new Date(System.currentTimeMillis() + expirationTimeInMills))
                 .signWith(getSecretKey())
                 .compact();
     }
@@ -62,7 +65,7 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
         UUID id = UUID.fromString(claims.get("id", String.class));
-        Boolean isActive =  claims.get("isActive",Boolean.class);
+        Boolean isActive = claims.get("isActive", Boolean.class);
         String strRoles = (String) claims.get("roles");
 
         List<Role> roles = Arrays.stream(strRoles.split(","))
