@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.arbook.model.dto.request.RegisterReq;
 import org.example.arbook.model.dto.request.auth.CodeVerificationReq;
 import org.example.arbook.model.dto.request.auth.PhoneVerificationReq;
+import org.example.arbook.model.dto.response.LoginRes;
 import org.example.arbook.model.dto.response.auth.UserRes;
 import org.example.arbook.model.dto.response.auth.AuthResponse;
 import org.example.arbook.model.entity.User;
@@ -49,12 +50,12 @@ public class AuthController {
     }
 
     @PostMapping(VERIFY)
-    public ResponseEntity<UserRes> verifyBothRegisterAndLogin(
+    public ResponseEntity<LoginRes> verifyBothRegisterAndLogin(
             @Valid @RequestBody CodeVerificationReq codeVerificationReq,
             HttpServletResponse response
     ) {
-        UserRes userRes = authService.verifyBothRegisterAndLogin(codeVerificationReq, response);
-        return ResponseEntity.ok(userRes);
+        LoginRes loginRes = authService.verifyBothRegisterAndLogin(codeVerificationReq, response);
+        return ResponseEntity.ok(loginRes);
     }
 
     @PostMapping(LOGOUT)
