@@ -82,11 +82,12 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItem item : order.getOrderItems()) {
             List<String> qrCodes = createQrCode(item.getBook().getId(), item.getAmount(), order.getId());
-            AcceptedOrderItemRes.builder()
+            acceptedOrderItemRes.add(AcceptedOrderItemRes.builder()
                     .amount(item.getAmount())
                     .adminBookRes(bookMapper.toAdminBookResponse(item.getBook()))
                     .qrCodes(qrCodes)
-                    .build();
+                    .build()
+            );
         }
         return AcceptedOrderRes.builder()
                 .id(order.getId())
@@ -144,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
         // Create Order
         Order order = Order.builder()
                 .name(orderReq.name())
-                .userId(orderReq.userId())
+                .userId(user.getId())
                 .status(OrderStatus.PENDING)
                 .isActive(true) // Set BaseEntity field
                 .createdBy("system") // Adjust based on authentication
@@ -225,23 +226,5 @@ public class OrderServiceImpl implements OrderService {
                         .qrCodes(qrCodes.stream().map(qrCode -> qrCode.getId().toString()).toList())
                         .build()).toList())
                 .build();
-    }
-
-    /// Not used
-    private String shortUuid(UUID uuid) {
-        byte[] uuidBytes = toBytes(uuid);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(uuidBytes);
-    }
-
-    private byte[] toBytes(UUID uuid) {
-        byte[] bytes = new byte[16];
-        long mostSigBits = uuid.getMostSignificantBits();
-        long leastSigBits = uuid.getLeastSignificantBits();
-
-        for (int i = 0; i < 8; i++) {
-            bytes[i] = (byte) (mostSigBits >>> (8 * (7 - i)));
-            bytes[8 + i] = (byte) (leastSigBits >>> (8 * (7 - i)));
-        }
-        return bytes;
     }
 }
