@@ -8,10 +8,7 @@ import org.example.arbook.model.dto.response.order.*;
 import org.example.arbook.model.entity.*;
 import org.example.arbook.model.enums.OrderStatus;
 import org.example.arbook.model.mapper.BookMapper;
-import org.example.arbook.repository.BookRepository;
-import org.example.arbook.repository.OrderRepository;
-import org.example.arbook.repository.QrCodeRepository;
-import org.example.arbook.repository.UserRepository;
+import org.example.arbook.repository.*;
 import org.example.arbook.service.interfaces.OrderService;
 import org.example.arbook.service.interfaces.admin.AdminBookService;
 import org.springframework.stereotype.Service;
@@ -29,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
     private final AdminBookService adminBookService;
     private final BookMapper bookMapper;
     private final BookRepository bookRepository;
+    private final OrderItemRepository orderItemRepository;
 
     @Transactional
     @Override
@@ -61,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
         return convertToOrderRes(order);
     }
 
+    @Transactional
     @Override
     public AcceptedOrderRes getAcceptedOrderRes(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow();
@@ -114,14 +113,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderRes createOrder(OrderReq orderReq) {
-        // Validate input
         if (orderReq.userId() == null || orderReq.name() == null || orderReq.orderItemReqList() == null) {
             throw new IllegalArgumentException("User ID, name, and order items are required");
         }
-
-        Order order = convertToNewOrder(orderReq);
-        Order saved = orderRepository.save(order);
-        return convertToOrderRes(saved);
+        Order savedOrder = convertToOrderAnsSaveReturn(orderReq);
+        return convertToOrderRes(savedOrder);
     }
 
     @Transactional
@@ -137,50 +133,36 @@ public class OrderServiceImpl implements OrderService {
         return savedQrCodes.stream().map(qrCode -> qrCode.getId().toString()).toList();
     }
 
-    private Order convertToNewOrder(OrderReq orderReq) {
-        // Validate user existence
-        User user = userRepository.findById(orderReq.userId())
+    @Transactional
+    public Order convertToOrderAnsSaveReturn(OrderReq orderReq) {
+        userRepository.findById(orderReq.userId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + orderReq.userId()));
 
-        // Create Order
-        Order order = Order.builder()
-                .name(orderReq.name())
-                .userId(user.getId())
-                .status(OrderStatus.PENDING)
-                .isActive(true) // Set BaseEntity field
-                .createdBy("system") // Adjust based on authentication
-                .updatedBy("system") // Adjust based on authentication
-                .orderItems(new ArrayList<>()) // Initialize empty list
-                .build();
+        Order order = convertToOrder(orderReq);
+        Order savedOrder = orderRepository.save(order);
 
-        // Map OrderItemReq to OrderItem
         List<OrderItem> orderItems = (List<OrderItem>) orderReq.orderItemReqList().stream()
                 .map(orderItemReq -> {
-                    // Validate book existence
                     Book book = bookRepository.findById(orderItemReq.bookId())
                             .orElseThrow(() -> new EntityNotFoundException("Book not found with ID: " + orderItemReq.bookId()));
                     return OrderItem.builder()
                             .amount(orderItemReq.amount())
                             .book(book)
-                            .order(order) // Set the Order reference
-                            .isActive(true) // Set BaseEntity field
-                            .createdBy("system")
-                            .updatedBy("system")
+                            .order(order)
                             .build();
-                })
-                .toList();
-
-        // Set orderItems on Order
-        order.setOrderItems(orderItems);
-
+                }).toList();
+        savedOrder.setOrderItems(orderItems);
+        orderItemRepository.saveAll(orderItems);
         return order;
     }
 
-    private Order convertToOrder(OrderReq orderReq) {
+    @Transactional
+    public Order convertToOrder(OrderReq orderReq) {
         return Order.builder()
                 .name(orderReq.name())
                 .userId(orderReq.userId())
                 .status(OrderStatus.PENDING)
+                .orderItems(new ArrayList<>())
                 .build();
     }
 
@@ -207,7 +189,8 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
-    private AcceptedOrderRes convertToAcceptedOrderRes(Order order) {
+    @Transactional
+    public AcceptedOrderRes convertToAcceptedOrderRes(Order order) {
         User user = userRepository.findById(order.getUserId()).orElseThrow();
         List<QrCode> qrCodes = qrCodeRepository.findByOrderId(order.getId());
         return AcceptedOrderRes.builder()
@@ -220,11 +203,14 @@ public class OrderServiceImpl implements OrderService {
                         .lastName(user.getLastName())
                         .phoneNumber(user.getPhoneNumber())
                         .build())
-                .orderItemList(order.getOrderItems().stream().map(orderItem -> AcceptedOrderItemRes.builder()
-                        .amount(orderItem.getAmount())
-                        .adminBookRes(adminBookService.getOneBook(orderItem.getBook().getId()))
-                        .qrCodes(qrCodes.stream().map(qrCode -> qrCode.getId().toString()).toList())
-                        .build()).toList())
+                .orderItemList(order.getOrderItems().stream()
+                        .map(orderItem -> AcceptedOrderItemRes.builder()
+                                .amount(orderItem.getAmount())
+                                .adminBookRes(adminBookService.getOneBook(orderItem.getBook().getId()))
+                                .qrCodes(qrCodes.stream().map(qrCode -> qrCode.getId().toString()).toList())
+                        .build())
+                        .toList()
+                )
                 .build();
     }
 }
