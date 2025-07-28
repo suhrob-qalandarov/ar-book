@@ -103,7 +103,8 @@ public class SecurityConfig {
         // ✅ Allow only your trusted frontend origins (NO slash)
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "http://10.30.12.10:3000"
+                "http://10.30.12.10:3000",
+                "https://ar-books.vercel.app"
         ));
 
         // ✅ Explicitly allow HTTP methods
