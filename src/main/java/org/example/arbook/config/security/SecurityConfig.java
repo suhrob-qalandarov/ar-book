@@ -104,7 +104,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://10.30.12.10:3000",
-                "https://ar-books.vercel.app"
+                "https://ar-books.vercel.app",
+                "https://6dbe881fc50c.ngrok-free.app"
         ));
 
         // ✅ Explicitly allow HTTP methods
