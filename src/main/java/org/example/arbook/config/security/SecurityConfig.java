@@ -104,6 +104,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://10.30.12.10:3000",
+                "http://192.168.100.10:3000",
                 "https://ar-books.vercel.app",
                 "https://6dbe881fc50c.ngrok-free.app"
         ));
