@@ -19,8 +19,8 @@ public interface BookPageMapper {
     @Mapping(source = "book.id", target = "bookId")
     BookPageRes toBookPageRes(BookPage bookPage);
 
-    @Mapping(source = "markerPattern.id", target = "markerPatternId")
-    @Mapping(source = "file3D.id", target = "file3DId")
+    @Mapping(source = "markerPattern.fileUrl", target = "markerPatternUrl")
+    @Mapping(source = "file3D.fileUrl", target = "file3DUrl")
     @Mapping(source = "book.id", target = "bookId")
     UserBookPageRes toUserBookPageResponse(BookPage bookPage);
 

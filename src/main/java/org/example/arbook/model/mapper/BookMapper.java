@@ -15,7 +15,7 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = {BookPageMapper.class})
 public interface BookMapper {
 
-    @Mapping(source = "attachment.id", target = "attachmentId")
+    @Mapping(source = "attachment.fileUrl", target = "attachmentUrl")
     BookRes toBookResponse(Book book);
 
     @Mapping(source = "categoryId", target = "category.id")
@@ -39,7 +39,7 @@ public interface BookMapper {
     EntireBookRes toEntireBookResponse(Book book);
 
     @Mapping(source ="category.name",target = "categoryName")
-    @Mapping(source ="attachment.id",target = "attachmentId")
+    @Mapping(source ="attachment.fileUrl",target = "attachmentUrl")
     UserBookRes toUserBookResponse(Book book);
 
 

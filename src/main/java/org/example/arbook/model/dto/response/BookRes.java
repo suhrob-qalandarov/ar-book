@@ -11,7 +11,7 @@ public record BookRes(
         Integer totalPages,
         Integer totalLanguages,
         BookStatus status,
-        UUID attachmentId
+        UUID attachmentUrl
         ) {
 
 }
