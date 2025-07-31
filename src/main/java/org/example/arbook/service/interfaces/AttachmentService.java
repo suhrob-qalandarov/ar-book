@@ -29,4 +29,5 @@ public interface AttachmentService {
 
     AttachmentRes convertToAttachmentRes(Attachment attachment);
 
+    void getWithUrl(String attachmentUrl, HttpServletResponse response) throws IOException;
 }

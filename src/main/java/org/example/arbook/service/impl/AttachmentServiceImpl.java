@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,6 +48,20 @@ public class AttachmentServiceImpl implements AttachmentService {
             response.getOutputStream().flush();
         } catch (IOException | S3Exception e) {
             log.error("Failed to fetch file for attachment ID {}: {}", attachmentId, e.getMessage());
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            throw new IOException("Unable to retrieve file", e);
+        }
+    }
+
+    @Override
+    public void getWithUrl(String attachmentUrl, HttpServletResponse response) throws IOException {
+        try {
+            byte[] fileContent = getFileContent(attachmentUrl);
+            response.setHeader("Content-Disposition", "inline; filename=\"attachment");
+            response.getOutputStream().write(fileContent);
+            response.getOutputStream().flush();
+        } catch (IOException | S3Exception e) {
+            log.error("Failed to fetch file for attachment key {}: {}", attachmentUrl, e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             throw new IOException("Unable to retrieve file", e);
         }

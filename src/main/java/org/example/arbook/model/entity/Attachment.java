@@ -20,7 +20,6 @@ import java.util.UUID;
 public class Attachment extends BaseEntity {
 
     private String fileUrl;
-    private String key;
 
     @Enumerated(EnumType.STRING)
     private ContentType contentType;
