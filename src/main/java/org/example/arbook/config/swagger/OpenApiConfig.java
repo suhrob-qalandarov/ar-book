@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(title = "AR BOOK", version = "v1", description = "AR BOOK PROJECT"),
-        servers = @Server(url = "http://13.48.25.109:8080"),
+        servers = @Server(url = "https://arbook.uz"),
         security = @io.swagger.v3.oas.annotations.security.SecurityRequirement(name = "bearerAuth")
 )
 public class OpenApiConfig {
