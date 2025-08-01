@@ -18,7 +18,7 @@ public interface PageContentMapper {
     @Mapping(source = "language.id", target = "languageId")
     PageContentRes toPageContentRes(PageContent pageContent);
 
-    @Mapping(source = "audio.id", target = "audioId")
+    @Mapping(source = "audio.fileUrl", target = "audioUrl")
     @Mapping(source = "language.id", target = "languageId")
     UserPageContentRes toUserPageContentResponse(PageContent pageContent);
 
