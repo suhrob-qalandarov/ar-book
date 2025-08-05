@@ -5,9 +5,9 @@ import java.util.UUID;
 
 public record UserBookPageRes(
         UUID id,
-        UUID markerPatternUrl,
-        UUID file3DUrl,
-        UUID bookId,
+        String markerPatternUrl,
+        String file3DUrl,
+        String bookId,
         List<UserPageContentRes> pageContents
 ) {
 }

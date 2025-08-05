@@ -10,7 +10,7 @@ public record UserBookRes(
         Integer totalPages,
         Integer totalLanguages,
         String categoryName,
-        UUID attachmentUrl,
+        String attachmentUrl,
         Boolean isActive,
         List<UserBookPageRes> bookPages
         ) {

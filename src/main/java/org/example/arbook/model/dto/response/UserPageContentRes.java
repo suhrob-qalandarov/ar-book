@@ -5,7 +5,7 @@ import java.util.UUID;
 public record UserPageContentRes(
         UUID id,
         String text,
-        UUID audioUrl,
+        String audioUrl,
         UUID languageId
 ) {
 }
