@@ -7,6 +7,7 @@ import org.example.arbook.model.dto.response.*;
 import org.example.arbook.model.dto.response.order.*;
 import org.example.arbook.model.entity.*;
 import org.example.arbook.model.enums.OrderStatus;
+import org.example.arbook.model.enums.QrCodeStatus;
 import org.example.arbook.model.mapper.BookMapper;
 import org.example.arbook.repository.*;
 import org.example.arbook.service.interfaces.OrderService;
@@ -108,6 +109,34 @@ public class OrderServiceImpl implements OrderService {
     public OrderRes pendOrder(UUID orderId) {
         Order order = orderRepository.pendAndReturn(orderId);
         return convertToOrderRes(order);
+    }
+
+    @Transactional
+    @Override
+    public AcceptedOrderRes blockOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
+
+        if (order.getStatus() != OrderStatus.ACCEPTED) {
+            throw new IllegalStateException("It's not active accepted order, ID: " + orderId);
+        }
+        qrCodeRepository.findByOrderId(orderId).forEach(qrCode -> qrCode.setStatus(QrCodeStatus.BLOCKED));
+        order.setStatus(OrderStatus.BLOCKED);
+        return convertToAcceptedOrderRes(order);
+    }
+
+    @Transactional
+    @Override
+    public AcceptedOrderRes unblockOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
+
+        if (order.getStatus() != OrderStatus.BLOCKED) {
+            throw new IllegalStateException("It's not blocked order, ID: " + orderId);
+        }
+        qrCodeRepository.findByOrderId(orderId).forEach(qrCode -> qrCode.setStatus(QrCodeStatus.ACTIVE));
+        order.setStatus(OrderStatus.ACCEPTED);
+        return convertToAcceptedOrderRes(order);
     }
 
     @Transactional

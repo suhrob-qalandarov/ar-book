@@ -57,4 +57,16 @@ public class AdminOrderController {
         OrderRes order = orderService.pendOrder(orderId);
         return new ResponseEntity<>(order, HttpStatus.ACCEPTED);
     }
+
+    @PutMapping("/block/{orderId}")
+    public ResponseEntity<AcceptedOrderRes> blockOrder(@PathVariable UUID orderId) {
+        AcceptedOrderRes order = orderService.blockOrder(orderId);
+        return new ResponseEntity<>(order, HttpStatus.ACCEPTED);
+    }
+
+    @PutMapping("/unblock/{orderId}")
+    public ResponseEntity<AcceptedOrderRes> unblockOrder(@PathVariable UUID orderId) {
+        AcceptedOrderRes order = orderService.unblockOrder(orderId);
+        return new ResponseEntity<>(order, HttpStatus.ACCEPTED);
+    }
 }

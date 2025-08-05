@@ -26,4 +26,8 @@ public interface OrderService {
     AcceptedOrderRes getAcceptedOrderRes(UUID orderId);
 
     OrderRes pendOrder(UUID orderId);
+
+    AcceptedOrderRes blockOrder(UUID orderId);
+
+    AcceptedOrderRes unblockOrder(UUID orderId);
 }
