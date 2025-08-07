@@ -149,7 +149,6 @@ public class OrderServiceImpl implements OrderService {
         return convertToOrderRes(savedOrder);
     }
 
-    @Transactional
     public List<String> createQrCode(UUID bookId, int amount, UUID orderId) {
         List<QrCode> qrCodes = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
