@@ -82,6 +82,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItem item : order.getOrderItems()) {
             List<String> qrCodes = createQrCode(item.getBook().getId(), item.getAmount(), order.getId());
+            System.err.println("OrderServiceImpl.acceptOrderAndGetQrCodes, qrCodes: " + qrCodes);
             acceptedOrderItemRes.add(AcceptedOrderItemRes.builder()
                     .amount(item.getAmount())
                     .adminBookRes(bookMapper.toAdminBookResponse(item.getBook()))
@@ -89,12 +90,14 @@ public class OrderServiceImpl implements OrderService {
                     .build()
             );
         }
-        return AcceptedOrderRes.builder()
+        AcceptedOrderRes build = AcceptedOrderRes.builder()
                 .id(order.getId())
                 .name(order.getName())
                 .status(order.getStatus().name())
                 .orderItemList(acceptedOrderItemRes)
                 .build();
+        System.err.println("OrderServiceImpl.acceptOrderAndGetQrCodes, AcceptedOrderRes: " + build);
+        return build;
     }
 
     @Transactional
@@ -157,7 +160,9 @@ public class OrderServiceImpl implements OrderService {
                     .orderId(orderId)
                     .build());
         }
+        System.err.println("OrderServiceImpl.createQrCode: " + qrCodes);
         List<QrCode> savedQrCodes = qrCodeRepository.saveAll(qrCodes);
+        System.err.println("OrderServiceImpl.createQrCode: " + savedQrCodes);
         return savedQrCodes.stream().map(qrCode -> qrCode.getId().toString()).toList();
     }
 
