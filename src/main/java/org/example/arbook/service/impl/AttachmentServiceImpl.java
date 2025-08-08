@@ -38,6 +38,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                 case AUDIO -> "audio/mpeg";
                 case FILE_3D -> "model/gltf-binary";
                 case PATTERN -> "application/x-patt";
+                case MIND -> "application/x-mind";
             };
 
             response.setContentType(mimeType);
@@ -80,6 +81,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             case AUDIO -> ".mp3";
             case FILE_3D -> ".glb";
             case PATTERN -> ".patt"; // Add extension for PATTERN
+            case MIND -> ".mind";
         };
     }
 
@@ -156,21 +158,31 @@ public class AttachmentServiceImpl implements AttachmentService {
             throw new IllegalArgumentException("File content type cannot be determined");
         }
 
-        // Handle content type based on MIME type and file extension
         return switch (contentType.toLowerCase()) {
             case "image/jpeg", "image/png", "image/gif" -> ContentType.IMAGE;
             case "audio/mpeg", "audio/wav" -> ContentType.AUDIO;
             case "model/gltf-binary", "model/gltf+json" -> ContentType.FILE_3D;
             case "text/plain" -> ContentType.PATTERN;
+
             case "application/octet-stream" -> {
-                if (fileName != null && fileName.toLowerCase().endsWith(".glb")) {
-                    yield ContentType.FILE_3D;
+                if (fileName != null) {
+                    String lowerName = fileName.toLowerCase();
+                    if (lowerName.endsWith(".glb")) {
+                        yield ContentType.FILE_3D;
+                    }
+                    if (lowerName.endsWith(".mind")) {
+                        yield ContentType.MIND;
+                    }
                 }
                 throw new IllegalArgumentException("Unsupported file type: " + contentType);
             }
+
+            case "application/x-mind" -> ContentType.MIND;
+
             default -> throw new IllegalArgumentException("Unsupported file type: " + contentType);
         };
     }
+
 
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {

@@ -34,8 +34,6 @@ public class S3ServiceImpl implements S3Service {
         }
 
         String filename = file.getOriginalFilename() != null ? file.getOriginalFilename() : file.getName();
-        System.out.println("ORIGINAL ✅✅✅ :" +file.getOriginalFilename());
-        System.out.println("ORIGINAL 😆😆😆 :" +file.getName());
         String key = System.currentTimeMillis() + "_" + filename;
 
         // Set metadata explicitly
