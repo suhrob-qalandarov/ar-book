@@ -30,4 +30,6 @@ public interface OrderService {
     AcceptedOrderRes blockOrder(UUID orderId);
 
     AcceptedOrderRes unblockOrder(UUID orderId);
+
+    AcceptedOrderRes setImageToAcceptedOrder(UUID orderId, UUID imageId);
 }

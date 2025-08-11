@@ -10,6 +10,7 @@ import org.example.arbook.model.enums.OrderStatus;
 import org.example.arbook.model.enums.QrCodeStatus;
 import org.example.arbook.model.mapper.BookMapper;
 import org.example.arbook.repository.*;
+import org.example.arbook.service.interfaces.AttachmentService;
 import org.example.arbook.service.interfaces.OrderService;
 import org.example.arbook.service.interfaces.admin.AdminBookService;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class OrderServiceImpl implements OrderService {
     private final BookMapper bookMapper;
     private final BookRepository bookRepository;
     private final OrderItemRepository orderItemRepository;
+    private final AttachmentService attachmentService;
 
     @Transactional
     @Override
@@ -94,6 +96,20 @@ public class OrderServiceImpl implements OrderService {
                 .status(order.getStatus().name())
                 .orderItemList(acceptedOrderItemRes)
                 .build();
+    }
+
+    @Transactional
+    @Override
+    public AcceptedOrderRes setImageToAcceptedOrder(UUID orderId, UUID imageId) {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+        if(!order.getStatus().equals(OrderStatus.ACCEPTED)) throw new RuntimeException();
+
+        Attachment attachment = attachmentService.getAttachment(imageId);
+        order.setBackgroundImage(attachment);
+
+        Order saved = orderRepository.save(order);
+
+        return convertToAcceptedOrderRes(saved);
     }
 
     @Transactional
@@ -224,6 +240,7 @@ public class OrderServiceImpl implements OrderService {
                 .id(order.getId())
                 .name(order.getName())
                 .status(order.getStatus().name())
+                .attachmentId(order.getBackgroundImage().getId())
                 .userRes(UserRes.builder()
                         .id(user.getId())
                         .firstName(user.getFirstName())

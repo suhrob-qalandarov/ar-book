@@ -23,6 +23,9 @@ public class Order extends BaseEntity {
 
     private String name;
 
+    @OneToOne
+    private Attachment backgroundImage;
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 

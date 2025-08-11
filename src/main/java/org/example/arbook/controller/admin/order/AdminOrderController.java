@@ -46,6 +46,12 @@ public class AdminOrderController {
         return new ResponseEntity<>(acceptOrder, HttpStatus.ACCEPTED);
     }
 
+    @PutMapping("/{orderId}/image")
+    public ResponseEntity<AcceptedOrderRes> setAttachmentToOrder(@PathVariable UUID orderId, @RequestParam UUID id) {
+        AcceptedOrderRes acceptOrder = orderService.setImageToAcceptedOrder(orderId, id);
+        return new ResponseEntity<>(acceptOrder, HttpStatus.ACCEPTED);
+    }
+
     @PutMapping("/decline/{orderId}")
     public ResponseEntity<OrderRes> declineOrder(@PathVariable UUID orderId) {
         OrderRes order = orderService.declineOrder(orderId);

@@ -11,6 +11,7 @@ public record AcceptedOrderRes(
         UUID id,
         String name,
         String status,
+        UUID attachmentId,
         UserRes userRes,
         List<AcceptedOrderItemRes> orderItemList
 ) {
