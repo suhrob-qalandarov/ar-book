@@ -79,6 +79,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public AcceptedOrderRes acceptOrderAndGetQrCodes(UUID orderId) {
         Order order = orderRepository.acceptAndReturn(orderId);
+
+        if (order.getStatus().equals(OrderStatus.ACCEPTED)) {
+            throw new RuntimeException("Cannot accepted, order: " + orderId + " already accepted");
+        }
+
         List<AcceptedOrderItemRes> acceptedOrderItemRes = new ArrayList<>();
 
         for (OrderItem item : order.getOrderItems()) {
@@ -102,7 +107,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public AcceptedOrderRes setImageToAcceptedOrder(UUID orderId, UUID imageId) {
         Order order = orderRepository.findById(orderId).orElseThrow();
-        if(!order.getStatus().equals(OrderStatus.ACCEPTED)) throw new RuntimeException();
+        if(!order.getStatus().equals(OrderStatus.ACCEPTED)) throw new RuntimeException("Cannot set image to order, it's " + order.getStatus().name());
 
         Attachment attachment = attachmentService.getAttachment(imageId);
         order.setBackgroundImage(attachment);
@@ -115,6 +120,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderRes declineOrder(UUID orderId) {
+        if (orderRepository.isAccepted(orderId)) throw new RuntimeException("Cannot decline an ACCEPTED order");
         Order order = orderRepository.declineAndReturn(orderId);
         return convertToOrderRes(order);
     }
@@ -122,6 +128,9 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     @Override
     public OrderRes pendOrder(UUID orderId) {
+        if (orderRepository.isAccepted(orderId)) throw new RuntimeException("Cannot pend an ACCEPTED order");
+        if (orderRepository.isDeclined(orderId)) throw new RuntimeException("Cannot pend an DECLINED order");
+
         Order order = orderRepository.pendAndReturn(orderId);
         return convertToOrderRes(order);
     }

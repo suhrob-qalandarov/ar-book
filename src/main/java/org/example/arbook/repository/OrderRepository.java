@@ -15,6 +15,22 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     Order findByName(String name);
 
     @Query(value = """
+    SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END
+    FROM orders
+    WHERE id = :orderId
+      AND status = 'ACCEPTED'
+    """, nativeQuery = true)
+    boolean isAccepted(@Param("orderId") UUID orderId);
+
+    @Query(value = """
+    SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END
+    FROM orders
+    WHERE id = :orderId
+      AND status = 'DECLINED'
+    """, nativeQuery = true)
+    boolean isDeclined(@Param("orderId") UUID orderId);
+
+    @Query(value = """
         WITH updated AS (
             UPDATE orders
             SET status = 'ACCEPTED'
