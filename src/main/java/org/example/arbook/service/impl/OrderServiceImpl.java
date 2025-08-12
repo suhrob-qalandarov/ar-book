@@ -235,7 +235,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public AcceptedOrderRes convertToAcceptedOrderRes(Order order) {
         User user = userRepository.findById(order.getUserId()).orElseThrow();
-        List<QrCode> qrCodes = qrCodeRepository.findByOrderId(order.getId());
+        //List<QrCode> qrCodes = qrCodeRepository.findByOrderIdAndBookId(order.getId());
         return AcceptedOrderRes.builder()
                 .id(order.getId())
                 .name(order.getName())
@@ -251,7 +251,9 @@ public class OrderServiceImpl implements OrderService {
                         .map(orderItem -> AcceptedOrderItemRes.builder()
                                 .amount(orderItem.getAmount())
                                 .adminBookRes(adminBookService.getOneBook(orderItem.getBook().getId()))
-                                .qrCodes(qrCodes.stream().map(qrCode -> qrCode.getId().toString()).toList())
+                                .qrCodes(qrCodeRepository.findByOrderIdAndBookId(order.getId(), orderItem.getBook().getId()).stream()
+                                        .map(qrCode -> qrCode.getId().toString())
+                                        .toList())
                         .build())
                         .toList()
                 )
