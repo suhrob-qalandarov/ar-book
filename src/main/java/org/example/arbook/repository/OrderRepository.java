@@ -1,8 +1,10 @@
 package org.example.arbook.repository;
 
+import jakarta.transaction.Transactional;
 import org.example.arbook.model.entity.Order;
 import org.example.arbook.model.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -29,6 +31,21 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
       AND status = 'DECLINED'
     """, nativeQuery = true)
     boolean isDeclined(@Param("orderId") UUID orderId);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+    WITH updated AS (
+        UPDATE orders
+        SET background_image_id = :imageId
+        WHERE id = :orderId
+          AND status = 'ACCEPTED'
+        RETURNING *
+    )
+    SELECT * FROM updated
+    """, nativeQuery = true)
+    Order setOrUpdateBackgroundImage(@Param("orderId") UUID orderId,
+                                     @Param("imageId") UUID imageId);
 
     @Query(value = """
         WITH updated AS (

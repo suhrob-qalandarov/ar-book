@@ -31,5 +31,5 @@ public interface OrderService {
 
     AcceptedOrderRes unblockOrder(UUID orderId);
 
-    AcceptedOrderRes setImageToAcceptedOrder(UUID orderId, UUID imageId);
+    AcceptedOrderRes setOrUpdateImage(UUID orderId, UUID imageId);
 }

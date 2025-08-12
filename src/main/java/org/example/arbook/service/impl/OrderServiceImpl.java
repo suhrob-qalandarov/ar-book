@@ -105,16 +105,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public AcceptedOrderRes setImageToAcceptedOrder(UUID orderId, UUID imageId) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
-        if(!order.getStatus().equals(OrderStatus.ACCEPTED)) throw new RuntimeException("Cannot set image to order, it's " + order.getStatus().name());
-
-        Attachment attachment = attachmentService.getAttachment(imageId);
-        order.setBackgroundImage(attachment);
-
-        Order saved = orderRepository.save(order);
-
-        return convertToAcceptedOrderRes(saved);
+    public AcceptedOrderRes setOrUpdateImage(UUID orderId, UUID imageId) {
+        Order updated = orderRepository.setOrUpdateBackgroundImage(orderId, imageId);
+        if (updated == null) {
+            throw new RuntimeException("Order not found or not ACCEPTED: " + orderId);
+        }
+        return convertToAcceptedOrderRes(updated);
     }
 
     @Transactional
