@@ -22,23 +22,11 @@ public class AdminOrderController {
 
     private final OrderService orderService;
 
-    /*@GetMapping("/{orderId}")
-    public ResponseEntity<OrderRes> getOrderRes(@PathVariable UUID orderId) {
-        OrderRes order = orderService.getOrderRes(orderId);
-        return new ResponseEntity<>(order, HttpStatus.OK);
-    }*/
-
     @GetMapping("/{orderId}")
     public ResponseEntity<AcceptedOrderRes> getAcceptedOrderRes(@PathVariable UUID orderId) {
         AcceptedOrderRes order = orderService.getAcceptedOrderRes(orderId);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
-
-    /*@GetMapping("/by-name/{orderName}")
-    public ResponseEntity<OrderRes> getOrderResByName(@PathVariable String orderName) {
-        OrderRes order = orderService.getOrderResByName(orderName);
-        return new ResponseEntity<>(order, HttpStatus.OK);
-    }*/
 
     @PutMapping("/accept/{orderId}")
     public ResponseEntity<AcceptedOrderRes> acceptOrder(@PathVariable UUID orderId) {

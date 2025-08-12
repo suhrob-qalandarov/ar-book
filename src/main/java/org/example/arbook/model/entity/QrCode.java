@@ -3,7 +3,6 @@ package org.example.arbook.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.example.arbook.model.base.Auditable;
 import org.example.arbook.model.base.BaseEntity;
 import org.example.arbook.model.enums.QrCodeStatus;
 

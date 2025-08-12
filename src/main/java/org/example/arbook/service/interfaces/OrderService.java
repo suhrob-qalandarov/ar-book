@@ -15,10 +15,6 @@ public interface OrderService {
 
     AdminOrderDashboardRes getOrders();
 
-    OrderRes getOrderRes(UUID orderId);
-
-    OrderRes getOrderResByName(String orderName);
-
     AcceptedOrderRes acceptOrderAndGetQrCodes(UUID orderId);
 
     OrderRes declineOrder(UUID orderId);

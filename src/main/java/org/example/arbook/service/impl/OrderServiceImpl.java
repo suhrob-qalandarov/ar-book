@@ -57,23 +57,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     @Override
-    public OrderRes getOrderRes(UUID orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow();
-        return convertToOrderRes(order);
-    }
-
-    @Transactional
-    @Override
     public AcceptedOrderRes getAcceptedOrderRes(UUID orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow();
         return convertToAcceptedOrderRes(order);
-    }
-
-    @Transactional
-    @Override
-    public OrderRes getOrderResByName(String orderName) {
-        Order order = orderRepository.findByName(orderName);
-        return convertToOrderRes(order);
     }
 
     @Override
@@ -240,7 +226,6 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public AcceptedOrderRes convertToAcceptedOrderRes(Order order) {
         User user = userRepository.findById(order.getUserId()).orElseThrow();
-        //List<QrCode> qrCodes = qrCodeRepository.findByOrderIdAndBookId(order.getId());
         return AcceptedOrderRes.builder()
                 .id(order.getId())
                 .name(order.getName())
