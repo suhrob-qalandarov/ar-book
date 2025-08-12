@@ -240,7 +240,7 @@ public class OrderServiceImpl implements OrderService {
                 .id(order.getId())
                 .name(order.getName())
                 .status(order.getStatus().name())
-                .attachmentId(order.getBackgroundImage().getId())
+                .attachmentId(order.getBackgroundImage() != null ? order.getBackgroundImage().getId() : null)
                 .userRes(UserRes.builder()
                         .id(user.getId())
                         .firstName(user.getFirstName())
