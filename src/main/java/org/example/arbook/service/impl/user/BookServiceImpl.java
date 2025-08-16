@@ -52,7 +52,11 @@ public class BookServiceImpl implements BookService {
             throw new QrCodeException("QrCode Code is Blocked with UUID: " + qrCodeUUID);
         if (qrCode.getUserId() != null && !qrCode.getUserId().equals(user.getId()))
             throw new QrCodeException("QrCode is being used by User with ID: " + qrCode.getUserId());
-        if (qrCode.getUserId() == null) qrCode.setUserId(user.getId());
+        if (qrCode.getUserId() == null) {
+            qrCode.setUserId(user.getId());
+            qrCode.setStatus(QrCodeStatus.ACTIVE);
+        }
+
         Book book = bookRepository.findById(qrCode.getBookId()).orElseThrow(() ->
                 new BookNotFoundException("Qr Code Book not Found with ID : " + qrCode.getBookId()));
         return bookMapper.toUserBookResponse(book);
