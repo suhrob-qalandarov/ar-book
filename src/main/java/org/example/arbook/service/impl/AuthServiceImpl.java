@@ -198,6 +198,8 @@ public class AuthServiceImpl implements AuthService {
                 .map(QrCode::getId)
                 .toList();
 
+        System.out.println(qrCodeUUIDs);
+
         return new UserRes(
                 user.getId(),
                 user.getFirstName(),
