@@ -25,17 +25,17 @@ jobs:
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
           port: 22
           source: "Dockerfile, docker-compose.yml, target/ar-book-0.0.1-SNAPSHOT.jar"
           target: "/tmp/ar-book-deployment"
 
-      - name: Login to Server via SSH
+      - name: Login to Server via SSH Password
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
           port: 22
           timeout: 30s
           command_timeout: 10m
