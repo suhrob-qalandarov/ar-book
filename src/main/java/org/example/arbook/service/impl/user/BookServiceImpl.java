@@ -47,7 +47,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public UserBookRes getUserBookByQrCodeUUID(User user, UUID qrCodeUUID) {
-        QrCode qrCode = qrCodeRepository.findById(qrCodeUUID).orElseThrow(() ->  new QrCodeException("QrCode not found with UUID: " + qrCodeUUID));
+        QrCode qrCode = qrCodeRepository.findById(qrCodeUUID).orElseThrow(() -> new QrCodeException("QrCode not found with UUID: " + qrCodeUUID));
         if (qrCode.getStatus().equals(QrCodeStatus.BLOCKED))
             throw new QrCodeException("QrCode Code is Blocked with UUID: " + qrCodeUUID);
         if (qrCode.getUserId() != null && !qrCode.getUserId().equals(user.getId()))
@@ -60,6 +60,19 @@ public class BookServiceImpl implements BookService {
         Book book = bookRepository.findById(qrCode.getBookId()).orElseThrow(() ->
                 new BookNotFoundException("Qr Code Book not Found with ID : " + qrCode.getBookId()));
         return bookMapper.toUserBookResponse(book);
+    }
+
+    @Transactional
+    @Override
+    public List<UserBookRes> getAllUserBooks(User user) {
+
+        List<QrCode> qrCodes = qrCodeRepository.findAllByUserIdAndIsActiveTrueAndStatus(user.getId(), QrCodeStatus.ACTIVE);
+        List<UUID> bookIds = qrCodes.stream()
+                .map(QrCode::getBookId)
+                .toList();
+        List<Book> books = bookRepository.findAllByIdIn(bookIds);
+
+        return bookMapper.toUserBookResponseList(books);
     }
 
 
