@@ -62,13 +62,16 @@ public class OrderServiceImpl implements OrderService {
         return convertToAcceptedOrderRes(order);
     }
 
+    @Transactional
     @Override
     public AcceptedOrderRes acceptOrderAndGetQrCodes(UUID orderId) {
-        Order order = orderRepository.acceptAndReturn(orderId);
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
 
         if (order.getStatus().equals(OrderStatus.ACCEPTED)) {
             throw new RuntimeException("Cannot accepted, order: " + orderId + " already accepted");
         }
+
+        order = orderRepository.acceptAndReturn(orderId);
 
         List<AcceptedOrderItemRes> acceptedOrderItemRes = new ArrayList<>();
 
