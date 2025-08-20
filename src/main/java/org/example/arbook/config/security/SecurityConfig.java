@@ -41,15 +41,7 @@ public class SecurityConfig {
                                         "/admin/orders.html/**"
 
                                 ).permitAll()
-                                .requestMatchers(
-                                        "/"
-                                        , "/index.html/**"
-                                        , "/auth/home2.html"
-                                        , "/auth/register.html"
-                                        , "/auth/login.html"
-                                        , "/auth/verifyPhone.html"
-                                ).permitAll()
-//                                .requestMatchers("/favicon.ico", "/error").permitAll()
+
                                 .requestMatchers(
                                         "/swagger-ui.html",
                                         "/swagger-ui/**",
