@@ -67,8 +67,8 @@ jobs:
             cd /home/${{ secrets.SSH_USER }}/ar-book || exit 1
 
             # JAR faylni tekshirish
-            if [ ! -f ar-book-0.0.1-SNAPSHOT.jar ]; then
-              echo "Xato: ar-book-0.0.1-SNAPSHOT.jar fayli /home/${{ secrets.SSH_USER }}/ar-book jildida topilmadi"
+            if [ ! -f target/ar-book-0.0.1-SNAPSHOT.jar ]; then
+              echo "Xato: target/ar-book-0.0.1-SNAPSHOT.jar fayli /home/${{ secrets.SSH_USER }}/ar-book/target jildida topilmadi"
               exit 1
             fi
 
