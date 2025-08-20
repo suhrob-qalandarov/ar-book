@@ -23,6 +23,10 @@ public class JwtService {
 
     @Value("${jwt.expiration}")
     private Integer expirationTimeInMills;
+
+    @Value("${jwt.secret.key}")
+    private String jwtSecretKey;
+
     private final UserRepository userRepository;
 
     public JwtService(UserRepository userRepository) {
@@ -30,7 +34,7 @@ public class JwtService {
     }
 
     public SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor("s9UqY3KdPbZT7vOXLEmRcfWHN20J1xB8gMQdVSAi".getBytes());
+        return Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
     }
 
     public String generateToken(String phoneNumber) {
