@@ -14,6 +14,8 @@ services:
       - S3_SECRET_KEY=${S3_SECRET_KEY}
       - JWT_EXPIRATION=${JWT_EXPIRATION}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - TOMCAT_MAX_THREADS=${TOMCAT_MAX_THREADS}
+      - TOMCAT_MIN_THREADS=${TOMCAT_MIN_THREADS}
     depends_on:
       - postgres
     restart: unless-stopped
