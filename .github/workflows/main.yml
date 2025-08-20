@@ -83,6 +83,8 @@ jobs:
             S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}
             JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+            TOMCAT_MAX_THREADS=${{ vars.TOMCAT_MAX_THREADS }}
+            TOMCAT_MIN_THREADS=${{ vars.TOMCAT_MIN_THREADS }}
             EOF
 
             # Docker-compose ni to‘xtatish va eski resurslarni o‘chirish
