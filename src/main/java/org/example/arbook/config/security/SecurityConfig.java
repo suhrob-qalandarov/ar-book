@@ -101,6 +101,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "https://arbook.uz",
                 "https://api.arbook.uz",
+                "https://http://144.91.90.34",
+                "https://http://144.91.90.34:8080",
                 "http://localhost:3000",
                 "http://10.30.12.10:3000",
                 "http://192.168.100.10:3000",
