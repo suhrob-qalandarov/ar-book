@@ -53,5 +53,13 @@ public class BookController {
         return ResponseEntity.ok(userBookRes);
     }
 
+     @GetMapping(USER)
+    public ResponseEntity<List<UserBookRes>> getAllUsersBooks(@AuthenticationPrincipal User user) {
+        List<UserBookRes> userBookResList = bookService.getAllUserBooks(user);
+        return ResponseEntity.ok(userBookResList);
+    }
+
+
+
 
 }

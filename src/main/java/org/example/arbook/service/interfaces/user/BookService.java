@@ -13,4 +13,6 @@ public interface BookService {
     List<BookRes> getActiveOnSaleBooksByCategoryId(UUID categoryId);
 
     UserBookRes getUserBookByQrCodeUUID(User user, UUID qrCodeUUID);
+
+    List<UserBookRes> getAllUserBooks(User user);
 }

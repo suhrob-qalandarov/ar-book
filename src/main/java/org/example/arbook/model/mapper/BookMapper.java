@@ -42,6 +42,8 @@ public interface BookMapper {
     @Mapping(source ="attachment.fileUrl",target = "attachmentUrl")
     UserBookRes toUserBookResponse(Book book);
 
+    List<UserBookRes> toUserBookResponseList(List<Book> books);
+
 
     List<EntireBookRes> toEntireBookResponseList(List<Book> books);
 

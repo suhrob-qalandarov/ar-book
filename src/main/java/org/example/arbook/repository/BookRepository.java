@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface BookRepository extends JpaRepository<Book, UUID> {
-  List<Book> findByIsActiveTrueAndStatus(BookStatus status);
+    List<Book> findByIsActiveTrueAndStatus(BookStatus status);
 
-  List<Book> findByIsActiveTrueAndStatusAndCategoryId(BookStatus status, UUID categoryId);
+    List<Book> findByIsActiveTrueAndStatusAndCategoryId(BookStatus status, UUID categoryId);
 
     boolean existsBookByIdIs(UUID id);
+
+    List<Book> findAllByIdIn(List<UUID> ids);
 }
