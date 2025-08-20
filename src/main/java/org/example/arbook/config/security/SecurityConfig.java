@@ -34,9 +34,6 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults());
         http.authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("http://localhost:3000/",
-                                        "http://localhost:3000/**")
-                                .permitAll()
                                 .requestMatchers(
                                         "/admin/main-page.html",
                                         "/admin/book-page.html",
