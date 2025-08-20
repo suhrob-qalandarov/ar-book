@@ -9,37 +9,37 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Kodni olish
         uses: actions/checkout@v3
 
-      - name: Set up JDK 21
+      - name: JDK 21 ni sozlash
         uses: actions/setup-java@v3
         with:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Build with Maven
+      - name: Maven bilan build qilish
         run: mvn clean package -DskipTests
 
-      - name: Verify Maven build output
+      - name: JAR faylni tekshirish
         run: |
           ls -la target/
           if [ ! -f target/ar-book-0.0.1-SNAPSHOT.jar ]; then
-            echo "Error: ar-book-0.0.1-SNAPSHOT.jar not found in target directory"
+            echo "Xato: target/ar-book-0.0.1-SNAPSHOT.jar fayli topilmadi"
             exit 1
           fi
 
-      - name: Copy files to server
+      - name: Fayllarni serverga ko‘chirish
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 22
-          source: "Dockerfile,docker-compose.yml,pom.xml,src/**,target/ar-book-0.0.1-SNAPSHOT.jar"
+          source: "Dockerfile,docker-compose.yml,target/ar-book-0.0.1-SNAPSHOT.jar"
           target: "/tmp/ar-book-deployment"
 
-      - name: Login to Server via SSH Password
+      - name: Serverga SSH orqali kirish va deploy qilish
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -49,23 +49,30 @@ jobs:
           timeout: 30s
           command_timeout: 10m
           script: |
-            # Ensure target directory exists
+            # Maqsadli jildni yaratish
             mkdir -p /home/${{ secrets.SSH_USER }}/ar-book || exit 1
 
-            # Remove all old files to avoid overwrite errors
-            rm -rf /home/${{ secrets.SSH_USER }}/ar-book/* || exit 1
-
-            # Move new deployment files
-            mv /tmp/ar-book-deployment/* /home/${{ secrets.SSH_USER }}/ar-book/ || exit 1
-            cd /home/${{ secrets.SSH_USER }}/ar-book || exit 1
-
-            # Verify JAR file presence
-            if [ ! -f ar-book-0.0.1-SNAPSHOT.jar ]; then
-              echo "Error: ar-book-0.0.1-SNAPSHOT.jar not found in /home/${{ secrets.SSH_USER }}/ar-book"
+            # Debug: Ko‘chirilgan fayllarni ro‘yxatlash
+            ls -la /tmp/ar-book-deployment/
+            if [ ! -f /tmp/ar-book-deployment/target/ar-book-0.0.1-SNAPSHOT.jar ]; then
+              echo "Xato: /tmp/ar-book-deployment/target/ar-book-0.0.1-SNAPSHOT.jar fayli topilmadi"
               exit 1
             fi
 
-            # Create .env file from secrets
+            # Eski fayllarni o‘chirish
+            rm -rf /home/${{ secrets.SSH_USER }}/ar-book/* || exit 1
+
+            # Yangi fayllarni ko‘chirish
+            mv /tmp/ar-book-deployment/* /home/${{ secrets.SSH_USER }}/ar-book/ || exit 1
+            cd /home/${{ secrets.SSH_USER }}/ar-book || exit 1
+
+            # JAR faylni tekshirish
+            if [ ! -f ar-book-0.0.1-SNAPSHOT.jar ]; then
+              echo "Xato: ar-book-0.0.1-SNAPSHOT.jar fayli /home/${{ secrets.SSH_USER }}/ar-book jildida topilmadi"
+              exit 1
+            fi
+
+            # .env faylini yaratish
             cat <<EOF > .env
             DB_URL=${{ secrets.DB_URL }}
             DB_USER=${{ secrets.DB_USER }}
@@ -78,6 +85,7 @@ jobs:
             JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
             EOF
 
+            # Docker-compose ni to‘xtatish va eski resurslarni o‘chirish
             docker-compose down --remove-orphans || exit 1
             docker image prune -f || exit 1
             docker-compose build || exit 1
