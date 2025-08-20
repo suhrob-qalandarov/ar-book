@@ -81,15 +81,12 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(registerReq.lastName())
                 .phoneNumber(registerReq.phoneNumber())
                 .verificationCode(verificationCode)
-                .password("1")
                 .roles(roleUser)
                 .isActive(false)
                 .build();
 
         // Save user
-        User saved = userRepository.save(user);
-        saved.setPassword(passwordEncoder.encode(saved.getId().toString()));
-
+        userRepository.save(user);
         return verificationCode;
     }
 
@@ -124,9 +121,8 @@ public class AuthServiceImpl implements AuthService {
 
         validateVerificationCode(codeVerificationReq, user);
 
-        authenticateUser(user);
-
-        //generateTokenAndSetToCookie(user.getPhoneNumber(), response);
+        var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         String token = jwtService.generateToken(codeVerificationReq.phoneNumber());
 

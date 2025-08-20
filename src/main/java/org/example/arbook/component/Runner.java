@@ -10,7 +10,6 @@ import org.example.arbook.repository.LanguageRepository;
 import org.example.arbook.repository.RoleRepository;
 import org.example.arbook.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +23,6 @@ public class Runner implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final LanguageRepository languageRepository;
 
     @Transactional
@@ -41,12 +39,10 @@ public class Runner implements CommandLineRunner {
                         .firstName("Nick")
                         .lastName("Holden")
                         .phoneNumber("+998901234567")
-                        .password(passwordEncoder.encode("1"))
                         .isActive(true)
                         .roles(roles)
                         .build();
-                User savedUser = userRepository.save(user);
-                savedUser.setPassword(passwordEncoder.encode(user.getId().toString()));
+                userRepository.save(user);
             }
         }
 
