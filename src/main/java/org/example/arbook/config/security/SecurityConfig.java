@@ -86,6 +86,7 @@ public class SecurityConfig {
         // ✅ Allow only your trusted frontend origins (NO slash)
         configuration.setAllowedOrigins(List.of(
                 "https://arbook.uz",
+                "https://www.arbook.uz",
                 "https://api.arbook.uz",
                 "http://144.91.90.34",
                 "https://144.91.90.34",
