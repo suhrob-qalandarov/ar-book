@@ -32,7 +32,6 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     """, nativeQuery = true)
     boolean isDeclined(@Param("orderId") UUID orderId);
 
-    @Modifying
     @Transactional
     @Query(value = """
     WITH updated AS (
