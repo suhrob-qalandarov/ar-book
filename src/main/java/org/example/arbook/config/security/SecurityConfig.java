@@ -35,25 +35,19 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers(
-                                        "/admin/main-page.html",
-                                        "/admin/book-page.html",
-                                        "/admin/book-page.html/**",
-                                        "/admin/orders.html/**"
-
-                                ).permitAll()
-
-                                .requestMatchers(
                                         "/swagger-ui.html",
                                         "/swagger-ui/**",
-                                        "/v3/api-docs/**").permitAll()
-                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers(API + V1 + AUTH + LOGIN).permitAll()
-                                .requestMatchers(API + V1 + AUTH + LOGIN+VERIFY).permitAll()
-                                .requestMatchers(API + V1 + AUTH + LOGOUT).authenticated()
-                                .requestMatchers(API + V1 + AUTH + REGISTER).permitAll()
-                                .requestMatchers(API + V1 + AUTH + VERIFY).permitAll()
+                                        "/v3/api-docs/**"
+                                ).permitAll()
 
-                                .requestMatchers(API + V1 + ATTACHMENT).permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                                .requestMatchers(
+                                        API + V1 + AUTH + LOGIN,
+                                        API + V1 + AUTH + REGISTER,
+                                        API + V1 + AUTH + VERIFY
+                                ).permitAll()
+
                                 .requestMatchers(API + V1 + ATTACHMENT + "/**").permitAll()
 
                                 .requestMatchers(API + V1 + CATEGORY).permitAll()
@@ -93,8 +87,9 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "https://arbook.uz",
                 "https://api.arbook.uz",
-                "https://http://144.91.90.34",
-                "https://http://144.91.90.34:8080",
+                "http://144.91.90.34",
+                "https://144.91.90.34",
+                "https://144.91.90.34:8080",
                 "http://localhost:3000",
                 "http://10.30.12.10:3000",
                 "http://192.168.100.10:3000",
